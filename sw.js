@@ -1,5 +1,5 @@
 // Pocket Sudoku offline support. The version changes whenever the app files change.
-const VERSION = 'pocket-sudoku-651781ef66';
+const VERSION = 'pocket-sudoku-1.01-26942a35';
 const ASSETS = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "fonts/figtree-400.woff2", "fonts/figtree-500.woff2", "fonts/figtree-600.woff2", "fonts/figtree-700.woff2", "fonts/instrument-serif-400.woff2"];
 
 self.addEventListener('install', event => {

@@ -71,35 +71,62 @@ body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;
 button{font-family:inherit;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+.icon-btn{width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer;padding:0}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn.sm{width:30px;height:30px;border-radius:8px}
+.icon-btn.sm svg{width:16px;height:16px}
+.icon-btn:disabled{opacity:.4;cursor:default}
+.mark{margin:0;display:flex;flex-direction:column;gap:2px;font-family:var(--display);font-weight:400;font-size:34px;line-height:.95;letter-spacing:-.01em}
+.mark small{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);line-height:1}
+
+/* Home screen */
+.home{min-height:100%;display:flex;justify-content:center;padding-inline:16px;padding-block:28px 20px}
+.home-in{width:min(100%,520px);display:flex;flex-direction:column;gap:24px}
+.home-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.home-mark{font-size:64px;gap:6px}
+.home-mark small{font-size:12px}
+.glyph{width:64px;height:64px;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;border-radius:10px;background:var(--box)}
+.glyph i{background:var(--surface);border-radius:2px}
+.glyph i.c{background:var(--accent)}
+.home-sec{display:flex;flex-direction:column;gap:10px}
+.home .diff{padding:14px 14px 12px;background:var(--surface)}
+.home .diff b{font-size:17px}
+.home .diffs[aria-busy="true"]{opacity:.5;pointer-events:none}
+.resume{width:100%;display:flex;flex-direction:column;gap:10px;padding:18px;border:0;border-radius:16px;background:var(--ink);color:var(--bg);text-align:left;cursor:pointer}
+.resume .r-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.resume .r-eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.7}
+.resume b{font-family:var(--display);font-weight:400;font-size:34px;line-height:1}
+.resume .r-meta{font-size:13px;opacity:.75;font-variant-numeric:tabular-nums}
+.resume .r-go{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--bg);color:var(--ink)}
+.resume .r-go svg{width:20px;height:20px}
+.resume .r-bar{height:4px;border-radius:2px;background:color-mix(in srgb,var(--bg) 22%,transparent);overflow:hidden}
+.resume .r-bar i{display:block;height:100%;border-radius:2px;background:var(--bg)}
+.stats-card{width:100%;display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer}
+.stats-card .sc-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stats-card .sc-top svg{width:18px;height:18px;color:var(--muted)}
+.stats-card .sc-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats-card .sc-nums > span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stats-card .sc-nums b{font-family:var(--display);font-weight:400;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.stats-card .sc-nums small{font-size:12px;color:var(--muted)}
+.version{margin:auto 0 0;padding-top:8px;text-align:center;font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:flex;padding:16px;background:var(--veil);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.btn-col{display:flex;flex-direction:column;gap:8px}
+
+/* Play screen */
 .app{
-  --w:min(100%, 640px, max(264px, calc(100svh - 312px)));
+  --w:min(100%, 640px, max(264px, calc(100svh - 270px)));
   display:flex;flex-direction:column;align-items:center;gap:12px;
   padding-inline:16px;padding-block:10px 20px;min-height:100%;
 }
 .app > *{width:var(--w)}
 .controls{display:flex;flex-direction:column;gap:12px}
-
-/* Header */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.mark{margin:0;display:flex;flex-direction:column;gap:2px;font-family:var(--display);font-weight:400;font-size:34px;line-height:.95;letter-spacing:-.01em}
-.mark small{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);line-height:1}
-.top-actions{display:flex;align-items:center;gap:8px}
-.icon-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer;padding:0}
-.icon-btn svg{width:20px;height:20px}
-.icon-btn.sm{width:30px;height:30px;border-radius:8px}
-.icon-btn.sm svg{width:16px;height:16px}
-.icon-btn:disabled{opacity:.4;cursor:default}
-.pill{height:40px;padding:0 16px;border:0;border-radius:999px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;cursor:pointer}
-
-/* Status line */
-.status{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:30px;font-size:13px;color:var(--muted)}
-.diff-label{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
-.diff-label.none{color:var(--faint)}
-.mistakes{justify-self:center;display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.topbar{display:flex;align-items:center;gap:12px;min-height:40px;font-size:13px;color:var(--muted)}
+.diff-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.mistakes{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
 .dots{display:flex;gap:4px}
 .dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--faint)}
 .dots i.on{background:var(--error);border-color:var(--error)}
-.clock{justify-self:end;display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.clock{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 
 /* Board: 9×9 uses 3×3 boxes, Fast 6×6 uses boxes 2 rows tall and 3 columns wide */
 .board-wrap{position:relative}
@@ -194,14 +221,13 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 /* Landscape tablets: board on the left, controls on the right */
 @media (min-width:900px) and (orientation:landscape) and (min-height:560px){
   .app{
-    --b:min(calc(100svh - 150px), calc(100vw - 470px), 760px);
+    --b:min(calc(100svh - 110px), calc(100vw - 470px), 760px);
     display:grid;grid-template-columns:var(--b) 380px;
-    grid-template-areas:"top top" "status ." "board controls";
+    grid-template-areas:"bar ." "board controls";
     column-gap:40px;row-gap:12px;justify-content:center;align-content:center;
   }
   .app > *{width:auto}
-  .top{grid-area:top}
-  .status{grid-area:status}
+  .topbar{grid-area:bar}
   .board-wrap{grid-area:board}
   .controls{grid-area:controls;align-self:center;gap:20px}
   .pad{grid-template-columns:repeat(3,1fr);gap:8px}
@@ -290,19 +316,29 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 </style>
 </head>
 <body>
-<div class="app" id="app">
-  <header class="top">
-    <h1 class="mark"><small>Pocket</small>Sudoku</h1>
-    <div class="top-actions">
-      <button class="icon-btn" id="statsBtn" type="button" aria-label="Statistics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6.5 20v-6M12 20V5M17.5 20v-10"/></svg>
-      </button>
-      <button class="pill" id="newBtn" type="button">New game</button>
-    </div>
-  </header>
+<main class="home" id="home">
+  <div class="home-in">
+    <header class="home-head">
+      <h1 class="mark home-mark"><small>Pocket</small>Sudoku</h1>
+      <span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="c"></i><i></i><i></i><i></i><i></i></span>
+    </header>
+    <div id="homeResume"></div>
+    <section class="home-sec" aria-labelledby="newGameTitle">
+      <span class="eyebrow" id="newGameTitle">New game</span>
+      <div id="homeDiffs"></div>
+    </section>
+    <div id="homeStats"></div>
+    <p class="version" id="version"></p>
+  </div>
+  <div class="sheet-wrap" id="homeSheet" hidden></div>
+</main>
 
-  <div class="status" aria-live="polite">
-    <span class="diff-label none" id="diffLabel">No game</span>
+<div class="app" id="app" hidden>
+  <div class="topbar" aria-live="polite">
+    <button class="icon-btn" id="homeBtn" type="button" data-action="home" aria-label="Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10h12V9"/><path d="M10 19v-5h4v5"/></svg>
+    </button>
+    <span class="diff-label" id="diffLabel"></span>
     <span class="mistakes" id="mistakes"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="mistakeText">0/3</span></span>
     <span class="clock">
       <span id="timer">0:00</span>
@@ -563,6 +599,7 @@ function makeGen(){
 (function(){
 'use strict';
 
+const APP_VERSION='1.01';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',fast:'Fast'};
@@ -910,13 +947,13 @@ function brainHTML(per){
 }
 
 /* ---------- State ---------- */
-const S={status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:'boot',loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all'};
+const S={view:'home',homeSheet:null,status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:null,loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all'};
 let runSince=0, histVer=0, lastSheetKey='';
 const fx=new Map();
 
 function elapsedMs(){return S.game?S.game.elapsed+(runSince?performance.now()-runSince:0):0;}
 function syncClock(){
-  const run=S.status==='playing'&&!S.sheet&&!S.statsOpen&&!document.hidden;
+  const run=S.view==='play'&&S.status==='playing'&&!S.sheet&&!S.statsOpen&&!document.hidden;
   if(run&&!runSince)runSince=performance.now();
   if(!run&&runSince){S.game.elapsed+=performance.now()-runSince;runSince=0;}
 }
@@ -938,7 +975,7 @@ function saveBody(){
     undo:S.undo.slice(-60),notesMode:S.notesMode,selected:S.selected,savedAt:Date.now()
   };
 }
-function canPlay(){return !!(S.game&&S.status==='playing'&&!S.sheet&&!S.statsOpen);}
+function canPlay(){return !!(S.view==='play'&&S.game&&S.status==='playing'&&!S.sheet&&!S.statsOpen);}
 
 function ensureLog(g){
   const N=g.n*g.n;
@@ -971,6 +1008,7 @@ function restore(data){
   S.undo=Array.isArray(data.undo)?data.undo.filter(okUndo):[];
   S.revealed=!!data.revealed;S.lastResult=data.lastResult||null;
   runSince=0;
+  S.view=data.view==='play'?'play':'home';
   if(status==='playing')S.sheet='paused';
   else S.sheet=(data.sheet==='won'||data.sheet==='lost')?data.sheet:null;
   return true;
@@ -1020,6 +1058,10 @@ function addFx(list,cls,ms){
 function render(){
   syncClock();
   const g=S.game;
+  const homeEl=$('home'),appEl=$('app');
+  if(homeEl.hidden!==(S.view!=='home'))homeEl.hidden=S.view!=='home';
+  if(appEl.hidden!==(S.view!=='play'))appEl.hidden=S.view!=='play';
+  if(S.view==='home')renderHome();
   buildBoard(g?g.n:9);
   if(!canPlay())dropAwake();
   const sel=S.selected, now=performance.now(), n=Q.n;
@@ -1054,7 +1096,7 @@ function render(){
     }
     el.setAttribute('aria-label',`Row ${Q.R[i]+1}, column ${Q.C[i]+1}: ${shown||'empty'}${wrong?', incorrect':''}`);
   }
-  board.classList.toggle('veiled',['paused','confirm','loading','boot'].includes(S.sheet));
+  board.classList.toggle('veiled',S.sheet==='paused'||S.sheet==='loading');
 
   const playing=canPlay();
   for(let d=1;d<=n;d++){
@@ -1112,27 +1154,76 @@ function renderOverlay(){
   let html='';
   const g=S.game, r=S.lastResult;
   const spinner=`<div class="spin" aria-hidden="true">${[0,1,2,5,8,7,6,3,4].map(x=>`<i style="--k:${x}"></i>`).join('')}</div>`;
-  if(k==='boot'){
-    html=`<div class="card loading">${spinner}<p>Opening your game</p></div>`;
-  }else if(k==='start'){
-    html=`<div class="card"><div class="lede"><h2>New game</h2><p>Pick a difficulty. Three wrong numbers ends the game.</p></div>${diffButtons()}</div>`;
-  }else if(k==='confirm'){
-    html=`<div class="card"><div class="lede"><h2>Start a new game?</h2><p>The puzzle you're on will be recorded as a loss.</p></div>${diffButtons()}<button type="button" class="link" data-action="keep">Keep playing</button></div>`;
-  }else if(k==='loading'){
+  const homeBtn='<button type="button" class="btn" data-action="home">Home</button>';
+  if(k==='loading'){
     html=`<div class="card loading">${spinner}<p>Building a ${nameOf(S.loadingDiff)} puzzle with exactly one solution</p></div>`;
   }else if(k==='paused'){
-    html=`<div class="card"><div class="lede"><h2>Paused</h2><p>${g?nameOf(g.difficulty):''} · ${fmt(elapsedMs()/1000)} on the clock</p></div><button type="button" class="btn primary" data-action="resume">Continue</button></div>`;
+    html=`<div class="card"><div class="lede"><h2>Paused</h2><p>${g?nameOf(g.difficulty):''} · ${fmt(elapsedMs()/1000)} on the clock</p></div><div class="btn-col"><button type="button" class="btn primary" data-action="resume">Continue</button>${homeBtn}</div></div>`;
   }else if(k==='won'&&r){
     const best=r.newBest?'<span class="chip">New best</span>':'';
     const mist=r.mistakes?plural(r.mistakes,'mistake'):'No mistakes';
     const hints=r.hints?` · ${plural(r.hints,'hint')}`:'';
     const auto=r.autoFilled?`<p>The last ${plural(r.autoFilled,'cell')} filled in for you.</p>`:'';
-    html=`<div class="card"><div class="lede"><h2>Solved in ${fmt(r.timeSec)}${best}</h2><p>${nameOf(r.difficulty)} · ${r.clues} clues · ${mist}${hints}</p>${auto}</div>${diffButtons()}<button type="button" class="link" data-action="view">View board</button></div>`;
+    html=`<div class="card"><div class="lede"><h2>Solved in ${fmt(r.timeSec)}${best}</h2><p>${nameOf(r.difficulty)} · ${r.clues} clues · ${mist}${hints}</p>${auto}</div><div class="btn-col"><button type="button" class="btn primary" data-action="again">Play another ${nameOf(r.difficulty)}</button>${homeBtn}</div><button type="button" class="link" data-action="view">View board</button></div>`;
   }else if(k==='lost'){
-    html=`<div class="card"><div class="lede"><h2>Out of mistakes</h2><p>That was the third wrong number, so this game counts as a loss.</p></div>${diffButtons()}<button type="button" class="link" data-action="reveal">Show the solution</button></div>`;
+    const d=g?g.difficulty:'easy';
+    html=`<div class="card"><div class="lede"><h2>Out of mistakes</h2><p>That was the third wrong number, so this game counts as a loss.</p></div><div class="btn-col"><button type="button" class="btn primary" data-action="again">Try another ${nameOf(d)}</button>${homeBtn}</div><button type="button" class="link" data-action="reveal">Show the solution</button></div>`;
   }
   overlay.innerHTML=html;
   overlay.hidden=false;
+}
+
+/* ---------- Home screen ---------- */
+const setHTML=(el,html)=>{if(el._html!==html){el._html=html;el.innerHTML=html;}};
+function renderHome(){
+  const g=S.game, playing=!!(g&&S.status==='playing');
+  let resume='';
+  if(playing){
+    const N=g.n*g.n;let right=0;
+    for(let i=0;i<N;i++)if(g.values[i]&&g.values[i]===g.solution[i])right++;
+    const left=N-right, pct=Math.round(right/N*100);
+    const mist=g.mistakes?` · ${plural(g.mistakes,'mistake')}`:'';
+    resume=`<button type="button" class="resume" data-action="continue">
+      <span class="r-top"><span class="r-eyebrow">Continue your game</span><span class="r-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></span></span>
+      <b>${nameOf(g.difficulty)}</b>
+      <span class="r-meta">${fmt(elapsedMs()/1000)} on the clock · ${plural(left,'cell')} left${mist}</span>
+      <span class="r-bar" aria-hidden="true"><i style="width:${pct}%"></i></span>
+    </button>`;
+  }
+  setHTML($('homeResume'),resume);
+  setHTML($('homeDiffs'),diffButtons().replace('<div class="diffs">',`<div class="diffs"${History.loaded?'':' aria-busy="true"'}>`));
+
+  const b=computeBrain('week'), st=computeStats('all',periodStart('week'));
+  setHTML($('homeStats'),`<button type="button" class="stats-card" data-action="open-stats">
+    <span class="sc-top"><span class="eyebrow">Your stats · this week</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+    <span class="sc-nums">
+      <span><b>${b.overall==null?'—':b.overall}</b><small>Brain activity</small></span>
+      <span><b>${st.rate==null?'—':Math.round(st.rate*100)+'%'}</b><small>Win rate</small></span>
+      <span><b>${st.played}</b><small>${st.played===1?'Game':'Games'}</small></span>
+    </span>
+  </button>`);
+
+  const sheet=$('homeSheet');
+  if(S.homeSheet&&playing){
+    setHTML(sheet,`<div class="card" role="dialog" aria-modal="true" aria-labelledby="hsTitle">
+      <div class="lede"><h2 id="hsTitle">Start a new ${nameOf(S.homeSheet.diff)} game?</h2><p>Your ${nameOf(g.difficulty)} game in progress will count as a loss.</p></div>
+      <div class="btn-col"><button type="button" class="btn primary" data-action="confirm-new">Start new game</button><button type="button" class="btn" data-action="cancel-new">Keep my current game</button></div>
+    </div>`);
+    sheet.hidden=false;
+  }else{S.homeSheet=null;sheet.hidden=true;}
+}
+function goHome(){
+  if(S.status==='loading')return;
+  if(S.status==='playing'&&S.game)History.save(record('playing'));
+  S.view='home';S.homeSheet=null;
+  render();
+  Saver.flush();
+  window.scrollTo(0,0);
+}
+function continueGame(){
+  if(!S.game||S.status!=='playing')return;
+  S.view='play';S.sheet=null;S.homeSheet=null;
+  render();nudgeAwake();
 }
 
 /* ---------- Statistics panel ---------- */
@@ -1416,10 +1507,11 @@ function lose(){
 async function startNew(diff){
   if(S.status==='loading'||!LABEL[diff])return;
   if(S.status==='playing'&&S.game){
-    S.sheet='confirm';syncClock();
+    syncClock();
     History.save(record('lost','abandoned'));
   }
   Saver.clear();
+  S.view='play';S.homeSheet=null;
   S.status='loading';S.sheet='loading';S.loadingDiff=diff;S.revealed=false;S.selected=-1;
   render();
   const t0=performance.now();
@@ -1441,7 +1533,7 @@ async function startNew(diff){
 
 function pauseForClose(){
   if(S.status==='playing'&&S.game){
-    if(!S.sheet||S.sheet==='confirm')S.sheet='paused';
+    if(S.view==='play'&&!S.sheet)S.sheet='paused';
     syncClock();
     History.save(record('playing'));
     Saver.flush();
@@ -1457,18 +1549,22 @@ function bind(){
   $('notesBtn').addEventListener('click',toggleNotes);
   $('autoBtn').addEventListener('click',autoNotes);
   $('hintBtn').addEventListener('click',hint);
-  $('statsBtn').addEventListener('click',openStats);
   $('pauseBtn').addEventListener('click',()=>{if(S.status==='playing'&&!S.sheet){S.sheet='paused';render();Saver.flush();}});
-  $('newBtn').addEventListener('click',()=>{
-    if(S.status==='loading'||S.sheet==='boot')return;
-    S.sheet=S.status==='playing'?'confirm':'start';
-    render();
-  });
   document.addEventListener('click',e=>{
     const a=e.target.closest('[data-action]');if(!a)return;
     const act=a.dataset.action;
-    if(act==='new')startNew(a.dataset.diff);
-    else if(act==='keep'||act==='resume'){S.sheet=null;render();nudgeAwake();}
+    if(act==='new'){
+      if(!History.loaded||S.status==='loading')return;
+      if(S.game&&S.status==='playing'){S.homeSheet={diff:a.dataset.diff};render();}
+      else startNew(a.dataset.diff);
+    }
+    else if(act==='confirm-new'){const d=S.homeSheet&&S.homeSheet.diff;S.homeSheet=null;if(d)startNew(d);}
+    else if(act==='cancel-new'){S.homeSheet=null;render();}
+    else if(act==='continue')continueGame();
+    else if(act==='home')goHome();
+    else if(act==='again'){if(S.game&&S.status!=='playing'&&S.status!=='loading')startNew(S.game.difficulty);}
+    else if(act==='open-stats')openStats();
+    else if(act==='resume'){S.sheet=null;render();nudgeAwake();}
     else if(act==='view'){S.sheet=null;render();}
     else if(act==='reveal'){S.revealed=true;S.sheet=null;S.selected=-1;render();}
     else if(act==='close-stats'){closeStats();nudgeAwake();}
@@ -1490,13 +1586,14 @@ function bind(){
     if(k>='1'&&k<='9'){input(+k);e.preventDefault();}
     else if(k==='Backspace'||k==='Delete'||k==='0'){erase();e.preventDefault();}
     else if(k==='n'||k==='N'){toggleNotes();}
-    else if(k.startsWith('Arrow')&&S.game&&!S.sheet){
+    else if(k.startsWith('Arrow')&&S.view==='play'&&S.game&&!S.sheet){
       const n=Q.n;
       let i=S.selected<0?((Q.N/2)|0):S.selected,r=Q.R[i],c=Q.C[i];
       if(k==='ArrowUp')r=(r+n-1)%n;if(k==='ArrowDown')r=(r+1)%n;if(k==='ArrowLeft')c=(c+n-1)%n;if(k==='ArrowRight')c=(c+1)%n;
       select(r*n+c);cells[r*n+c].focus({preventScroll:true});e.preventDefault();
     }
-    else if(k==='Escape'&&(S.sheet==='paused'||S.sheet==='confirm')){S.sheet=null;render();}
+    else if(k==='Escape'&&S.homeSheet){S.homeSheet=null;render();}
+    else if(k==='Escape'&&S.view==='play'&&S.sheet==='paused'){S.sheet=null;render();}
   });
   // Closing or switching away pauses the game and saves it so it can be continued later.
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseForClose();render();});
@@ -1508,10 +1605,10 @@ function bind(){
 function snapshot(){
   const status=S.status==='loading'?'idle':S.status;
   return{
-    v:1,status,
+    v:1,status,view:S.view,
     game:S.game&&status!=='idle'?Object.assign({},S.game,{elapsed:elapsedMs()}):null,
     selected:S.selected,notesMode:S.notesMode,undo:S.undo,revealed:S.revealed,lastResult:S.lastResult,
-    sheet:S.sheet
+    sheet:S.sheet==='loading'?null:S.sheet
   };
 }
 let started=false;
@@ -1520,19 +1617,18 @@ function start(data){
   try{const p=localStorage.getItem(LS_PERIOD);if(PERIOD_NAME[p])S.period=p;}catch(e){}
   $('periodSeg').innerHTML=PERIODS.map(([id,l])=>`<button type="button" data-action="period" data-period="${id}" aria-pressed="false">${l}</button>`).join('');
   $('seg').innerHTML=[['all','All']].concat(DIFFS).map(([id,l])=>`<button type="button" data-action="tab" data-tab="${id}" aria-pressed="false">${l}</button>`).join('');
+  $('version').textContent='Version '+APP_VERSION;
   bind();
   let keep=null;
   if(data&&data.game&&restore(data)){if(S.status==='playing')keep=S.game.id;}
-  else S.sheet='boot';
   History.onChange=()=>{histVer++;render();};
   History.init(keep).then(()=>{
     const sv=History.saved;History.saved=null;
-    const idle=S.sheet==='boot'||(S.sheet==='start'&&!S.game);
-    if(idle){if(!(sv&&restore(sv)))S.sheet='start';}
-    else if(sv&&sv.game&&sv.game.id&&(!S.game||S.game.id!==sv.game.id))History.abandon(String(sv.game.id));
+    // The app opens on the home screen; a saved game shows up there as "Continue your game".
+    if(!S.game){if(sv)restore(sv);}
+    else if(sv&&sv.game&&sv.game.id&&S.game.id!==sv.game.id)History.abandon(String(sv.game.id));
     render();
   });
-  setTimeout(()=>{if(S.sheet==='boot'){S.sheet='start';render();}},5000);
   render();
 }
 const hot=window.claude&&window.claude.hot;

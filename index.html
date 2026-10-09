@@ -369,6 +369,20 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .btn.danger{background:var(--error);border-color:var(--error);color:var(--bg)}
 .btn.ghost-danger{align-self:flex-start;background:none;color:var(--error)}
 .confirm{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+
+/* V1.25: bigger, longer, see-through praise; roomier kids top bar */
+.cheer{max-width:calc(100% - 8px);width:max-content;white-space:normal;text-align:center;padding:10px 20px;font:700 21px/1.2 var(--ui);color:var(--ink);
+  background:color-mix(in srgb,var(--accent) 50%,transparent);border:1px solid color-mix(in srgb,var(--accent) 80%,transparent);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation-duration:2.1s}
+.cheer.deduce,.cheer.kid.name{background:color-mix(in srgb,var(--surface) 50%,transparent);color:var(--ink);border:2px solid var(--accent);font-size:22px}
+.cheer.done{background:color-mix(in srgb,var(--surface) 50%,transparent);color:var(--ink);border:1px solid var(--line)}
+.cheer.kid{font-size:24px;padding:12px 22px}
+.app.kids .topbar{min-height:58px}
+.app.kids .diff-label.kid{font-size:14px;line-height:1.3}
+.app.kids .tools{grid-template-columns:repeat(5,1fr)}
+.app.kids .tool.kid-only{display:flex}
+@media (prefers-reduced-motion: reduce){.cheer{animation-duration:2.1s}}
+.cheer.kid.name{font-size:24px}
 </style>
 </head>
 <body>
@@ -409,11 +423,6 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>
       </button>
     </span>
-    <button class="icon-btn sm kid-only" id="soundBtn" type="button" data-action="sound" aria-label="Sound on" aria-pressed="true">
-      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
-      <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 10 4 4M20 10l-4 4"/></svg>
-    </button>
-    <button class="skip kid-only" id="skipBtn" type="button" data-action="skip">Skip</button>
   </div>
 
   <div class="board-wrap">
@@ -443,6 +452,15 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v.2h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>
         Hint
         <span class="badge" id="hintBadge">3</span>
+      </button>
+      <button class="tool kid-only" id="soundBtn" type="button" data-action="sound" aria-label="Sound on" aria-pressed="true">
+        <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+        <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 10 4 4M20 10l-4 4"/></svg>
+        <span id="soundLabel">Sound</span>
+      </button>
+      <button class="tool kid-only" id="skipBtn" type="button" data-action="skip" aria-label="Skip to a new puzzle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6l8 6-8 6z"/><path d="M17 6v12"/></svg>
+        Skip
       </button>
     </div>
     <div class="pad n9" id="pad"></div>
@@ -721,8 +739,8 @@ function makeGen(){
     extreme:{n:9,min:22,max:26,floor:5,ceil:5,sym:false},
     fast:{n:6,min:12,asym:false,want:0,legacy:true},
     // Kids: only the easiest finds, with most of the board already filled in
-    kids9:{n:9,min:52,max:54,floor:1,ceil:1,sym:true},
-    kids6:{n:6,min:22,asym:false,want:0,legacy:true}
+    kids9:{n:9,min:61,max:63,floor:1,ceil:1,sym:true},
+    kids6:{n:6,min:26,asym:false,want:0,legacy:true}
   };
 
   // Remove clues while the solution stays unique and the puzzle stays within the level's technique ceiling.
@@ -768,7 +786,7 @@ function makeGen(){
 (function(){
 'use strict';
 
-const APP_VERSION='1.2';
+const APP_VERSION='1.25';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
@@ -776,7 +794,8 @@ const SIZE={easy:9,medium:9,hard:9,expert:9,extreme:9,fast:6,kids9:9,kids6:6};
 const isKid=d=>d==='kids9'||d==='kids6';
 // Kids levels are a sandbox: never recorded, and kept apart from a grown-up's game in progress.
 const KID_PRAISE=['Great job!','Super!','Well done!','You’re a star!','Awesome!','Fantastic!'];
-const KID_NAME_PRAISE=[n=>`Way to go, ${n}!`,n=>`${n}, you’re amazing!`,n=>`Brilliant, ${n}!`,n=>`Keep going, ${n}!`];
+const KID_NAME_PRAISE=[n=>`Way to go, ${n}!`,n=>`${n}, you’re amazing!`,n=>`Brilliant, ${n}!`,n=>`Keep going, ${n}!`,n=>`Super job, ${n}!`,n=>`${n} is on a roll!`,n=>`Nice one, ${n}!`];
+const KID_NOTE_MS=7000, CHEER_MS=2100;
 const LS_NAMES='pocket-sudoku.kids.names', LS_SOUND='pocket-sudoku.kids.sound';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PERIODS=[['day','Today'],['week','Week'],['month','Month'],['year','Year'],['all','All']];
@@ -1472,6 +1491,7 @@ function render(){
   if(kids){
     const on=soundOn(),sb=$('soundBtn');
     sb.setAttribute('aria-pressed',String(on));sb.setAttribute('aria-label',on?'Sound on':'Sound off');sb.classList.toggle('muted',!on);
+    $('soundLabel').textContent=on?'Sound':'Muted';
     $('skipBtn').disabled=S.status==='loading';
   }
   const m=g?g.mistakes:0;
@@ -1617,21 +1637,22 @@ function leaveKids(){
 }
 // Why is this number wrong? Points at the clashing number when there is one.
 function kidReason(i,d){
-  const g=S.game;
+  const g=S.game,name=S.kids&&S.kids.name;
+  const open=w=>name?`${w}, ${name}!`:`${w}!`;
   const hit=list=>list.find(c=>c!==i&&g.values[c]===d&&isRight(c));
   let c;
-  if((c=hit(Q.ROWS[Q.R[i]]))!=null)return{text:`There’s already a ${d} in this row.`,clash:c};
-  if((c=hit(Q.COLS[Q.C[i]]))!=null)return{text:`There’s already a ${d} in this column.`,clash:c};
-  if((c=hit(Q.BOXES[Q.B[i]]))!=null)return{text:`There’s already a ${d} in this box.`,clash:c};
-  return{text:`${d} doesn’t fit here. Try another number!`,clash:null};
+  if((c=hit(Q.ROWS[Q.R[i]]))!=null)return{text:`${open('Oops')} This row already has a ${d}, and each row can only have one ${d}.`,clash:c};
+  if((c=hit(Q.COLS[Q.C[i]]))!=null)return{text:`${open('Almost')} This column already has a ${d}. Every column needs each number just once.`,clash:c};
+  if((c=hit(Q.BOXES[Q.B[i]]))!=null)return{text:`${open('Nice try')} This box already has a ${d}. Each box holds 1 to ${Q.n} only once.`,clash:c};
+  return{text:`${open('Good try')} ${d} isn’t the answer here. Try another number!`,clash:null};
 }
 function kidLeft(){let k=0;for(let c=0;c<Q.N;c++)if(!isRight(c))k++;return k;}
-// Praise for the number just placed: milestones follow the board, the name comes up every 5th find.
+// Praise for the number just placed: milestones follow the board, the name comes up on 2 of every 5 finds.
 function kidPraise(){
   const g=S.game,name=S.kids.name,total=g.kidTotal,left=kidLeft(),filled=total-left;
   if(filled===Math.ceil(total/2))return[name?`Halfway there, ${name}!`:'Halfway there!','name'];
   if(left===3&&total>=8)return[name?`Just a few more, ${name}!`:'Just a few more!','name'];
-  if(name&&g.kidFound%5===0)return[pick(KID_NAME_PRAISE)(name),'name'];
+  if(name&&(g.kidFound%5===2||g.kidFound%5===4))return[pick(KID_NAME_PRAISE)(name),'name'];
   return[pick(KID_PRAISE),''];
 }
 function kidCheer(i,text,kind){
@@ -1641,11 +1662,8 @@ function kidCheer(i,text,kind){
   el.className='cheer kid '+(kind||'');
   el.textContent=text;
   el.setAttribute('role','status');
-  const wr=boardWrap.getBoundingClientRect(),cr=cells[i].getBoundingClientRect();
-  el.style.left=clamp(cr.left+cr.width/2-wr.left,70,wr.width-70)+'px';
-  el.style.top=Math.max(34,cr.top-wr.top+4)+'px';
-  boardWrap.appendChild(el);
-  setTimeout(()=>el.remove(),1400);
+  placeCheer(el,i);
+  setTimeout(()=>el.remove(),CHEER_MS+100);
 }
 const buzz=p=>{try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}};
 
@@ -1690,9 +1708,12 @@ function fireworks(){
   const cols=dark?['#FFD166','#86A2FF','#FF8FAB','#7AE7C7','#F4F1FF']:['#E9A400','#2A4FC4','#E0457B','#14A37F','#7B5CD6'];
   const rockets=[],sparks=[],run={raf:0,timers:[]};fwRun=run;
   const t0=performance.now();
-  for(let k=0;k<8;k++)run.timers.push(setTimeout(()=>rockets.push({x:W*(0.15+Math.random()*0.7),y:H+10,vx:(Math.random()-0.5)*1.2,vy:-(H*0.0155+Math.random()*H*0.004),ty:H*(0.16+Math.random()*0.32),col:pick(cols)}),k*420));
+  const rocket=(big,x)=>rockets.push({x:x!=null?x:W*(0.15+Math.random()*0.7),y:H+10,vx:(Math.random()-0.5)*1.2,vy:-(H*0.0155+Math.random()*H*0.004),ty:H*(big?0.2+Math.random()*0.12:0.16+Math.random()*0.32),col:pick(cols),big});
+  // 11 single bursts over about five seconds, then a finale of three big ones together
+  for(let k=0;k<11;k++)run.timers.push(setTimeout(()=>rocket(false),k*460));
+  run.timers.push(setTimeout(()=>{rocket(true,W*0.25);rocket(true,W*0.5);rocket(true,W*0.75);},11*460+250));
   function burst(r){
-    const n=56+((Math.random()*20)|0),sp=2.2+Math.random()*1.6;
+    const n=(r.big?96:56)+((Math.random()*20)|0),sp=(r.big?3.1:2.2)+Math.random()*1.6;
     for(let j=0;j<n;j++){const a=j/n*Math.PI*2+Math.random()*0.08,s=sp*(0.6+Math.random()*0.5);
       sparks.push({x:r.x,y:r.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,decay:0.011+Math.random()*0.008,col:Math.random()<0.8?r.col:pick(cols)});}
   }
@@ -1718,7 +1739,7 @@ function fireworks(){
       ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,Math.PI*2);ctx.fill();
     }
     ctx.globalAlpha=1;
-    if(now-t0>3600&&!rockets.length&&!sparks.length){stopFireworks();return;}
+    if(now-t0>6200&&!rockets.length&&!sparks.length){stopFireworks();return;}
     run.raf=requestAnimationFrame(frame);
   }
   run.raf=requestAnimationFrame(frame);
@@ -1903,19 +1924,26 @@ function insightOf(i,d){
   return hidden&&!naked?1:0;
 }
 let lastCheer=0;
+// Put a praise bubble just above a cell, kept fully inside the board.
+function placeCheer(el,i){
+  const wr=boardWrap.getBoundingClientRect(),cr=cells[i].getBoundingClientRect();
+  el.style.left='50%';el.style.top='50%';
+  boardWrap.appendChild(el);
+  const w=el.offsetWidth,h=el.offsetHeight;
+  el.style.left=clamp(cr.left+cr.width/2-wr.left,w/2+4,Math.max(w/2+4,wr.width-w/2-4))+'px';
+  el.style.top=Math.max(h+8,cr.top-wr.top+4)+'px';
+}
 function cheer(i,text,kind){
   const now=performance.now();
-  if(now-lastCheer<(kind==='streak'?900:2200))return;   // streak milestones may follow other words sooner
+  if(now-lastCheer<(kind==='streak'?900:1500))return;   // streak milestones may follow other words sooner
+  boardWrap.querySelectorAll('.cheer').forEach(x=>x.remove());
   lastCheer=now;
   const el=document.createElement('div');
   el.className='cheer '+(kind||'');
   el.textContent=text;
   el.setAttribute('role','status');
-  const wr=boardWrap.getBoundingClientRect(),cr=cells[i].getBoundingClientRect();
-  const x=clamp(cr.left+cr.width/2-wr.left,60,wr.width-60),y=Math.max(34,cr.top-wr.top+4);
-  el.style.left=x+'px';el.style.top=y+'px';
-  boardWrap.appendChild(el);
-  setTimeout(()=>el.remove(),1400);
+  placeCheer(el,i);
+  setTimeout(()=>el.remove(),CHEER_MS+100);
 }
 // Record a correct number in the timeline and pick the encouragement to show, if any.
 function credit(i,d){
@@ -1929,6 +1957,7 @@ function credit(i,d){
   L.run=(L.run>0&&t-L.runT<=150)?L.run+1:1;L.runT=t;
   if(pts===4)return['deduce',pick(CHEERS.deduce)];
   const r=L.run;
+  if(r===3)return['streak','Nice rhythm!'];
   if(r===5)return['streak','Great streak!'];
   if(r===10)return['streak','On fire!'];
   if(r===15)return['streak','Unstoppable!'];
@@ -1945,10 +1974,11 @@ function placeCorrect(i,d){
   const g=S.game, bit=1<<(d-1);
   g.values[i]=d;g.notes[i]=0;
   for(const p of Q.PEERS[i])g.notes[p]&=~bit;
-  const done=[];
-  for(const u of unitsOf(i))if(u.every(c=>g.values[c]===g.solution[c]))done.push(...u);
+  const done=[],names=[];
+  unitsOf(i).forEach((u,k)=>{if(u.every(c=>g.values[c]===g.solution[c])){done.push(...u);names.push(['Row done!','Column done!','Box complete!'][k]);}});
   addFx([i],'pop',240);
   if(done.length&&!isSolved())addFx(done.filter(c=>c!==i),'flash',1000);
+  return names;   // which of the cell's row, column and box this number completed
 }
 function digitDone(d){const g=S.game;let k=0;for(let i=0;i<Q.N;i++)if(g.values[i]===d&&g.solution[i]===d)k++;return k===Q.n;}
 // Finish automatically once only 2 numbers are incomplete, or every number has at most 1 spot left.
@@ -1985,10 +2015,13 @@ function input(d){
   pushUndo(changed);
   if(correct){
     const c=credit(i,d);
-    placeCorrect(i,d);
+    const units=placeCorrect(i,d);
     if(afterCorrect())return;
     render();
-    if(c)cheer(i,c[1],c[0]);
+    // deduction or streak first, then a finished row/column/box, then a needle find, then a finished number
+    if(c&&c[0]!=='needle')cheer(i,c[1],c[0]);
+    else if(units.length)cheer(i,units[0],'done');
+    else if(c)cheer(i,c[1],c[0]);
     else if(digitDone(d))cheer(i,`All ${d}s done!`,'done');
   }else{
     g.values[i]=d;g.notes[i]=0;g.mistakes++;
@@ -2017,13 +2050,13 @@ function kidInput(i,d,correct){
   }
   const why=kidReason(i,d);
   g.values[i]=d;g.notes[i]=0;
-  S.kidNote={text:why.text,until:Date.now()+5000};
+  S.kidNote={text:why.text,until:Date.now()+KID_NOTE_MS};
   addFx([i],'pop',240);
   if(why.clash!=null)addFx([why.clash],'clash',1600);
   buzz([30,60,30]);bonk();
   render();
-  setTimeout(()=>{if(S.game===g&&g.values[i]===d&&d!==g.solution[i]){g.values[i]=0;render();}},1400);
-  setTimeout(render,5050);
+  setTimeout(()=>{if(S.game===g&&g.values[i]===d&&d!==g.solution[i]){g.values[i]=0;render();}},1600);
+  setTimeout(render,KID_NOTE_MS+50);
 }
 function erase(){
   if(!canPlay())return;
@@ -2182,6 +2215,7 @@ async function startNew(diff){
   render();
   Saver.flush();
   nudgeAwake();
+  if(kid&&S.kids){const nm=S.kids.name;setTimeout(()=>{if(S.kids&&S.status==='playing'&&!S.sheet)kidCheer((Q.N/2)|0,nm?`Let’s go, ${nm}!`:'Let’s go!','name');},350);}
 }
 
 function pauseForClose(){

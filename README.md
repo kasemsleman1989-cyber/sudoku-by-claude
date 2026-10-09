@@ -2,7 +2,7 @@
 
 A clean Sudoku game you can install on Android phones and tablets.
 
-**Current version: 1.2**
+**Current version: 1.25**
 
 - A home screen to continue your game, start a new one, or open your stats
 - Easy, Medium, Hard, Expert and Extreme 9×9 puzzles built to standard difficulty, plus a quick Fast 6×6 mode, each with exactly one solution
@@ -21,6 +21,15 @@ A clean Sudoku game you can install on Android phones and tablets.
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 1.25
+- Kids levels about 30% easier: Kids 9×9 now has about 20 cells to fill (61 starting numbers), Kids 6×6 has 10 (26 starting numbers)
+- Praise words 50% bigger, on screen 50% longer, with a 50% see-through bubble and a soft blur behind it
+- More praise in the regular levels: words can come closer together, plus "Nice rhythm!" at 3 in a row and "Row done!", "Column done!", "Box complete!"
+- Kids hear their name more: "Let's go, name!" at the start and in 2 of every 5 praise words
+- Gentle named notes for kids' wrong numbers, for example "Oops, Sara! This row already has a 7, and each row can only have one 7."
+- Kids Sound and Skip buttons moved next to Undo, Erase and Hint, leaving room for the notes in the top bar
+- Fireworks last about 7 seconds and end with a big three-burst finale
 
 ### 1.2
 - Clear history: removes every finished game and resets stats and Brain Activity, with an option to copy a backup code first; a game in progress stays

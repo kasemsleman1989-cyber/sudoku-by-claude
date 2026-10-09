@@ -313,6 +313,32 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
   .cell,.cell .v,.cell.flash,.cell.autofill .v,.spin i{animation:none!important;transition:none!important}
   .spin i{opacity:.6}
 }
+
+/* V1.1: auto-finish, encouragement, score breakdowns */
+.board.finishing{cursor:pointer}
+.num.active,.num.active:disabled{opacity:1;background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.num.active small{color:var(--accent-ink);opacity:.8}
+.cheer{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-100%);padding:7px 13px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font:700 14px/1.15 var(--ui);letter-spacing:.01em;white-space:nowrap;pointer-events:none;box-shadow:0 8px 20px var(--shadow);animation:cheer 1.3s cubic-bezier(.2,.8,.2,1) forwards}
+.cheer.deduce{background:var(--ink);color:var(--bg);font-size:15px}
+.cheer.done{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+@keyframes cheer{0%{opacity:0;transform:translate(-50%,-55%) scale(.85)}14%{opacity:1;transform:translate(-50%,-100%) scale(1)}72%{opacity:1;transform:translate(-50%,-125%)}100%{opacity:0;transform:translate(-50%,-165%)}}
+.seg.scroll{display:flex;overflow-x:auto;scrollbar-width:none}
+.seg.scroll::-webkit-scrollbar{display:none}
+.seg.scroll button{flex:1 0 auto;padding:0 12px}
+.trait{padding:0;border-top:1px solid var(--line);display:block}
+.trait-head{width:100%;display:grid;grid-template-columns:1fr auto 18px;gap:12px;align-items:center;padding:11px 0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.trait-head .chev{width:18px;height:18px;color:var(--faint);transition:transform .15s ease}
+.trait.open .trait-head .chev{transform:rotate(180deg)}
+.parts{display:flex;flex-direction:column;gap:2px;margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--peer)}
+.part{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0;font-size:13px}
+.part span{display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.part small{font-size:11px;color:var(--faint)}
+.part b{font-weight:600;font-variant-numeric:tabular-nums}
+.tip{margin:6px 0 2px;font-size:12px;color:var(--muted);line-height:1.45}
+@media (prefers-reduced-motion: reduce){
+  .cheer{animation:cheerFade 1.3s linear forwards}
+  @keyframes cheerFade{0%,80%{opacity:1}100%{opacity:0}}
+}
 </style>
 </head>
 <body>
@@ -393,7 +419,7 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
     <div id="brainBody"></div>
     <div class="group">
       <span class="eyebrow">Games</span>
-      <div class="seg" id="seg" role="group" aria-label="Difficulty filter"></div>
+      <div class="seg scroll" id="seg" role="group" aria-label="Difficulty filter"></div>
       <div id="statsBody"></div>
     </div>
     <div class="group">
@@ -572,38 +598,120 @@ function makeGen(){
     return{puzzle:p,clues};
   }
 
+  // Technique rater for 9×9: solves like a person, always using the simplest technique available,
+  // and reports the hardest tier needed.
+  // 1 = last digit / hidden single in a box, 2 = hidden single in a row or column / naked single,
+  // 3 = locked candidates / naked or hidden pairs, 4 = triples / X-Wing / Swordfish / Y-Wing, 5 = beyond Expert.
+  function rate(puzzle){
+    const Q=GEO[9],{N,R,C,B,ROWS,COLS,BOXES,UNITS,PEERS}=Q,LINES=ROWS.concat(COLS);
+    const v=puzzle.slice(),cand=new Int32Array(N);
+    for(let i=0;i<N;i++)if(!v[i]){let m=511;for(const p of PEERS[i])if(v[p])m&=~(1<<(v[p]-1));cand[i]=m;}
+    let tier=0;const bump=t=>{if(t>tier)tier=t;};
+    const place=(i,d)=>{v[i]=d;cand[i]=0;const b=1<<(d-1);for(const p of PEERS[i])cand[p]&=~b;};
+    const hiddenIn=units=>{for(const u of units)for(let d=0;d<9;d++){const b=1<<d;let k=0,pos=-1,done=false;for(const i of u){if(v[i]===d+1){done=true;break;}if(!v[i]&&(cand[i]&b)){k++;pos=i;}}if(!done&&k===1)return[pos,d+1];}return null;};
+    function step(){
+      for(const u of UNITS){let e=-1,k=0;for(const i of u)if(!v[i]){k++;e=i;}if(k===1&&POP[cand[e]]===1){place(e,DIG[cand[e]]);bump(1);return true;}}
+      let h=hiddenIn(BOXES);if(h){place(h[0],h[1]);bump(1);return true;}
+      h=hiddenIn(LINES);if(h){place(h[0],h[1]);bump(2);return true;}
+      for(let i=0;i<N;i++)if(!v[i]&&POP[cand[i]]===1){place(i,DIG[cand[i]]);bump(2);return true;}
+      // locked candidates (pointing and claiming)
+      for(let b=0;b<9;b++)for(let d=0;d<9;d++){const bit=1<<d,cs=BOXES[b].filter(i=>!v[i]&&(cand[i]&bit));if(cs.length<2)continue;
+        for(const L of [R,C]){if(cs.every(i=>L[i]===L[cs[0]])){const line=(L===R?ROWS:COLS)[L[cs[0]]];let ch=false;for(const j of line)if(B[j]!==b&&!v[j]&&(cand[j]&bit)){cand[j]&=~bit;ch=true;}if(ch){bump(3);return true;}}}}
+      for(const line of LINES)for(let d=0;d<9;d++){const bit=1<<d,cs=line.filter(i=>!v[i]&&(cand[i]&bit));if(cs.length<2||!cs.every(i=>B[i]===B[cs[0]]))continue;let ch=false;for(const j of BOXES[B[cs[0]]])if(line.indexOf(j)<0&&!v[j]&&(cand[j]&bit)){cand[j]&=~bit;ch=true;}if(ch){bump(3);return true;}}
+      // naked and hidden pairs (tier 3) and triples (tier 4)
+      for(const size of [2,3]){
+        const t=size===2?3:4;
+        for(const u of UNITS){
+          const cells=u.filter(i=>!v[i]);
+          const pick=(start,arr,mask)=>{if(arr.length===size){if(POP[mask]!==size)return false;let ch=false;for(const j of cells)if(arr.indexOf(j)<0&&(cand[j]&mask)){cand[j]&=~mask;ch=true;}return ch;}
+            for(let k=start;k<cells.length;k++){const c=cells[k];if(POP[cand[c]]>size)continue;if(pick(k+1,arr.concat(c),mask|cand[c]))return true;}return false;};
+          if(pick(0,[],0)){bump(t);return true;}
+          const digs=[];for(let d=0;d<9;d++){if(u.some(i=>v[i]===d+1))continue;const where=cells.filter(i=>cand[i]&(1<<d));if(where.length>=2&&where.length<=size)digs.push([d,where]);}
+          const pickH=(start,ds,set)=>{if(ds.length===size){if(set.size!==size)return false;const mask=ds.reduce((m,x)=>m|(1<<x[0]),0);let ch=false;for(const i of set)if(cand[i]&~mask){cand[i]&=mask;ch=true;}return ch;}
+            for(let k=start;k<digs.length;k++){const ns=new Set(set);for(const i of digs[k][1])ns.add(i);if(ns.size>size)continue;if(pickH(k+1,ds.concat([digs[k]]),ns))return true;}return false;};
+          if(pickH(0,[],new Set())){bump(t);return true;}
+        }
+      }
+      // X-Wing and Swordfish
+      for(const fish of [2,3])for(const [A,Bl] of [[ROWS,COLS],[COLS,ROWS]])for(let d=0;d<9;d++){
+        const bit=1<<d,base=[];for(let r=0;r<9;r++){const pos=A[r].filter(i=>!v[i]&&(cand[i]&bit)).map(i=>A===ROWS?C[i]:R[i]);if(pos.length>=2&&pos.length<=fish)base.push([r,pos]);}
+        const pickF=(start,sel,cols)=>{if(sel.length===fish){if(cols.size!==fish)return false;let ch=false;for(const c of cols)for(const i of Bl[c]){const line=A===ROWS?R[i]:C[i];if(!sel.some(s=>s[0]===line)&&!v[i]&&(cand[i]&bit)){cand[i]&=~bit;ch=true;}}return ch;}
+          for(let k=start;k<base.length;k++){const nc=new Set(cols);for(const c of base[k][1])nc.add(c);if(nc.size>fish)continue;if(pickF(k+1,sel.concat([base[k]]),nc))return true;}return false;};
+        if(pickF(0,[],new Set())){bump(4);return true;}
+      }
+      // Y-Wing
+      const bi=[];for(let i=0;i<N;i++)if(!v[i]&&POP[cand[i]]===2)bi.push(i);
+      for(const p of bi){const pm=cand[p];for(const a of bi){if(a===p||PEERS[p].indexOf(a)<0)continue;const am=cand[a];if(POP[am&pm]!==1)continue;
+        for(const b of bi){if(b===p||b===a||PEERS[p].indexOf(b)<0)continue;const bm=cand[b];if(POP[bm&pm]!==1||(bm&pm)===(am&pm))continue;const z=am&bm&~pm;if(POP[z]!==1||((am|bm)&pm)!==pm)continue;
+          let ch=false;for(const j of PEERS[a])if(j!==b&&PEERS[b].indexOf(j)>=0&&!v[j]&&(cand[j]&z)){cand[j]&=~z;ch=true;}if(ch){bump(4);return true;}}}}
+      return false;
+    }
+    for(let guard=0;guard<600;guard++){
+      let open=false;for(let i=0;i<N;i++)if(!v[i]){open=true;break;}
+      if(!open)break;
+      if(!step()){tier=5;break;}
+    }
+    return tier;
+  }
+
+  // Levels follow the usual community ladder: starting numbers plus the hardest technique each level needs.
   const CFG={
-    easy:{n:9,min:38,asym:false,want:0},
-    medium:{n:9,min:30,asym:false,want:0},
-    hard:{n:9,min:25,asym:true,want:1},
-    expert:{n:9,min:17,asym:true,want:2},
-    fast:{n:6,min:12,asym:false,want:0}
+    easy:{n:9,min:38,max:42,floor:1,ceil:1,sym:true},
+    medium:{n:9,min:33,max:37,floor:2,ceil:2,sym:true},
+    hard:{n:9,min:28,max:32,floor:3,ceil:3,sym:true},
+    expert:{n:9,min:24,max:28,floor:4,ceil:4,sym:false},
+    extreme:{n:9,min:22,max:26,floor:5,ceil:5,sym:false},
+    fast:{n:6,min:12,asym:false,want:0,legacy:true}
   };
+
+  // Remove clues while the solution stays unique and the puzzle stays within the level's technique ceiling.
+  function carveRated(sol,c){
+    const Q=GEO[9],p=sol.slice();let clues=81;
+    const order=c.sym?shuffle(Array.from({length:41},(_,k)=>k)).map(i=>i===40?[40]:[i,80-i]):shuffle(Array.from({length:81},(_,k)=>[k]));
+    for(const set of order){
+      const k=set.length;if(clues-k<c.min)continue;
+      const old=set.map(i=>p[i]);for(const i of set)p[i]=0;
+      if(search(p,2,false,Q).count===1&&(c.ceil>=5||rate(p)<=c.ceil))clues-=k;
+      else set.forEach((i,j)=>{p[i]=old[j];});
+    }
+    return{puzzle:p,clues,tier:rate(p)};
+  }
 
   function generate(diff,budget){
     const cfg=CFG[diff]||CFG.easy,Q=GEO[cfg.n];const t0=Date.now();let best=null;
-    do{
-      const sol=search(new Array(Q.N).fill(0),1,true,Q).solution;
-      const c=carve(sol,cfg.min,cfg.asym,Q);
-      const level=grade(c.puzzle,Q);
-      const score=Math.abs(level-cfg.want)*100+(cfg.asym?c.clues:0);
-      if(!best||score<best.score)best={puzzle:c.puzzle,solution:sol,clues:c.clues,level,score};
-      if(level===cfg.want)break;
-    }while(Date.now()-t0<budget);
+    if(cfg.legacy){
+      do{
+        const sol=search(new Array(Q.N).fill(0),1,true,Q).solution;
+        const c=carve(sol,cfg.min,cfg.asym,Q);
+        const level=grade(c.puzzle,Q);
+        const score=Math.abs(level-cfg.want)*100;
+        if(!best||score<best.score)best={puzzle:c.puzzle,solution:sol,clues:c.clues,level,score};
+        if(level===cfg.want)break;
+      }while(Date.now()-t0<budget);
+    }else{
+      do{
+        const sol=search(new Array(81).fill(0),1,true,Q).solution;
+        const c=carveRated(sol,cfg);
+        const score=Math.abs(c.tier-cfg.floor)*100+Math.max(0,c.clues-cfg.max);
+        if(!best||score<best.score)best={puzzle:c.puzzle,solution:sol,clues:c.clues,level:c.tier,score};
+        if(score===0)break;
+      }while(Date.now()-t0<budget);
+    }
     return{n:cfg.n,puzzle:best.puzzle,solution:best.solution,clues:best.clues,level:best.level};
   }
 
-  return{generate,search,grade,GEO,CFG};
+  return{generate,search,grade,rate,GEO,CFG};
 }
+
 
 (function(){
 'use strict';
 
-const APP_VERSION='1.01';
+const APP_VERSION='1.1';
 const CORE=makeGen(), GEO=CORE.GEO;
-const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['fast','Fast']];
-const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',fast:'Fast'};
-const SIZE={easy:9,medium:9,hard:9,expert:9,fast:6};
+const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
+const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast'};
+const SIZE={easy:9,medium:9,hard:9,expert:9,extreme:9,fast:6};
 const PERIODS=[['day','Today'],['week','Week'],['month','Month'],['year','Year'],['all','All']];
 const PERIOD_NAME={day:'Today',week:'This week',month:'This month',year:'This year',all:'All time'};
 const PERIOD_PHRASE={day:'today',week:'this week',month:'this month',year:'this year',all:'yet'};
@@ -612,22 +720,29 @@ const AWAKE_MS=15000; // keep the screen on this long after the last touch while
 const DAY=864e5;
 
 // Brain activity tuning
-const PACE_K={fast:1.25,easy:1,medium:.85,hard:.6,expert:.45};   // evens out pace across difficulties
-const CREA_W={fast:.6,easy:.8,medium:1,hard:1.3,expert:1.6};      // harder levels count more
-const STAMINA_MIN={day:45,week:180,month:480,year:3000,all:3000}; // minutes that earn about two-thirds of the stamina score
+const SPEED_K={fast:.9,easy:1,medium:1.25,hard:1.7,expert:2.3,extreme:3}; // evens out speed across levels
+const SESSION_GAP_MS=10*60*1000;   // games closer together than this form one session
 const TRAITS=[
-  ['Stamina','Time spent playing in this period, plus your longest game.'],
-  ['Sharpness','How few mistakes you make for each number you place.'],
-  ['Explosiveness','How fast you place one correct number after another.'],
-  ['Creativity','Cells you crack without a hint before the answer is obvious. Harder levels count more.'],
-  ['Consistency','How many days you play and how often you finish what you start.']
+  {name:'Stamina',desc:'Long sessions, steady daily play, and holding your level late in a session.',
+   tip:'Play a little every day, and try a few games back to back.',parts:['Sessions','Daily play','Holding up']},
+  {name:'Sharpness',desc:'Correct numbers and mistake-free streaks. Speed doesn’t count here.',
+   tip:'Take your time and avoid mistakes. Every mistake breaks your streak.',parts:['Accuracy','Clean runs','Best streak']},
+  {name:'Explosiveness',desc:'How fast you place correct numbers, in bursts and overall.',
+   tip:'Push for quick runs of numbers. Mistakes only slow this a little.',parts:['Pace','Peak burst','Fastest five']},
+  {name:'Creativity',desc:'Answers you find before they become obvious, without hints.',
+   tip:'Look for numbers that need real deduction, and skip hints.',parts:['Insight per number','Deduction moments']},
+  {name:'Consistency',desc:'How many days you play, your day streak, finishing games, and steady times.',
+   tip:'Play on more days and finish the games you start.',parts:['Days played','Day streak','Finishing games','Steady times']}
 ];
+const CHEERS={deduce:['Amazing!','Brilliant!','Genius move!'],needle:['Sharp eye!','Nice spot!']};
 
 let Q=GEO[9];
 const unitsOf=i=>[Q.ROWS[Q.R[i]],Q.COLS[Q.C[i]],Q.BOXES[Q.B[i]]];
 const nameOf=d=>d==='fast'?'Fast 6×6':(LABEL[d]||'');
 const popc=m=>{let c=0;while(m){m&=m-1;c++;}return c;};
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const sat=(x,tau)=>1-Math.exp(-Math.max(0,x)/tau);   // saturating curve: x = tau gives about 63%
+const pick=a=>a[(Math.random()*a.length)|0];
 
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -648,6 +763,7 @@ const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
 const clone=o=>JSON.parse(JSON.stringify(o));
 function startOfDay(t){const d=new Date(t);d.setHours(0,0,0,0);return d.getTime();}
 function dayKey(t){const d=new Date(t);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}
+const dayDiff=(a,b)=>Math.round((startOfDay(b)-startOfDay(a))/DAY);
 function periodStart(p){
   const d=new Date();d.setHours(0,0,0,0);
   if(p==='day')return d.getTime();
@@ -661,6 +777,7 @@ function median(a){
   const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;
   return s.length%2?s[m]:(s[m-1]+s[m])/2;
 }
+const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 
 /* ---------- Puzzle generation (Web Worker when available) ---------- */
 let worker=null, seq=0;
@@ -678,13 +795,13 @@ function getWorker(){
 function generate(diff){
   return new Promise(resolve=>{
     let done=false;
-    const finish=r=>{if(done)return;done=true;resolve(r||CORE.generate(diff,1200));};
+    const finish=r=>{if(done)return;done=true;resolve(r||CORE.generate(diff,1500));};
     const w=getWorker();
     if(w){
       const id=++seq;
       pending.set(id,finish);
-      try{w.postMessage({id,diff,budget:2500});}catch(e){pending.delete(id);setTimeout(()=>finish(null),20);return;}
-      setTimeout(()=>{if(!done){pending.delete(id);finish(null);}},7000);
+      try{w.postMessage({id,diff,budget:3000});}catch(e){pending.delete(id);setTimeout(()=>finish(null),20);return;}
+      setTimeout(()=>{if(!done){pending.delete(id);finish(null);}},8000);
     }else setTimeout(()=>finish(null),30);
   });
 }
@@ -841,59 +958,183 @@ function computeStats(diff,since){
   };
 }
 
-/* ---------- Brain activity ---------- */
+/* ---------- Brain activity ----------
+   From V1.1 each game keeps a timeline of moves: [time in tenths of a second, code]
+   code 0–4 = correct number with its insight points, -1 = mistake, 9 = hint. */
+const hasEv=g=>Array.isArray(g.ev)&&g.ev.length>0;
+const evCorrect=g=>g.ev.filter(e=>e[1]>=0&&e[1]<=4);
+const endOf=g=>g.endedAt||((g.startedAt||0)+(g.timeSec||0)*1000);
+function correctCount(g){
+  const N=g.difficulty==='fast'?36:81;
+  if(hasEv(g))return evCorrect(g).length;
+  if(g.bv)return g.placed||0;
+  if(g.reason==='abandoned')return null;
+  if(g.result==='won')return Math.max(0,N-(g.clues||0)-(g.hints||0)-(g.autoFilled||0));
+  return Math.round(Math.max(0,N-(g.clues||0))/2);
+}
+function combine(parts,weights){
+  let w=0,s=0;
+  parts.forEach((p,k)=>{if(p!=null){w+=weights[k];s+=p*weights[k];}});
+  return w?s/w:null;
+}
+function sessionsOf(games){ // games oldest first
+  const out=[];let cur=null;
+  for(const g of games){
+    if(cur&&(g.startedAt||0)-cur.end<=SESSION_GAP_MS){cur.games.push(g);cur.end=Math.max(cur.end,endOf(g));}
+    else{cur={games:[g],end:endOf(g)};out.push(cur);}
+  }
+  for(const s of out)s.minutes=s.games.reduce((a,g)=>a+(g.timeSec||0),0)/60;
+  return out;
+}
+// Does pace and accuracy hold up from the first third to the last third of a long session?
+function holdingUp(session){
+  const items=[];
+  for(const g of session.games){
+    if(!hasEv(g))continue;
+    let last=0;
+    for(const [t,c] of g.ev){
+      if(c>=0&&c<=4){items.push({c:true,gap:(t-last)/10});last=t;}
+      else if(c===-1)items.push({c:false});
+      else if(c===9)last=t;
+    }
+  }
+  const cs=items.filter(x=>x.c);
+  if(cs.length<15)return null;
+  const third=Math.floor(cs.length/3);
+  let seen=0;const early={gaps:[],m:0,n:0},late={gaps:[],m:0,n:0};
+  for(const x of items){
+    if(x.c)seen++;
+    const bucket=seen<=third?early:(seen>cs.length-third?late:null);
+    if(!bucket)continue;
+    if(x.c){bucket.gaps.push(x.gap);bucket.n++;}else bucket.m++;
+  }
+  if(!early.n||!late.n)return null;
+  const ep=median(early.gaps)||1,lp=median(late.gaps)||1;
+  const er=early.m/early.n,lr=late.m/late.n;
+  return clamp(1-0.5*Math.max(0,lp/ep-1)-4*Math.max(0,lr-er));
+}
+function burstOf(g){ // most correct numbers within any 20 seconds, mistakes count against it lightly
+  const ev=g.ev.filter(e=>(e[1]>=0&&e[1]<=4)||e[1]===-1);
+  let best=0,j=0,score=0;
+  for(let i=0;i<ev.length;i++){
+    score+=ev[i][1]===-1?-0.5:1;
+    while(ev[i][0]-ev[j][0]>200){score-=ev[j][1]===-1?-0.5:1;j++;}
+    if(score>best)best=score;
+  }
+  return best;
+}
+function fastestFive(g){ // shortest time for 5 correct numbers in a row; each mistake in between adds 3 seconds
+  const cs=[],ms=[];
+  for(const e of g.ev){if(e[1]>=0&&e[1]<=4)cs.push(e[0]);else if(e[1]===-1)ms.push(e[0]);}
+  if(cs.length<5)return null;
+  let best=Infinity;
+  for(let i=0;i+4<cs.length;i++){
+    const a=cs[i],b=cs[i+4],mis=ms.filter(t=>t>a&&t<b).length;
+    best=Math.min(best,(b-a)/10+3*mis);
+  }
+  return best;
+}
 function computeBrain(per){
   const since=periodStart(per), now=Date.now();
-  const games=History.finished('all',since);
-  const V=n=>n?0.4+0.6*(1-Math.exp(-n/8)):0;   // more games, more confidence
-  const out={games:games.length,scores:[null,null,null,null,null],overall:null,newData:false};
+  const games=History.finished('all',since).slice().reverse(); // oldest first
+  const out={games:games.length,cats:TRAITS.map(()=>({score:null,parts:[],extra:null})),overall:null};
   if(!games.length)return out;
+  const evGames=games.filter(hasEv);
+  const firstDay=per==='all'?Math.min(...games.map(g=>g.startedAt)):since;
+  const D=Math.max(1,dayDiff(firstDay,now)+1);
 
-  // Stamina: total time in the period plus the longest single game
-  const T=games.reduce((a,g)=>a+(g.timeSec||0),0)/60;
-  const L=games.reduce((a,g)=>Math.max(a,(g.timeSec||0)/60),0);
-  out.scores[0]=100*(0.75*(1-Math.exp(-T/STAMINA_MIN[per]))+0.25*(1-Math.exp(-L/20)));
-
-  // Sharpness: correct placements versus mistakes
-  let P=0,M=0,ns=0;
-  for(const g of games){
-    const N=g.difficulty==='fast'?36:81;let p;
-    if(g.bv)p=g.placed||0;
-    else if(g.reason==='abandoned')continue;
-    else if(g.result==='won')p=Math.max(0,N-(g.clues||0)-(g.hints||0)-(g.autoFilled||0));
-    else p=Math.round(Math.max(0,N-(g.clues||0))/2);
-    const m=g.mistakes||0;if(p+m===0)continue;
-    P+=p;M+=m;ns++;
+  // Stamina
+  {
+    const ss=sessionsOf(games);
+    // Average of your best sessions: one for a single day, three for longer periods (missing ones count as zero),
+    // so one marathon can't stand in for several good sessions.
+    const k=per==='day'?1:Math.min(3,D);
+    const top=ss.map(s=>sat(s.minutes,30)).sort((a,b)=>b-a).slice(0,k);
+    const sessions=top.reduce((a,b)=>a+b,0)/k;
+    const perDay=new Map();
+    for(const g of games){const k=dayKey(g.startedAt);perDay.set(k,(perDay.get(k)||0)+(g.timeSec||0)/60);}
+    let daily=0;for(const m of perDay.values())daily+=sat(m,35);daily/=D;
+    const holds=ss.filter(s=>s.minutes>=20).map(holdingUp).filter(x=>x!=null);
+    const hold=holds.length?mean(holds):null;
+    const parts=[sessions,daily,hold];
+    out.cats[0]={score:combine(parts,[.40,.35,.25]),parts};
   }
-  if(ns)out.scores[1]=100*clamp((P/(P+M)-0.8)/0.2)*V(ns);
-
-  // Explosiveness: typical time between correct placements (4 s or faster = full marks, 40 s or slower = none)
-  let ws=0,ps=0,ne=0;
-  for(const g of games){
-    if(!g.bv||!(g.pace>0)||(g.placed||0)<3)continue;
-    ps+=g.pace*(PACE_K[g.difficulty]||1)*g.placed;ws+=g.placed;ne++;
+  // Sharpness: accuracy and mistake-free streaks only, no speed
+  {
+    let C=0,M=0;
+    for(const g of games){const c=correctCount(g);if(c==null)continue;C+=c;M+=g.mistakes||0;}
+    const acc=C+M?clamp((C/(C+M)-0.85)/0.15):null;
+    const runs=[];let streak=0,best=0;
+    for(const g of games){
+      if(!hasEv(g))continue;
+      let run=0,longest=0,n=0;
+      for(const e of g.ev){
+        if(e[1]>=0&&e[1]<=4){run++;n++;streak++;if(run>longest)longest=run;if(streak>best)best=streak;}
+        else if(e[1]===-1){run=0;streak=0;}
+      }
+      if(n>=5)runs.push(longest/n);
+    }
+    const clean=runs.length?mean(runs):null;
+    const bestStreak=evGames.length?sat(best,60):null;
+    const parts=[acc,clean,bestStreak];
+    const conf=0.4+0.6*sat(C,150);
+    const s=combine(parts,[.50,.30,.20]);
+    out.cats[1]={score:s==null?null:s*conf,parts,extra:conf};
   }
-  if(ne)out.scores[2]=100*clamp(Math.log(40/(ps/ws))/Math.log(10))*V(ne);
-
-  // Creativity: hard finds without hints, weighted by difficulty
-  let pts=0,nc=0;
-  for(const g of games){
-    if(!g.bv)continue;
-    if(g.reason==='abandoned'&&(g.placed||0)<3)continue;
-    pts+=(g.hard||0)*(CREA_W[g.difficulty]||1);nc++;
+  // Explosiveness: speed, only lightly affected by mistakes
+  {
+    let wr=0,rs=0;
+    for(const g of games){
+      const K=SPEED_K[g.difficulty]||1,min=(g.timeSec||0)/60;
+      if(hasEv(g)&&min>0){const c=evCorrect(g).length,m=g.ev.filter(e=>e[1]===-1).length;rs+=Math.max(0,(c-0.5*m)/min)*K*min;wr+=min;}
+      else if(g.bv&&g.pace>0&&min>0){rs+=(60/g.pace)*K*min;wr+=min;}
+    }
+    const pace=wr?sat(rs/wr,5):null;
+    const bursts=evGames.map(g=>burstOf(g)*(SPEED_K[g.difficulty]||1)).sort((a,b)=>b-a).slice(0,3);
+    const burst=bursts.length?sat(mean(bursts),5):null;
+    const fives=evGames.map(g=>{const f=fastestFive(g);return f==null?null:f/(SPEED_K[g.difficulty]||1);}).filter(x=>x!=null).sort((a,b)=>a-b).slice(0,3);
+    const five=fives.length?clamp(Math.log(60/Math.max(1,mean(fives)))/Math.log(12)):null;
+    const parts=[pace,burst,five];
+    const nGames=games.filter(g=>hasEv(g)||(g.bv&&g.pace>0)).length;
+    const conf=0.5+0.5*sat(nGames,5);
+    const s=combine(parts,[.40,.35,.25]);
+    out.cats[2]={score:s==null?null:s*conf,parts,extra:conf};
   }
-  if(nc)out.scores[3]=100*(1-Math.exp(-(pts/nc)/6))*V(nc);
-
-  // Consistency: share of days played in the period so far, plus how often games are finished
-  const first=per==='all'?Math.min(...games.map(g=>g.startedAt)):since;
-  const span=Math.max(1,Math.round((startOfDay(now)-startOfDay(first))/DAY)+1);
-  const days=new Set(games.map(g=>dayKey(g.startedAt))).size;
-  const fin=1-games.filter(g=>g.reason==='abandoned').length/games.length;
-  out.scores[4]=100*(0.65*clamp((days/span)/0.75)+0.35*fin);
-
-  out.scores=out.scores.map(v=>v==null?null:Math.round(v));
-  out.newData=out.scores[2]==null||out.scores[3]==null;
-  out.overall=Math.round(out.scores.reduce((a,v)=>a+(v||0),0)/5);
+  // Creativity: insight points for every correct number, fewer hints is better
+  {
+    let pts=0,C=0,moments=0,hints=0;
+    for(const g of evGames){for(const e of g.ev)if(e[1]>=0&&e[1]<=4){pts+=e[1];C++;if(e[1]===4)moments++;}hints+=g.hints||0;}
+    if(C){
+      const I=sat(pts/C,1.2),mom=sat(moments/evGames.length,4);
+      const hintF=1-Math.min(0.5,0.12*hints/evGames.length);
+      const conf=0.4+0.6*sat(C,150);
+      const parts=[I,mom];
+      out.cats[3]={score:combine(parts,[.70,.30])*hintF*conf,parts,extra:conf,hintF};
+    }else out.cats[3]={score:null,parts:[null,null]};
+  }
+  // Consistency
+  {
+    const days=new Set(games.map(g=>dayKey(g.startedAt))).size;
+    const daysPart=clamp((days/D)/0.75);
+    // longest run of consecutive play days that reaches into this period (it may start earlier)
+    const allDays=[...new Set(History.games.filter(g=>g.result!=='playing').map(g=>startOfDay(g.startedAt)))].sort((a,b)=>a-b);
+    let bestRun=0,runStart=0,prev=null;
+    for(const t of allDays){
+      if(prev!=null&&dayDiff(prev,t)===1){/* continue run */}else runStart=t;
+      if(t>=since){const len=dayDiff(runStart,t)+1;if(len>bestRun)bestRun=len;}
+      prev=t;
+    }
+    const streakPart=sat(bestRun,5);
+    const finish=1-games.filter(g=>g.reason==='abandoned').length/games.length;
+    const by={};for(const g of games)if(g.result==='won'&&g.timeSec>0)(by[g.difficulty]=by[g.difficulty]||[]).push(g.timeSec);
+    let ws=0,wn=0;
+    for(const ts of Object.values(by)){if(ts.length<3)continue;const m=mean(ts),sd=Math.sqrt(mean(ts.map(t=>(t-m)**2)));ws+=(1-clamp(sd/m/0.6))*ts.length;wn+=ts.length;}
+    const steady=wn?ws/wn:null;
+    const parts=[daysPart,streakPart,finish,steady];
+    out.cats[4]={score:combine(parts,[.45,.20,.20,.15]),parts,extra:bestRun};
+  }
+  for(const c of out.cats)c.score=c.score==null?null:Math.round(clamp(c.score)*100);
+  if(out.cats.some(c=>c.score!=null))out.overall=Math.round(out.cats.reduce((a,c)=>a+(c.score||0),0)/5);
   return out;
 }
 
@@ -909,7 +1150,6 @@ function radarSVG(scores){
   const data=fr.map((f,k)=>pt(k,f).map(v=>v.toFixed(1)).join(',')).join(' ');
   s+=`<polygon class="area" points="${data}"/>`;
   fr.forEach((f,k)=>{const [x,y]=pt(k,f);s+=`<circle class="dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4"/>`;});
-  // Labels sit outside each corner: name, then score
   const place=[
     {x:cx,y:cy-r-26,a:'middle'},
     {x:pt(1,1)[0]+10,y:pt(1,1)[1]-4,a:'start'},
@@ -919,20 +1159,37 @@ function radarSVG(scores){
   ];
   place.forEach((p,k)=>{
     const v=scores[k];
-    s+=`<text class="lbl" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${p.a}">${TRAITS[k][0]}</text>`;
+    s+=`<text class="lbl" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${p.a}">${TRAITS[k].name}</text>`;
     s+=`<text class="val${v==null?' none':''}" x="${p.x.toFixed(1)}" y="${(p.y+17).toFixed(1)}" text-anchor="${p.a}">${v==null?'—':v}</text>`;
   });
-  const aria=TRAITS.map((t,k)=>`${t[0]} ${scores[k]==null?'not scored yet':scores[k]}`).join(', ');
+  const aria=TRAITS.map((t,k)=>`${t.name} ${scores[k]==null?'not scored yet':scores[k]}`).join(', ');
   return `<svg class="radar" viewBox="0 0 360 256" role="img" aria-label="Brain activity: ${aria}">${s}</svg>`;
 }
 
 function brainHTML(per){
   const b=computeBrain(per);
+  const scores=b.cats.map(c=>c.score);
   const rows=TRAITS.map((t,k)=>{
-    const v=b.scores[k];
-    let desc=t[1];
+    const c=b.cats[k],v=c.score,open=S.openTrait===k;
+    let desc=t.desc;
     if(v==null)desc=b.games?'Starts counting from your next game.':`No games ${PERIOD_PHRASE[per]==='yet'?'yet':PERIOD_PHRASE[per]}.`;
-    return `<div class="trait"><div class="tn"><b>${t[0]}</b><span>${desc}</span></div><span class="tv${v==null?' none':''}">${v==null?'—':v}</span></div>`;
+    let detail='';
+    if(open){
+      const prow=(name,val,note)=>`<div class="part"><span>${name}${note?`<small>${note}</small>`:''}</span><b>${val}</b></div>`;
+      const pv=x=>x==null?'—':Math.round(clamp(x)*100);
+      let partRows=t.parts.map((p,j)=>prow(p,pv(c.parts[j]),c.parts[j]==null?'Not enough data yet':'')).join('');
+      if(k===1||k===2||k===3){if(c.extra!=null)partRows+=prow('Experience',Math.round(c.extra*100)+'%','Rises as you play more');}
+      if(k===3&&c.hintF!=null&&c.hintF<1)partRows+=prow('Hint use',Math.round(c.hintF*100)+'%','Hints lower this score');
+      if(k===4&&c.extra)partRows+=prow('Longest day streak',plural(c.extra,'day'),'');
+      detail=`<div class="parts">${partRows}<p class="tip">${t.tip}</p></div>`;
+    }
+    return `<div class="trait${open?' open':''}">
+      <button type="button" class="trait-head" data-action="trait" data-k="${k}" aria-expanded="${open}">
+        <span class="tn"><b>${t.name}</b><span>${desc}</span></span>
+        <span class="tv${v==null?' none':''}">${v==null?'—':v}</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>${detail}
+    </div>`;
   }).join('');
   const sub=`${PERIOD_NAME[per]}<br>${plural(b.games,'game')}`;
   return `<div class="brain">
@@ -940,22 +1197,28 @@ function brainHTML(per){
       <div class="left"><span class="eyebrow">Brain activity</span><div class="big">${b.overall==null?'—':b.overall}${b.overall==null?'':'<small>/100</small>'}</div></div>
       <p class="brain-sub">${sub}</p>
     </div>
-    ${radarSVG(b.scores)}
+    ${radarSVG(scores)}
     <div class="traits">${rows}</div>
-    <p class="storage-note">Each score runs from 0 to 100 and rises as you play more games. They reflect how you play here, not a medical test.</p>
+    <p class="storage-note">Tap a score to see what goes into it. Each runs from 0 to 100 and reflects how you play here, not a medical test.</p>
   </div>`;
 }
 
 /* ---------- State ---------- */
-const S={view:'home',homeSheet:null,status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:null,loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all'};
+const S={view:'home',homeSheet:null,status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:null,loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all',finishing:null,openTrait:-1};
 let runSince=0, histVer=0, lastSheetKey='';
 const fx=new Map();
 
 function elapsedMs(){return S.game?S.game.elapsed+(runSince?performance.now()-runSince:0):0;}
+const tenths=()=>Math.round(elapsedMs()/100);
 function syncClock(){
   const run=S.view==='play'&&S.status==='playing'&&!S.sheet&&!S.statsOpen&&!document.hidden;
   if(run&&!runSince)runSince=performance.now();
   if(!run&&runSince){S.game.elapsed+=performance.now()-runSince;runSince=0;}
+}
+function paceOf(ev){
+  const gaps=[];let last=0;
+  for(const [t,c] of ev){if(c>=0&&c<=4){gaps.push((t-last)/10);last=t;}else if(c===9)last=t;}
+  return median(gaps);
 }
 function record(result,reason){
   const g=S.game,log=g.log;
@@ -965,7 +1228,7 @@ function record(result,reason){
     result,reason:reason||null,
     timeSec:Math.round(elapsedMs()/1000),
     mistakes:g.mistakes,hints:g.hints,clues:g.clues,
-    bv:1,placed:log.placed,hard:log.hard,pace:median(log.gaps)
+    bv:2,placed:log.placed,hard:log.hard,pace:paceOf(log.ev),ev:log.ev.slice(0,400)
   };
 }
 function saveBody(){
@@ -982,9 +1245,11 @@ function ensureLog(g){
   if(!Array.isArray(g.credited)||g.credited.length!==N)
     g.credited=g.values.map((v,i)=>v&&!g.puzzle[i]&&v===g.solution[i]?1:0);
   if(!g.log||typeof g.log!=='object')g.log={};
-  g.log.placed=+g.log.placed||0;g.log.hard=+g.log.hard||0;
-  g.log.gaps=Array.isArray(g.log.gaps)?g.log.gaps.filter(x=>typeof x==='number'):[];
-  g.log.mark=typeof g.log.mark==='number'?g.log.mark:(g.elapsed||0);
+  const L=g.log;
+  L.placed=+L.placed||0;L.hard=+L.hard||0;
+  L.ev=Array.isArray(L.ev)?L.ev.filter(e=>Array.isArray(e)&&e.length===2&&Number.isInteger(e[0])&&Number.isInteger(e[1])):[];
+  L.run=+L.run||0;L.runT=+L.runT||0;
+  delete L.gaps;delete L.mark;
 }
 
 // Restores a saved or carried-over game. Returns false if the data doesn't look like a game.
@@ -1000,9 +1265,10 @@ function restore(data){
   const status=['playing','won','lost'].includes(data.status)?data.status:'playing';
   const game=Object.assign({},g,{n,mistakes:+g.mistakes||0,hints:+g.hints||0,elapsed:+g.elapsed||0,
     startedAt:+g.startedAt||Date.now(),clues:+g.clues||g.puzzle.filter(x=>x).length,id:String(g.id||newId())});
+  if(status!=='playing')game.values=game.solution.slice();
   ensureLog(game);
   const okUndo=e=>Array.isArray(e)&&e.every(t=>Array.isArray(t)&&t.length===3&&Number.isInteger(t[0])&&t[0]>=0&&t[0]<N&&Number.isInteger(t[1])&&t[1]>=0&&t[1]<=n&&Number.isInteger(t[2])&&t[2]>=0&&t[2]<=FULL);
-  S.game=game;S.status=status;
+  S.game=game;S.status=status;S.finishing=null;
   S.selected=Number.isInteger(data.selected)&&data.selected>=0&&data.selected<N?data.selected:-1;
   S.notesMode=!!data.notesMode;
   S.undo=Array.isArray(data.undo)?data.undo.filter(okUndo):[];
@@ -1015,7 +1281,7 @@ function restore(data){
 }
 
 /* ---------- DOM ---------- */
-const board=$('board'), overlay=$('overlay'), pad=$('pad');
+const board=$('board'), overlay=$('overlay'), pad=$('pad'), boardWrap=board.parentElement;
 const cells=[], vals=[], noteEls=[], nums=[];
 let builtN=0;
 
@@ -1064,7 +1330,7 @@ function render(){
   if(S.view==='home')renderHome();
   buildBoard(g?g.n:9);
   if(!canPlay())dropAwake();
-  const sel=S.selected, now=performance.now(), n=Q.n;
+  const sel=S.finishing?-1:S.selected, now=performance.now(), n=Q.n;
   const selVal=g&&sel>=0?(g.values[sel]||0):0;
   const placed=new Array(n+1).fill(0);
   for(let i=0;i<Q.N;i++){
@@ -1097,12 +1363,14 @@ function render(){
     el.setAttribute('aria-label',`Row ${Q.R[i]+1}, column ${Q.C[i]+1}: ${shown||'empty'}${wrong?', incorrect':''}`);
   }
   board.classList.toggle('veiled',S.sheet==='paused'||S.sheet==='loading');
+  board.classList.toggle('finishing',!!S.finishing);
 
   const playing=canPlay();
   for(let d=1;d<=n;d++){
     const left=n-placed[d];
     nums[d].lastChild.textContent=g?left:'';
     nums[d].disabled=!playing||!!(g&&left<=0);
+    nums[d].classList.toggle('active',!!(S.finishing&&S.finishing.digit===d));
     nums[d].setAttribute('aria-label',`${d}${g?`, ${left} left`:''}`);
   }
   pad.classList.toggle('pencil',S.notesMode);
@@ -1118,8 +1386,7 @@ function render(){
   $('hintBtn').setAttribute('aria-label',`Hint, ${hintsLeft} left`);
 
   const dl=$('diffLabel');
-  dl.textContent=g?(g.n===6?'Fast · 6×6':LABEL[g.difficulty]):'No game';
-  dl.classList.toggle('none',!g);
+  dl.textContent=S.finishing?'Finishing…':g?(g.n===6?'Fast · 6×6':LABEL[g.difficulty]):'';
   const m=g?g.mistakes:0;
   $('mistakes').querySelectorAll('.dots i').forEach((dot,k)=>dot.classList.toggle('on',k<m));
   $('mistakeText').textContent=`${m}/${MAX_MISTAKES}`;
@@ -1141,7 +1408,7 @@ function diffButtons(){
     const b=bestTime(id), n=History.finished(id).length;
     const meta=b!=null?`Best ${fmt(b)}`:(n?`${plural(n,'game')} played`:'Not played yet');
     const name=id==='fast'?`${label}<span class="size">6×6</span>`:label;
-    return `<button type="button" class="diff${id==='fast'?' wide':''}" data-action="new" data-diff="${id}"><b>${name}</b><small>${meta}</small></button>`;
+    return `<button type="button" class="diff" data-action="new" data-diff="${id}"><b>${name}</b><small>${meta}</small></button>`;
   }).join('')}</div>`;
 }
 
@@ -1212,8 +1479,9 @@ function renderHome(){
     sheet.hidden=false;
   }else{S.homeSheet=null;sheet.hidden=true;}
 }
-function goHome(){
+function goHomeNow(){
   if(S.status==='loading')return;
+  if(S.finishing)finishNow();
   if(S.status==='playing'&&S.game)History.save(record('playing'));
   S.view='home';S.homeSheet=null;
   render();
@@ -1224,6 +1492,26 @@ function continueGame(){
   if(!S.game||S.status!=='playing')return;
   S.view='play';S.sheet=null;S.homeSheet=null;
   render();nudgeAwake();
+}
+
+/* ---------- Phone back button ----------
+   Opening a game, the stats, or the question box adds a step to the browser history,
+   so Android's back button closes the top one and lands on the home screen. */
+const NAV=(()=>{try{return window.self===window.top&&!(window.claude&&typeof window.claude.use==='function')&&typeof history.pushState==='function';}catch(e){return false;}})();
+const navState=()=>{try{return history.state&&history.state.ps;}catch(e){return null;}};
+function navPush(ps){if(NAV)try{history.pushState({ps},'');}catch(e){}}
+function navReplace(ps){if(NAV)try{history.replaceState({ps},'');}catch(e){}}
+// Close something on screen: through the history when we added a step for it, directly otherwise.
+function navClose(expected,direct){
+  if(NAV&&navState()===expected){try{history.back();return;}catch(e){}}
+  direct();
+}
+function onBack(){
+  if(S.statsOpen){closeStatsNow();return;}
+  if(S.homeSheet){S.homeSheet=null;render();return;}
+  if(S.view==='play'){goHomeNow();return;}
+  const st=navState();
+  if(st&&st!=='home')try{history.back();}catch(e){}   // skip steps left over from before a restart
 }
 
 /* ---------- Statistics panel ---------- */
@@ -1277,7 +1565,7 @@ function renderStats(){
     :History.loaded?'History can’t be saved here, so it will reset when you close the page.':'Loading your history…';
 }
 function openStats(){S.statsOpen=true;$('stats').hidden=false;$('stats').scrollTop=0;render();}
-function closeStats(){S.statsOpen=false;$('stats').hidden=true;render();}
+function closeStatsNow(){S.statsOpen=false;$('stats').hidden=true;render();}
 
 /* ---------- Backup codes ---------- */
 const CODE_PREFIX='PSUDOKU1:';
@@ -1293,7 +1581,12 @@ function cleanRec(g){
     timeSec:Math.round(num(g.timeSec,1e6)),mistakes:Math.round(num(g.mistakes,3)),
     hints:Math.round(num(g.hints,3)),clues:Math.round(num(g.clues,81))};
   if(!r.startedAt)return null;
-  if(g.bv){r.bv=1;r.placed=Math.round(num(g.placed,81));r.hard=Math.round(num(g.hard,81));r.pace=g.pace==null?null:num(g.pace,3600);}
+  if(g.bv){r.bv=g.bv===2?2:1;r.placed=Math.round(num(g.placed,81));r.hard=Math.round(num(g.hard,81));r.pace=g.pace==null?null:num(g.pace,3600);}
+  if(Array.isArray(g.ev)){
+    const ev=[];
+    for(const e of g.ev.slice(0,400))if(Array.isArray(e)&&e.length===2&&Number.isInteger(e[0])&&e[0]>=0&&e[0]<1e7&&Number.isInteger(e[1])&&((e[1]>=-1&&e[1]<=4)||e[1]===9))ev.push([e[0],e[1]]);
+    if(ev.length){r.ev=ev;r.bv=2;}
+  }
   if(g.autoFilled)r.autoFilled=Math.round(num(g.autoFilled,81));
   return r;
 }
@@ -1335,36 +1628,69 @@ async function restoreBackup(){
   if(added)$('restoreCode').value='';
 }
 
-/* ---------- Game actions ---------- */
-function isSolved(){const g=S.game;for(let i=0;i<Q.N;i++)if(g.values[i]!==g.solution[i])return false;return true;}
-function pushUndo(list){const g=S.game;S.undo.push(list.map(c=>[c,g.values[c],g.notes[c]]));if(S.undo.length>400)S.undo.shift();}
+/* ---------- Insight and encouragement ---------- */
 const isRight=c=>{const g=S.game;return g.values[c]!==0&&g.values[c]===g.solution[c];};
 function candMask(c){
   const g=S.game;let m=Q.FULL;
   for(const p of Q.PEERS[c])if(isRight(p))m&=~(1<<(g.values[p]-1));
   return m;
 }
-// A hard find is a correct number placed where it was neither the only number left for that cell
-// nor the only cell left for that number in its row, column or box.
-function isHardFind(i,d){
-  if(popc(candMask(i))===1)return false;
-  const bit=1<<(d-1);
-  for(const u of unitsOf(i)){
-    let k=0;
-    for(const c of u){if(isRight(c))continue;if(candMask(c)&bit){k++;if(k>1)break;}}
-    if(k===1)return false;
-  }
-  return true;
+// How hidden was this answer when it was placed?
+// 0 obvious (last cell in a unit, or one of many easy singles), 1 hidden single,
+// 2 needle (one of only 1–2 singles left on the board), 4 real deduction (no single at all).
+function insightOf(i,d){
+  const N=Q.N,n=Q.n,cm=new Array(N);
+  for(const u of unitsOf(i)){let open=0;for(const c of u)if(!isRight(c))open++;if(open===1)return 0;}
+  for(let c=0;c<N;c++)cm[c]=isRight(c)?0:candMask(c);
+  const naked=popc(cm[i])===1, bit=1<<(d-1);
+  let hidden=false;
+  for(const u of unitsOf(i)){let k=0;for(const c of u)if(cm[c]&bit)k++;if(k===1){hidden=true;break;}}
+  if(!naked&&!hidden)return 4;
+  const single=new Uint8Array(N);
+  for(let c=0;c<N;c++)if(cm[c]&&popc(cm[c])===1)single[c]=1;
+  for(const u of Q.UNITS)for(let x=0;x<n;x++){const b=1<<x;let k=0,pos=-1;for(const c of u)if(cm[c]&b){k++;pos=c;}if(k===1)single[pos]=1;}
+  let count=0;for(let c=0;c<N;c++)count+=single[c];
+  if(count<=2)return 2;
+  return hidden&&!naked?1:0;
 }
-function credit(i,hard){
-  const g=S.game,log=g.log;
-  if(g.credited[i])return;
-  g.credited[i]=1;log.placed++;if(hard)log.hard++;
-  const t=elapsedMs();
-  log.gaps.push(Math.round((t-log.mark)/100)/10);
-  if(log.gaps.length>200)log.gaps.shift();
-  log.mark=t;
+let lastCheer=0;
+function cheer(i,text,kind){
+  const now=performance.now();
+  if(now-lastCheer<(kind==='streak'?900:2200))return;   // streak milestones may follow other words sooner
+  lastCheer=now;
+  const el=document.createElement('div');
+  el.className='cheer '+(kind||'');
+  el.textContent=text;
+  el.setAttribute('role','status');
+  const wr=boardWrap.getBoundingClientRect(),cr=cells[i].getBoundingClientRect();
+  const x=clamp(cr.left+cr.width/2-wr.left,60,wr.width-60),y=Math.max(34,cr.top-wr.top+4);
+  el.style.left=x+'px';el.style.top=y+'px';
+  boardWrap.appendChild(el);
+  setTimeout(()=>el.remove(),1400);
 }
+// Record a correct number in the timeline and pick the encouragement to show, if any.
+function credit(i,d){
+  const g=S.game,L=g.log;
+  if(g.credited[i])return null;
+  const pts=insightOf(i,d);
+  g.credited[i]=1;
+  const t=tenths();
+  L.ev.push([t,pts]);if(L.ev.length>400)L.ev.shift();
+  L.placed++;if(pts===4)L.hard++;
+  L.run=(L.run>0&&t-L.runT<=150)?L.run+1:1;L.runT=t;
+  if(pts===4)return['deduce',pick(CHEERS.deduce)];
+  const r=L.run;
+  if(r===5)return['streak','Great streak!'];
+  if(r===10)return['streak','On fire!'];
+  if(r===15)return['streak','Unstoppable!'];
+  if(r>15&&r%5===0)return['streak','Legendary run!'];
+  if(pts===2)return['needle',pick(CHEERS.needle)];
+  return null;
+}
+
+/* ---------- Game actions ---------- */
+function isSolved(){const g=S.game;for(let i=0;i<Q.N;i++)if(g.values[i]!==g.solution[i])return false;return true;}
+function pushUndo(list){const g=S.game;S.undo.push(list.map(c=>[c,g.values[c],g.notes[c]]));if(S.undo.length>400)S.undo.shift();}
 
 function placeCorrect(i,d){
   const g=S.game, bit=1<<(d-1);
@@ -1375,6 +1701,7 @@ function placeCorrect(i,d){
   addFx([i],'pop',240);
   if(done.length&&!isSolved())addFx(done.filter(c=>c!==i),'flash',1000);
 }
+function digitDone(d){const g=S.game;let k=0;for(let i=0;i<Q.N;i++)if(g.values[i]===d&&g.solution[i]===d)k++;return k===Q.n;}
 // Finish automatically once only 2 numbers are incomplete, or every number has at most 1 spot left.
 function autoFinishCells(){
   const g=S.game,n=Q.n,left=new Array(n+1).fill(n),open=[];
@@ -1407,17 +1734,20 @@ function input(d){
   if(correct)for(const p of Q.PEERS[i])if(g.notes[p]&(1<<(d-1)))changed.push(p);
   pushUndo(changed);
   if(correct){
-    const hard=isHardFind(i,d);
-    credit(i,hard);
+    const c=credit(i,d);
     placeCorrect(i,d);
     if(afterCorrect())return;
+    render();
+    if(c)cheer(i,c[1],c[0]);
+    else if(digitDone(d))cheer(i,`All ${d}s done!`,'done');
   }else{
     g.values[i]=d;g.notes[i]=0;g.mistakes++;
+    g.log.ev.push([tenths(),-1]);g.log.run=0;
     addFx([i],'pop',240);
     if(g.mistakes>=MAX_MISTAKES)return lose();
     History.save(record('playing'));
+    render();
   }
-  render();
   Saver.schedule();
 }
 function erase(){
@@ -1463,37 +1793,66 @@ function hint(){
   for(const p of Q.PEERS[i])if(g.notes[p]&(1<<(d-1)))changed.push(p);
   pushUndo(changed);
   g.hints++;
-  g.credited[i]=1;g.log.mark=elapsedMs();
+  g.credited[i]=1;g.log.ev.push([tenths(),9]);g.log.run=0;
   placeCorrect(i,d);
   if(afterCorrect())return;
   render();Saver.schedule();
 }
 function toggleNotes(){if(!canPlay())return;S.notesMode=!S.notesMode;render();Saver.schedule();}
-function select(i){if(!S.game||S.sheet||S.statsOpen)return;S.selected=i;render();}
+function select(i){if(!S.game||S.sheet||S.statsOpen||S.finishing)return;S.selected=i;render();}
 
+// Auto-finish: fill the remaining numbers one by one, digit by digit, then celebrate.
+function startFinish(open,recId){
+  const g=S.game;
+  const seqCells=open.slice().sort((a,b)=>(g.solution[a]-g.solution[b])||(a-b));
+  const step=clamp(3600/seqCells.length,90,240), gapBetween=220;
+  const times=[];let t=0;
+  seqCells.forEach((c,k)=>{if(k&&g.solution[c]!==g.solution[seqCells[k-1]])t+=gapBetween;times.push(t);t+=step;});
+  const F={cells:seqCells,next:0,digit:null,timers:[],recId};
+  S.finishing=F;S.selected=-1;
+  seqCells.forEach((c,k)=>F.timers.push(setTimeout(()=>fillStep(F),times[k])));
+  F.timers.push(setTimeout(()=>endFinish(F),t+260));
+  render();
+}
+function fillStep(F){
+  if(S.finishing!==F)return;
+  const g=S.game,i=F.cells[F.next++];
+  if(i==null)return;
+  g.values[i]=g.solution[i];g.notes[i]=0;F.digit=g.solution[i];
+  addFx([i],'pop',260);
+  render();
+}
+function finishNow(){
+  const F=S.finishing;if(!F)return;
+  F.timers.forEach(clearTimeout);
+  const g=S.game;
+  while(F.next<F.cells.length){const i=F.cells[F.next++];g.values[i]=g.solution[i];g.notes[i]=0;}
+  endFinish(F);
+}
+function endFinish(F){
+  if(S.finishing!==F)return;
+  F.timers.forEach(clearTimeout);
+  S.finishing=null;
+  celebrate(F.recId);
+}
+function celebrate(recId){
+  addFx(Array.from({length:Q.N},(_,k)=>k),'flash',1200);
+  render();
+  setTimeout(()=>{if(S.status==='won'&&S.lastResult&&S.lastResult.id===recId&&!S.finishing){S.sheet='won';render();}},900);
+}
 function win(autoCells){
   S.status='won';
   const rec=record('won');
   if(autoCells&&autoCells.length)rec.autoFilled=autoCells.length;
   S.lastResult=Object.assign({},rec,{newBest:false});
   Saver.clear();
-  let delay=0;
-  if(autoCells&&autoCells.length){
-    const g=S.game, step=Math.max(25,Math.min(70,700/autoCells.length));
-    autoCells.forEach((i,k)=>{g.values[i]=g.solution[i];g.notes[i]=0;cells[i].style.setProperty('--ad',Math.round(k*step)+'ms');});
-    delay=Math.round(autoCells.length*step)+320;
-    addFx(autoCells,'autofill',delay+40);
-  }
-  setTimeout(()=>{
-    if(S.lastResult&&S.lastResult.id===rec.id){addFx(Array.from({length:Q.N},(_,k)=>k),'flash',1200);render();}
-  },delay);
-  render();
   History.ready.then(()=>{
     const prev=bestTime(rec.difficulty);
     S.lastResult.newBest=prev==null||rec.timeSec<prev;
     return History.save(rec);
   });
-  setTimeout(()=>{if(S.status==='won'&&S.lastResult&&S.lastResult.id===rec.id){S.sheet='won';render();}},delay+900);
+  if(autoCells&&autoCells.length)startFinish(autoCells,rec.id);
+  else celebrate(rec.id);
 }
 function lose(){
   S.status='lost';
@@ -1506,6 +1865,7 @@ function lose(){
 
 async function startNew(diff){
   if(S.status==='loading'||!LABEL[diff])return;
+  if(S.finishing)finishNow();
   if(S.status==='playing'&&S.game){
     syncClock();
     History.save(record('lost','abandoned'));
@@ -1521,7 +1881,7 @@ async function startNew(diff){
   S.game={
     id:newId(),difficulty:diff,n,puzzle:p.puzzle,solution:p.solution,values:p.puzzle.slice(),
     notes:new Array(n*n).fill(0),mistakes:0,hints:0,startedAt:Date.now(),elapsed:0,clues:p.clues,
-    credited:new Array(n*n).fill(0),log:{placed:0,hard:0,gaps:[],mark:0}
+    credited:new Array(n*n).fill(0),log:{placed:0,hard:0,ev:[],run:0,runT:0}
   };
   runSince=0;
   S.undo=[];S.selected=-1;S.notesMode=false;S.status='playing';S.sheet=null;S.lastResult=null;
@@ -1542,7 +1902,10 @@ function pauseForClose(){
 
 /* ---------- Events ---------- */
 function bind(){
-  board.addEventListener('click',e=>{const c=e.target.closest('.cell');if(c)select(+c.dataset.i);});
+  board.addEventListener('click',e=>{
+    if(S.finishing){finishNow();return;}
+    const c=e.target.closest('.cell');if(c)select(+c.dataset.i);
+  });
   pad.addEventListener('click',e=>{const b=e.target.closest('.num');if(b&&!b.disabled)input(+b.dataset.d);});
   $('undoBtn').addEventListener('click',undo);
   $('eraseBtn').addEventListener('click',erase);
@@ -1555,44 +1918,46 @@ function bind(){
     const act=a.dataset.action;
     if(act==='new'){
       if(!History.loaded||S.status==='loading')return;
-      if(S.game&&S.status==='playing'){S.homeSheet={diff:a.dataset.diff};render();}
-      else startNew(a.dataset.diff);
+      if(S.game&&S.status==='playing'){S.homeSheet={diff:a.dataset.diff};navPush('sheet');render();}
+      else{navPush('play');startNew(a.dataset.diff);}
     }
-    else if(act==='confirm-new'){const d=S.homeSheet&&S.homeSheet.diff;S.homeSheet=null;if(d)startNew(d);}
-    else if(act==='cancel-new'){S.homeSheet=null;render();}
-    else if(act==='continue')continueGame();
-    else if(act==='home')goHome();
+    else if(act==='confirm-new'){const d=S.homeSheet&&S.homeSheet.diff;S.homeSheet=null;if(d){navReplace('play');startNew(d);}}
+    else if(act==='cancel-new')navClose('sheet',()=>{S.homeSheet=null;render();});
+    else if(act==='continue'){navPush('play');continueGame();}
+    else if(act==='home')navClose('play',goHomeNow);
     else if(act==='again'){if(S.game&&S.status!=='playing'&&S.status!=='loading')startNew(S.game.difficulty);}
-    else if(act==='open-stats')openStats();
+    else if(act==='open-stats'){navPush('stats');openStats();}
     else if(act==='resume'){S.sheet=null;render();nudgeAwake();}
     else if(act==='view'){S.sheet=null;render();}
     else if(act==='reveal'){S.revealed=true;S.sheet=null;S.selected=-1;render();}
-    else if(act==='close-stats'){closeStats();nudgeAwake();}
+    else if(act==='close-stats'){navClose('stats',closeStatsNow);}
     else if(act==='tab'){S.statsTab=a.dataset.tab;renderStats();}
+    else if(act==='trait'){const k=+a.dataset.k;S.openTrait=S.openTrait===k?-1:k;renderStats();}
     else if(act==='period'){S.period=a.dataset.period;try{localStorage.setItem(LS_PERIOD,S.period);}catch(err){}renderStats();}
     else if(act==='copy-backup'){$('restoreBox').hidden=true;copyBackup();}
     else if(act==='show-restore'){$('backupOut').hidden=true;$('restoreBox').hidden=false;$('restoreMsg').textContent='';$('restoreCode').focus();}
     else if(act==='restore')restoreBackup();
   });
+  window.addEventListener('popstate',onBack);
   // Any touch or key press while playing keeps the screen on for another AWAKE_MS.
   document.addEventListener('pointerdown',nudgeAwake,{capture:true,passive:true});
   document.addEventListener('keydown',e=>{
     nudgeAwake();
     if(e.target&&e.target.tagName==='TEXTAREA')return;
-    if(S.statsOpen){if(e.key==='Escape')closeStats();return;}
+    if(S.statsOpen){if(e.key==='Escape')navClose('stats',closeStatsNow);return;}
     if((e.metaKey||e.ctrlKey)&&(e.key==='z'||e.key==='Z')){undo();e.preventDefault();return;}
     if(e.metaKey||e.ctrlKey||e.altKey)return;
     const k=e.key;
     if(k>='1'&&k<='9'){input(+k);e.preventDefault();}
     else if(k==='Backspace'||k==='Delete'||k==='0'){erase();e.preventDefault();}
     else if(k==='n'||k==='N'){toggleNotes();}
-    else if(k.startsWith('Arrow')&&S.view==='play'&&S.game&&!S.sheet){
+    else if(k.startsWith('Arrow')&&S.view==='play'&&S.game&&!S.sheet&&!S.finishing){
       const n=Q.n;
       let i=S.selected<0?((Q.N/2)|0):S.selected,r=Q.R[i],c=Q.C[i];
       if(k==='ArrowUp')r=(r+n-1)%n;if(k==='ArrowDown')r=(r+1)%n;if(k==='ArrowLeft')c=(c+n-1)%n;if(k==='ArrowRight')c=(c+1)%n;
       select(r*n+c);cells[r*n+c].focus({preventScroll:true});e.preventDefault();
     }
-    else if(k==='Escape'&&S.homeSheet){S.homeSheet=null;render();}
+    else if(k==='Escape'&&S.homeSheet)navClose('sheet',()=>{S.homeSheet=null;render();});
     else if(k==='Escape'&&S.view==='play'&&S.sheet==='paused'){S.sheet=null;render();}
   });
   // Closing or switching away pauses the game and saves it so it can be continued later.
@@ -1604,11 +1969,12 @@ function bind(){
 /* ---------- Boot ---------- */
 function snapshot(){
   const status=S.status==='loading'?'idle':S.status;
+  const game=S.game&&status!=='idle'?Object.assign({},S.game,{elapsed:elapsedMs()}):null;
+  if(game&&status==='won')game.values=game.solution.slice();
   return{
-    v:1,status,view:S.view,
-    game:S.game&&status!=='idle'?Object.assign({},S.game,{elapsed:elapsedMs()}):null,
+    v:1,status,view:S.view,game,
     selected:S.selected,notesMode:S.notesMode,undo:S.undo,revealed:S.revealed,lastResult:S.lastResult,
-    sheet:S.sheet==='loading'?null:S.sheet
+    sheet:S.sheet==='loading'?null:(status==='won'&&!S.sheet?'won':S.sheet)
   };
 }
 let started=false;
@@ -1621,6 +1987,7 @@ function start(data){
   bind();
   let keep=null;
   if(data&&data.game&&restore(data)){if(S.status==='playing')keep=S.game.id;}
+  navReplace(S.view==='play'?'play':'home');
   History.onChange=()=>{histVer++;render();};
   History.init(keep).then(()=>{
     const sv=History.saved;History.saved=null;

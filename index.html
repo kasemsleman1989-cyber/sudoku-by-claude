@@ -339,6 +339,36 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
   .cheer{animation:cheerFade 1.3s linear forwards}
   @keyframes cheerFade{0%,80%{opacity:1}100%{opacity:0}}
 }
+
+/* V1.2: kids mode and clear history */
+.kid-only{display:none}
+.app.kids .kid-only{display:grid}
+.app.kids .mistakes,.app.kids .clock,.app.kids #notesBtn,.app.kids #autoBtn,.app.kids .badge{display:none}
+.app.kids .tools{grid-template-columns:repeat(3,1fr)}
+.diff-label.kid{text-transform:none;letter-spacing:0;font-size:15px;font-weight:600;white-space:normal;overflow:visible;line-height:1.25}
+.diff-label.warn{color:var(--error)}
+#soundBtn svg.off{display:none}
+#soundBtn.muted svg.on{display:none}
+#soundBtn.muted svg.off{display:block}
+#soundBtn.muted{color:var(--muted)}
+.skip{height:34px;flex:none;place-items:center;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:600 13px var(--ui);cursor:pointer}
+.skip:disabled{opacity:.4;cursor:default}
+.cell.clash{box-shadow:inset 0 0 0 2px var(--error)}
+.cheer.kid{font-size:16px;padding:8px 15px}
+.cheer.kid.name{background:var(--ink);color:var(--bg)}
+.home .diff.kid{background:var(--peer)}
+.home .diff.kid small{color:var(--muted)}
+.kid-sheet .name-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip-btn{height:42px;padding:0 18px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:600 15px var(--ui);cursor:pointer}
+.chip-btn:hover{border-color:var(--accent)}
+.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.field input{height:46px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:500 16px var(--ui)}
+.field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.card.kid-win h2{font-size:36px}
+.fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+.btn.danger{background:var(--error);border-color:var(--error);color:var(--bg)}
+.btn.ghost-danger{align-self:flex-start;background:none;color:var(--error)}
+.confirm{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 </style>
 </head>
 <body>
@@ -352,6 +382,13 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
     <section class="home-sec" aria-labelledby="newGameTitle">
       <span class="eyebrow" id="newGameTitle">New game</span>
       <div id="homeDiffs"></div>
+    </section>
+    <section class="home-sec" aria-labelledby="kidsTitle">
+      <span class="eyebrow" id="kidsTitle">Kids</span>
+      <div class="diffs">
+        <button type="button" class="diff kid" data-action="kids" data-level="kids9"><b>Kids <span class="size">9×9</span></b><small>Very easy, lots of cheering</small></button>
+        <button type="button" class="diff kid" data-action="kids" data-level="kids6"><b>Kids <span class="size">6×6</span></b><small>Quick and very easy</small></button>
+      </div>
     </section>
     <div id="homeStats"></div>
     <p class="version" id="version"></p>
@@ -372,6 +409,11 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>
       </button>
     </span>
+    <button class="icon-btn sm kid-only" id="soundBtn" type="button" data-action="sound" aria-label="Sound on" aria-pressed="true">
+      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 10 4 4M20 10l-4 4"/></svg>
+    </button>
+    <button class="skip kid-only" id="skipBtn" type="button" data-action="skip">Skip</button>
   </div>
 
   <div class="board-wrap">
@@ -440,8 +482,24 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
       </div>
       <p class="storage-note" id="storageNote"></p>
     </div>
+    <div class="group">
+      <span class="eyebrow">Clear history</span>
+      <p class="body-note">Removes every finished game and resets your stats and Brain Activity. A game in progress stays.</p>
+      <button class="btn ghost-danger" type="button" data-action="ask-clear">Clear history</button>
+      <div id="clearBox" class="confirm" hidden>
+        <p class="body-note" id="clearText"></p>
+        <div class="btn-row">
+          <button class="btn" type="button" data-action="copy-backup">Copy backup code first</button>
+          <button class="btn danger" type="button" data-action="do-clear">Clear history</button>
+        </div>
+        <button class="link" type="button" data-action="cancel-clear">Cancel</button>
+      </div>
+      <p class="msg" id="clearMsg"></p>
+    </div>
   </div>
 </section>
+
+<canvas class="fw" id="fw" hidden aria-hidden="true"></canvas>
 
 <script>
 /* Puzzle generator for 9×9 and 6×6 grids. Self-contained so it can also run inside a Web Worker. */
@@ -661,7 +719,10 @@ function makeGen(){
     hard:{n:9,min:28,max:32,floor:3,ceil:3,sym:true},
     expert:{n:9,min:24,max:28,floor:4,ceil:4,sym:false},
     extreme:{n:9,min:22,max:26,floor:5,ceil:5,sym:false},
-    fast:{n:6,min:12,asym:false,want:0,legacy:true}
+    fast:{n:6,min:12,asym:false,want:0,legacy:true},
+    // Kids: only the easiest finds, with most of the board already filled in
+    kids9:{n:9,min:52,max:54,floor:1,ceil:1,sym:true},
+    kids6:{n:6,min:22,asym:false,want:0,legacy:true}
   };
 
   // Remove clues while the solution stays unique and the puzzle stays within the level's technique ceiling.
@@ -707,11 +768,17 @@ function makeGen(){
 (function(){
 'use strict';
 
-const APP_VERSION='1.1';
+const APP_VERSION='1.2';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
-const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast'};
-const SIZE={easy:9,medium:9,hard:9,expert:9,extreme:9,fast:6};
+const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
+const SIZE={easy:9,medium:9,hard:9,expert:9,extreme:9,fast:6,kids9:9,kids6:6};
+const isKid=d=>d==='kids9'||d==='kids6';
+// Kids levels are a sandbox: never recorded, and kept apart from a grown-up's game in progress.
+const KID_PRAISE=['Great job!','Super!','Well done!','You’re a star!','Awesome!','Fantastic!'];
+const KID_NAME_PRAISE=[n=>`Way to go, ${n}!`,n=>`${n}, you’re amazing!`,n=>`Brilliant, ${n}!`,n=>`Keep going, ${n}!`];
+const LS_NAMES='pocket-sudoku.kids.names', LS_SOUND='pocket-sudoku.kids.sound';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PERIODS=[['day','Today'],['week','Week'],['month','Month'],['year','Year'],['all','All']];
 const PERIOD_NAME={day:'Today',week:'This week',month:'This month',year:'This year',all:'All time'};
 const PERIOD_PHRASE={day:'today',week:'this week',month:'this month',year:'this year',all:'yet'};
@@ -914,6 +981,15 @@ const History={
     if(added&&this.onChange)this.onChange();
     return{added,skipped:list.length-added};
   },
+  // Remove every finished game; a game still in progress keeps its record.
+  clearAll(){
+    const gone=this.games.filter(g=>g.result==='won'||g.result==='lost');
+    this.games=this.games.filter(g=>!(g.result==='won'||g.result==='lost'));
+    if(this.mode==='db'&&this.col)for(const g of gone){const ref=this.col.doc(g.id);this.enqueue(()=>ref.delete());}
+    else if(this.mode==='local')lsSet(LS_KEY,this.games);
+    if(this.onChange)this.onChange();
+    return gone.length;
+  },
   finished(diff,since){
     return this.games
       .filter(g=>g.result==='won'||g.result==='lost')
@@ -926,14 +1002,14 @@ const History={
 // Saves the game in progress shortly after each change, and right away when the app is closed.
 const Saver={
   timer:0,
-  schedule(){clearTimeout(this.timer);this.timer=setTimeout(()=>this.flush(),800);},
+  schedule(){if(S.kids)return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.flush(),800);},
   flush(){
     clearTimeout(this.timer);this.timer=0;
-    if(!S.game||S.status!=='playing')return;
+    if(S.kids||!S.game||S.status!=='playing')return;
     const body=saveBody();
     History.ready.then(()=>History.writeCurrent(body));
   },
-  clear(){clearTimeout(this.timer);this.timer=0;History.ready.then(()=>History.writeCurrent(null));}
+  clear(){if(S.kids)return;clearTimeout(this.timer);this.timer=0;History.ready.then(()=>History.writeCurrent(null));}
 };
 
 function bestTime(diff){
@@ -1204,7 +1280,8 @@ function brainHTML(per){
 }
 
 /* ---------- State ---------- */
-const S={view:'home',homeSheet:null,status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:null,loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all',finishing:null,openTrait:-1};
+const S={view:'home',homeSheet:null,status:'idle',game:null,selected:-1,notesMode:false,undo:[],sheet:null,loadingDiff:null,revealed:false,lastResult:null,statsOpen:false,statsTab:'all',period:'all',finishing:null,openTrait:-1,
+  kids:null,stash:null,kidNote:null};
 let runSince=0, histVer=0, lastSheetKey='';
 const fx=new Map();
 
@@ -1256,7 +1333,7 @@ function ensureLog(g){
 function restore(data){
   if(!data||typeof data!=='object')return false;
   const g=data.game;
-  if(!g||typeof g!=='object'||!LABEL[g.difficulty])return false;
+  if(!g||typeof g!=='object'||!LABEL[g.difficulty]||isKid(g.difficulty))return false;
   const n=g.n===6?6:(SIZE[g.difficulty]||9), N=n*n, FULL=(1<<n)-1;
   const vals=a=>Array.isArray(a)&&a.length===N&&a.every(x=>Number.isInteger(x)&&x>=0&&x<=n);
   const masks=a=>Array.isArray(a)&&a.length===N&&a.every(x=>Number.isInteger(x)&&x>=0&&x<=FULL);
@@ -1380,13 +1457,23 @@ function render(){
   $('notesBtn').disabled=!playing;
   $('notesBtn').setAttribute('aria-pressed',String(S.notesMode));
   $('autoBtn').disabled=!playing;
+  const kids=!!S.kids;
+  appEl.classList.toggle('kids',kids);
   const hintsLeft=g?HINTS-g.hints:HINTS;
   $('hintBadge').textContent=hintsLeft;
-  $('hintBtn').disabled=!playing||hintsLeft<=0;
-  $('hintBtn').setAttribute('aria-label',`Hint, ${hintsLeft} left`);
+  $('hintBtn').disabled=!playing||(!kids&&hintsLeft<=0);
+  $('hintBtn').setAttribute('aria-label',kids?'Hint':`Hint, ${hintsLeft} left`);
 
   const dl=$('diffLabel');
-  dl.textContent=S.finishing?'Finishing…':g?(g.n===6?'Fast · 6×6':LABEL[g.difficulty]):'';
+  const note=kids&&S.kidNote&&S.kidNote.until>Date.now()?S.kidNote.text:'';
+  dl.classList.toggle('kid',kids);
+  dl.classList.toggle('warn',!!note);
+  dl.textContent=S.finishing?'Finishing…':note?note:kids?`${S.kids.name?S.kids.name+' · ':''}${LABEL[S.kids.level]}`:g?(g.n===6?'Fast · 6×6':LABEL[g.difficulty]):'';
+  if(kids){
+    const on=soundOn(),sb=$('soundBtn');
+    sb.setAttribute('aria-pressed',String(on));sb.setAttribute('aria-label',on?'Sound on':'Sound off');sb.classList.toggle('muted',!on);
+    $('skipBtn').disabled=S.status==='loading';
+  }
   const m=g?g.mistakes:0;
   $('mistakes').querySelectorAll('.dots i').forEach((dot,k)=>dot.classList.toggle('on',k<m));
   $('mistakeText').textContent=`${m}/${MAX_MISTAKES}`;
@@ -1414,7 +1501,7 @@ function diffButtons(){
 
 function renderOverlay(){
   const k=S.sheet;
-  const key=[k,S.loadingDiff,histVer,S.lastResult&&S.lastResult.newBest].join('|');
+  const key=[k,S.loadingDiff,histVer,S.lastResult&&S.lastResult.newBest,!!S.kids].join('|');
   if(key===lastSheetKey)return;
   lastSheetKey=key;
   if(!k){overlay.hidden=true;overlay.innerHTML='';return;}
@@ -1422,8 +1509,12 @@ function renderOverlay(){
   const g=S.game, r=S.lastResult;
   const spinner=`<div class="spin" aria-hidden="true">${[0,1,2,5,8,7,6,3,4].map(x=>`<i style="--k:${x}"></i>`).join('')}</div>`;
   const homeBtn='<button type="button" class="btn" data-action="home">Home</button>';
-  if(k==='loading'){
-    html=`<div class="card loading">${spinner}<p>Building a ${nameOf(S.loadingDiff)} puzzle with exactly one solution</p></div>`;
+  if(S.kids&&k==='won'){
+    const nm=S.kids.name;
+    const found=r&&r.found||0;
+    html=`<div class="card kid-win"><div class="lede"><h2>Congratulations${nm?`, ${esc(nm)}`:''}!</h2><p>You found ${plural(found,'number')} and finished the puzzle. Amazing work!</p></div><div class="btn-col"><button type="button" class="btn primary" data-action="again">Play again</button>${homeBtn}</div></div>`;
+  }else if(k==='loading'){
+    html=`<div class="card loading">${spinner}<p>${S.kids?'Getting a puzzle ready':`Building a ${nameOf(S.loadingDiff)} puzzle with exactly one solution`}</p></div>`;
   }else if(k==='paused'){
     html=`<div class="card"><div class="lede"><h2>Paused</h2><p>${g?nameOf(g.difficulty):''} · ${fmt(elapsedMs()/1000)} on the clock</p></div><div class="btn-col"><button type="button" class="btn primary" data-action="resume">Continue</button>${homeBtn}</div></div>`;
   }else if(k==='won'&&r){
@@ -1470,10 +1561,21 @@ function renderHome(){
     </span>
   </button>`);
 
-  const sheet=$('homeSheet');
-  if(S.homeSheet&&playing){
+  const sheet=$('homeSheet'),hs=S.homeSheet;
+  if(hs&&hs.type==='kids'){
+    const names=kidNames();
+    const wasOpen=!sheet.hidden&&sheet._html&&sheet._html.indexOf('kid-sheet')>=0;
+    setHTML(sheet,`<div class="card kid-sheet" role="dialog" aria-modal="true" aria-labelledby="ksTitle">
+      <div class="lede"><h2 id="ksTitle">Who’s playing?</h2><p>${LABEL[hs.level]} · very easy, with lots of cheering</p></div>
+      ${names.length?`<div class="name-chips">${names.map(n=>`<button type="button" class="chip-btn" data-action="kid-name" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}
+      <label class="field" for="kidName"><span>${names.length?'Or type a new name':'Your name'}</span><input id="kidName" type="text" maxlength="20" autocomplete="off" autocapitalize="words" enterkeyhint="go" placeholder="Name"></label>
+      <div class="btn-col"><button type="button" class="btn primary" data-action="kid-start">Let’s play!</button><button type="button" class="btn" data-action="cancel-new">Cancel</button></div>
+    </div>`);
+    sheet.hidden=false;
+    if(!wasOpen&&!names.length)setTimeout(()=>{const f=$('kidName');if(f)f.focus();},60);
+  }else if(hs&&playing){
     setHTML(sheet,`<div class="card" role="dialog" aria-modal="true" aria-labelledby="hsTitle">
-      <div class="lede"><h2 id="hsTitle">Start a new ${nameOf(S.homeSheet.diff)} game?</h2><p>Your ${nameOf(g.difficulty)} game in progress will count as a loss.</p></div>
+      <div class="lede"><h2 id="hsTitle">Start a new ${nameOf(hs.diff)} game?</h2><p>Your ${nameOf(g.difficulty)} game in progress will count as a loss.</p></div>
       <div class="btn-col"><button type="button" class="btn primary" data-action="confirm-new">Start new game</button><button type="button" class="btn" data-action="cancel-new">Keep my current game</button></div>
     </div>`);
     sheet.hidden=false;
@@ -1482,11 +1584,144 @@ function renderHome(){
 function goHomeNow(){
   if(S.status==='loading')return;
   if(S.finishing)finishNow();
-  if(S.status==='playing'&&S.game)History.save(record('playing'));
+  if(S.kids)leaveKids();
+  else if(S.status==='playing'&&S.game)History.save(record('playing'));
   S.view='home';S.homeSheet=null;
   render();
   Saver.flush();
   window.scrollTo(0,0);
+}
+
+/* ---------- Kids mode ---------- */
+function kidNames(){const a=lsGet(LS_NAMES);return Array.isArray(a)?a.filter(n=>typeof n==='string'&&n).slice(0,6):[];}
+function rememberName(n){if(!n)return;const a=[n].concat(kidNames().filter(x=>x.toLowerCase()!==n.toLowerCase())).slice(0,6);lsSet(LS_NAMES,a);}
+const cleanName=s=>String(s||'').replace(/\s+/g,' ').trim().slice(0,20);
+// Start a kids game. A grown-up's game is set aside untouched and comes back when the kids game ends.
+function enterKids(level,name){
+  if(!isKid(level))return;
+  if(!S.kids){
+    syncClock();
+    S.stash=S.game?{game:S.game,status:S.status,undo:S.undo,notesMode:S.notesMode,sheet:S.sheet,lastResult:S.lastResult,revealed:S.revealed}:null;
+    S.game=null;S.status='idle';S.undo=[];S.lastResult=null;S.sheet=null;
+  }
+  S.kids={level,name};S.kidNote=null;S.homeSheet=null;
+  startNew(level);
+}
+function leaveKids(){
+  stopFireworks();
+  const st=S.stash;
+  S.kids=null;S.stash=null;S.kidNote=null;
+  if(st){S.game=st.game;S.status=st.status;S.undo=st.undo||[];S.notesMode=!!st.notesMode;S.sheet=st.sheet;S.lastResult=st.lastResult;S.revealed=!!st.revealed;}
+  else{S.game=null;S.status='idle';S.undo=[];S.notesMode=false;S.sheet=null;S.lastResult=null;S.revealed=false;}
+  S.selected=-1;runSince=0;lastSheetKey='';
+}
+// Why is this number wrong? Points at the clashing number when there is one.
+function kidReason(i,d){
+  const g=S.game;
+  const hit=list=>list.find(c=>c!==i&&g.values[c]===d&&isRight(c));
+  let c;
+  if((c=hit(Q.ROWS[Q.R[i]]))!=null)return{text:`There’s already a ${d} in this row.`,clash:c};
+  if((c=hit(Q.COLS[Q.C[i]]))!=null)return{text:`There’s already a ${d} in this column.`,clash:c};
+  if((c=hit(Q.BOXES[Q.B[i]]))!=null)return{text:`There’s already a ${d} in this box.`,clash:c};
+  return{text:`${d} doesn’t fit here. Try another number!`,clash:null};
+}
+function kidLeft(){let k=0;for(let c=0;c<Q.N;c++)if(!isRight(c))k++;return k;}
+// Praise for the number just placed: milestones follow the board, the name comes up every 5th find.
+function kidPraise(){
+  const g=S.game,name=S.kids.name,total=g.kidTotal,left=kidLeft(),filled=total-left;
+  if(filled===Math.ceil(total/2))return[name?`Halfway there, ${name}!`:'Halfway there!','name'];
+  if(left===3&&total>=8)return[name?`Just a few more, ${name}!`:'Just a few more!','name'];
+  if(name&&g.kidFound%5===0)return[pick(KID_NAME_PRAISE)(name),'name'];
+  return[pick(KID_PRAISE),''];
+}
+function kidCheer(i,text,kind){
+  boardWrap.querySelectorAll('.cheer').forEach(el=>el.remove());
+  lastCheer=performance.now();
+  const el=document.createElement('div');
+  el.className='cheer kid '+(kind||'');
+  el.textContent=text;
+  el.setAttribute('role','status');
+  const wr=boardWrap.getBoundingClientRect(),cr=cells[i].getBoundingClientRect();
+  el.style.left=clamp(cr.left+cr.width/2-wr.left,70,wr.width-70)+'px';
+  el.style.top=Math.max(34,cr.top-wr.top+4)+'px';
+  boardWrap.appendChild(el);
+  setTimeout(()=>el.remove(),1400);
+}
+const buzz=p=>{try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}};
+
+/* ---------- Kids sounds (made on the fly, no audio files) ---------- */
+let actx=null;
+function soundOn(){try{return localStorage.getItem(LS_SOUND)!=='off';}catch(e){return true;}}
+function audio(){
+  if(!soundOn())return null;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended')actx.resume();
+    return actx;
+  }catch(e){return null;}
+}
+function tone(freq,at,dur,type,vol){
+  const a=audio();if(!a)return;
+  const t=a.currentTime+at,o=a.createOscillator(),gn=a.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  gn.gain.setValueAtTime(0.0001,t);gn.gain.exponentialRampToValueAtTime(vol||0.16,t+0.015);gn.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(gn);gn.connect(a.destination);o.start(t);o.stop(t+dur+0.05);
+}
+const SCALE=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760];
+function chime(progress){const f=SCALE[Math.min(SCALE.length-1,Math.floor(clamp(progress)*(SCALE.length-1)))];tone(f,0,0.38,'sine',0.16);tone(f*2,0,0.22,'triangle',0.035);}
+function bonk(){tone(233,0,0.16,'triangle',0.11);tone(175,0.09,0.22,'triangle',0.09);}
+function fanfare(){
+  [523.25,659.25,783.99,1046.5,1318.51,1567.98].forEach((f,k)=>tone(f,k*0.11,0.32,'sine',0.14));
+  [1046.5,1318.51,1567.98].forEach(f=>tone(f,0.75,1.1,'sine',0.07));
+}
+
+/* ---------- Fireworks ---------- */
+let fwRun=null;
+function stopFireworks(){if(fwRun){cancelAnimationFrame(fwRun.raf);fwRun.timers.forEach(clearTimeout);fwRun=null;}const cv=$('fw');if(cv){cv.hidden=true;const c=cv.getContext&&cv.getContext('2d');if(c)c.clearRect(0,0,cv.width,cv.height);}}
+function fireworks(){
+  stopFireworks();
+  try{if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
+  const cv=$('fw');if(!cv||!cv.getContext)return;
+  const dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;
+  cv.width=W*dpr;cv.height=H*dpr;cv.hidden=false;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  const theme=document.documentElement.getAttribute('data-theme');
+  const dark=theme?theme==='dark':(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const cols=dark?['#FFD166','#86A2FF','#FF8FAB','#7AE7C7','#F4F1FF']:['#E9A400','#2A4FC4','#E0457B','#14A37F','#7B5CD6'];
+  const rockets=[],sparks=[],run={raf:0,timers:[]};fwRun=run;
+  const t0=performance.now();
+  for(let k=0;k<8;k++)run.timers.push(setTimeout(()=>rockets.push({x:W*(0.15+Math.random()*0.7),y:H+10,vx:(Math.random()-0.5)*1.2,vy:-(H*0.0155+Math.random()*H*0.004),ty:H*(0.16+Math.random()*0.32),col:pick(cols)}),k*420));
+  function burst(r){
+    const n=56+((Math.random()*20)|0),sp=2.2+Math.random()*1.6;
+    for(let j=0;j<n;j++){const a=j/n*Math.PI*2+Math.random()*0.08,s=sp*(0.6+Math.random()*0.5);
+      sparks.push({x:r.x,y:r.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,decay:0.011+Math.random()*0.008,col:Math.random()<0.8?r.col:pick(cols)});}
+  }
+  function frame(now){
+    if(fwRun!==run)return;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation=dark?'lighter':'source-over';
+    for(let k=rockets.length-1;k>=0;k--){
+      const r=rockets[k];r.x+=r.vx;r.y+=r.vy;r.vy+=0.12;
+      ctx.globalAlpha=1;ctx.strokeStyle=r.col;ctx.lineWidth=2;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(r.x-r.vx*3,r.y-r.vy*3);ctx.lineTo(r.x,r.y);ctx.stroke();
+      if(r.y<=r.ty||r.vy>=-1){burst(r);rockets.splice(k,1);}
+    }
+    for(let k=sparks.length-1;k>=0;k--){
+      const p=sparks[k];p.vx*=0.985;p.vy=p.vy*0.985+0.045;p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
+      if(p.life<=0){sparks.splice(k,1);continue;}
+      const al=Math.max(0,p.life);
+      ctx.strokeStyle=p.col;ctx.fillStyle=p.col;ctx.lineCap='round';
+      ctx.globalAlpha=al*0.22;ctx.lineWidth=4.5;   // soft glow
+      ctx.beginPath();ctx.moveTo(p.x-p.vx*4,p.y-p.vy*4);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.globalAlpha=al;ctx.lineWidth=1.4;         // bright core with a round head
+      ctx.beginPath();ctx.moveTo(p.x-p.vx*4,p.y-p.vy*4);ctx.lineTo(p.x,p.y);ctx.stroke();
+      ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(now-t0>3600&&!rockets.length&&!sparks.length){stopFireworks();return;}
+    run.raf=requestAnimationFrame(frame);
+  }
+  run.raf=requestAnimationFrame(frame);
 }
 function continueGame(){
   if(!S.game||S.status!=='playing')return;
@@ -1573,7 +1808,7 @@ function cleanRec(g){
   if(!g||typeof g!=='object')return null;
   const id=String(g.id||'');
   if(!/^[A-Za-z0-9_-]{1,64}$/.test(id)||id===SAVE_ID)return null;
-  if(!LABEL[g.difficulty]||(g.result!=='won'&&g.result!=='lost'))return null;
+  if(!LABEL[g.difficulty]||isKid(g.difficulty)||(g.result!=='won'&&g.result!=='lost'))return null;
   const num=(x,max)=>{x=Number(x);return isFinite(x)&&x>=0?Math.min(x,max):0;};
   const r={id,difficulty:g.difficulty,size:SIZE[g.difficulty],startedAt:num(g.startedAt,4e12),
     endedAt:g.endedAt==null?null:num(g.endedAt,4e12),result:g.result,
@@ -1602,14 +1837,15 @@ function readBackup(text){
   if(!obj||!Array.isArray(obj.games))throw new Error('format');
   return obj.games.map(cleanRec).filter(Boolean);
 }
-function copyBackup(){
+function copyBackup(mirror){
   const msg=$('backupMsg'),out=$('backupCode');
-  if(!History.loaded){msg.className='msg';msg.textContent='Your history is still loading. Try again in a moment.';$('backupOut').hidden=false;return;}
+  const say=(cls,text)=>{for(const el of [msg,mirror])if(el){el.className=cls;el.textContent=text;}};
+  if(!History.loaded){say('msg','Your history is still loading. Try again in a moment.');$('backupOut').hidden=false;return;}
   const {code,count}=makeBackup();
-  out.value=code;$('backupOut').hidden=false;msg.className='msg';
-  if(!count){msg.textContent='There are no finished games to back up yet.';return;}
-  const done=()=>{msg.className='msg ok';msg.textContent=`Copied a code with ${plural(count,'game')}. On your other device, open Your stats, tap Restore from code, and paste it.`;};
-  const manual=()=>{out.focus();out.select();msg.textContent=`Your code with ${plural(count,'game')} is above. Select it all and copy it.`;};
+  out.value=code;$('backupOut').hidden=false;say('msg','');
+  if(!count){say('msg','There are no finished games to back up yet.');return;}
+  const done=()=>say('msg ok',`Copied a code with ${plural(count,'game')}. Paste it somewhere safe, or into Restore from code on another device.`);
+  const manual=()=>{out.focus();out.select();say('msg',`Your code with ${plural(count,'game')} is in the Backup box above. Select it all and copy it.`);};
   try{
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(done,manual);
     else manual();
@@ -1626,6 +1862,19 @@ async function restoreBackup(){
   msg.className='msg ok';
   msg.textContent=added?`Added ${plural(added,'game')}${skipped?`. ${skipped} ${skipped===1?'was':'were'} already here`:''}.`:'All of those games are already here.';
   if(added)$('restoreCode').value='';
+}
+function askClear(){
+  const n=History.finished('all').length,msg=$('clearMsg');
+  msg.className='msg';msg.textContent='';
+  if(!n){msg.textContent='There’s no history to clear yet.';return;}
+  $('clearText').textContent=`Clear all ${plural(n,'game')}? Your stats and Brain Activity start again from zero. This can’t be undone.`;
+  $('clearBox').hidden=false;
+}
+async function doClear(){
+  await History.ready;
+  const n=History.clearAll();
+  $('clearBox').hidden=true;
+  const msg=$('clearMsg');msg.className='msg ok';msg.textContent=`History cleared. ${plural(n,'game')} removed.`;
 }
 
 /* ---------- Insight and encouragement ---------- */
@@ -1730,6 +1979,7 @@ function input(d){
   }
   if(cur===d)return;
   const correct=d===g.solution[i];
+  if(S.kids)return kidInput(i,d,correct);
   const changed=[i];
   if(correct)for(const p of Q.PEERS[i])if(g.notes[p]&(1<<(d-1)))changed.push(p);
   pushUndo(changed);
@@ -1749,6 +1999,31 @@ function input(d){
     render();
   }
   Saver.schedule();
+}
+// Kids: every correct number gets praise, a buzz and a chime; a wrong one gets a gentle note and fades away.
+function kidInput(i,d,correct){
+  const g=S.game;
+  if(correct){
+    pushUndo([i].concat(Q.PEERS[i].filter(p=>g.notes[p]&(1<<(d-1)))));
+    if(!g.credited[i]){g.credited[i]=1;g.kidFound++;}
+    S.kidNote=null;
+    placeCorrect(i,d);
+    buzz(25);chime(1-kidLeft()/Math.max(1,g.kidTotal));
+    if(afterCorrect())return;
+    render();
+    const [text,kind]=kidPraise();
+    kidCheer(i,text,kind);
+    return;
+  }
+  const why=kidReason(i,d);
+  g.values[i]=d;g.notes[i]=0;
+  S.kidNote={text:why.text,until:Date.now()+5000};
+  addFx([i],'pop',240);
+  if(why.clash!=null)addFx([why.clash],'clash',1600);
+  buzz([30,60,30]);bonk();
+  render();
+  setTimeout(()=>{if(S.game===g&&g.values[i]===d&&d!==g.solution[i]){g.values[i]=0;render();}},1400);
+  setTimeout(render,5050);
 }
 function erase(){
   if(!canPlay())return;
@@ -1781,7 +2056,7 @@ function autoNotes(){
 }
 function hint(){
   if(!canPlay())return;
-  const g=S.game;if(g.hints>=HINTS)return;
+  const g=S.game;if(!S.kids&&g.hints>=HINTS)return;
   const open=c=>!g.puzzle[c]&&g.values[c]!==g.solution[c];
   let i=S.selected;
   if(i<0||!open(i)){
@@ -1794,9 +2069,11 @@ function hint(){
   pushUndo(changed);
   g.hints++;
   g.credited[i]=1;g.log.ev.push([tenths(),9]);g.log.run=0;
+  if(S.kids){S.kidNote=null;chime(1-(kidLeft()-1)/Math.max(1,g.kidTotal));}
   placeCorrect(i,d);
   if(afterCorrect())return;
   render();Saver.schedule();
+  if(S.kids)kidCheer(i,'Here’s a hint!','');
 }
 function toggleNotes(){if(!canPlay())return;S.notesMode=!S.notesMode;render();Saver.schedule();}
 function select(i){if(!S.game||S.sheet||S.statsOpen||S.finishing)return;S.selected=i;render();}
@@ -1838,9 +2115,18 @@ function endFinish(F){
 function celebrate(recId){
   addFx(Array.from({length:Q.N},(_,k)=>k),'flash',1200);
   render();
-  setTimeout(()=>{if(S.status==='won'&&S.lastResult&&S.lastResult.id===recId&&!S.finishing){S.sheet='won';render();}},900);
+  if(S.kids){fanfare();buzz([40,70,40,70,90]);fireworks();}
+  setTimeout(()=>{if(S.status==='won'&&S.lastResult&&S.lastResult.id===recId&&!S.finishing){S.sheet='won';render();}},S.kids?1300:900);
 }
 function win(autoCells){
+  if(S.kids){
+    const g=S.game;
+    S.status='won';S.kidNote=null;
+    S.lastResult={id:'kid-'+g.id,kid:true,found:g.kidFound};
+    if(autoCells&&autoCells.length)startFinish(autoCells,S.lastResult.id);
+    else celebrate(S.lastResult.id);
+    return;
+  }
   S.status='won';
   const rec=record('won');
   if(autoCells&&autoCells.length)rec.autoFilled=autoCells.length;
@@ -1865,12 +2151,18 @@ function lose(){
 
 async function startNew(diff){
   if(S.status==='loading'||!LABEL[diff])return;
+  const kid=isKid(diff);
+  if(kid!==!!S.kids)return;   // kids games only start through enterKids
   if(S.finishing)finishNow();
-  if(S.status==='playing'&&S.game){
-    syncClock();
-    History.save(record('lost','abandoned'));
+  stopFireworks();
+  if(!kid){
+    if(S.status==='playing'&&S.game){
+      syncClock();
+      History.save(record('lost','abandoned'));
+    }
+    Saver.clear();
   }
-  Saver.clear();
+  S.kidNote=null;
   S.view='play';S.homeSheet=null;
   S.status='loading';S.sheet='loading';S.loadingDiff=diff;S.revealed=false;S.selected=-1;
   render();
@@ -1883,9 +2175,10 @@ async function startNew(diff){
     notes:new Array(n*n).fill(0),mistakes:0,hints:0,startedAt:Date.now(),elapsed:0,clues:p.clues,
     credited:new Array(n*n).fill(0),log:{placed:0,hard:0,ev:[],run:0,runT:0}
   };
+  if(kid){S.game.kidFound=0;S.game.kidTotal=p.puzzle.filter(x=>!x).length;}
   runSince=0;
   S.undo=[];S.selected=-1;S.notesMode=false;S.status='playing';S.sheet=null;S.lastResult=null;
-  History.save(record('playing'));
+  if(!kid)History.save(record('playing'));
   render();
   Saver.flush();
   nudgeAwake();
@@ -1895,8 +2188,7 @@ function pauseForClose(){
   if(S.status==='playing'&&S.game){
     if(S.view==='play'&&!S.sheet)S.sheet='paused';
     syncClock();
-    History.save(record('playing'));
-    Saver.flush();
+    if(!S.kids){History.save(record('playing'));Saver.flush();}
   }
 }
 
@@ -1921,6 +2213,21 @@ function bind(){
       if(S.game&&S.status==='playing'){S.homeSheet={diff:a.dataset.diff};navPush('sheet');render();}
       else{navPush('play');startNew(a.dataset.diff);}
     }
+    else if(act==='kids'){
+      if(!History.loaded||S.status==='loading'||!isKid(a.dataset.level))return;
+      S.homeSheet={type:'kids',level:a.dataset.level};navPush('sheet');render();
+    }
+    else if(act==='kid-name'||act==='kid-start'){
+      const hs=S.homeSheet;if(!hs||hs.type!=='kids')return;
+      const name=cleanName(act==='kid-name'?a.dataset.name:($('kidName')&&$('kidName').value));
+      rememberName(name);audio();
+      navReplace('play');enterKids(hs.level,name);
+    }
+    else if(act==='skip'){if(S.kids&&S.status!=='loading')startNew(S.kids.level);}
+    else if(act==='sound'){try{localStorage.setItem(LS_SOUND,soundOn()?'off':'on');}catch(err){}if(soundOn())chime(0.5);render();}
+    else if(act==='ask-clear')askClear();
+    else if(act==='do-clear')doClear();
+    else if(act==='cancel-clear'){$('clearBox').hidden=true;}
     else if(act==='confirm-new'){const d=S.homeSheet&&S.homeSheet.diff;S.homeSheet=null;if(d){navReplace('play');startNew(d);}}
     else if(act==='cancel-new')navClose('sheet',()=>{S.homeSheet=null;render();});
     else if(act==='continue'){navPush('play');continueGame();}
@@ -1934,7 +2241,7 @@ function bind(){
     else if(act==='tab'){S.statsTab=a.dataset.tab;renderStats();}
     else if(act==='trait'){const k=+a.dataset.k;S.openTrait=S.openTrait===k?-1:k;renderStats();}
     else if(act==='period'){S.period=a.dataset.period;try{localStorage.setItem(LS_PERIOD,S.period);}catch(err){}renderStats();}
-    else if(act==='copy-backup'){$('restoreBox').hidden=true;copyBackup();}
+    else if(act==='copy-backup'){$('restoreBox').hidden=true;copyBackup(a.closest('#clearBox')?$('clearMsg'):null);}
     else if(act==='show-restore'){$('backupOut').hidden=true;$('restoreBox').hidden=false;$('restoreMsg').textContent='';$('restoreCode').focus();}
     else if(act==='restore')restoreBackup();
   });
@@ -1943,7 +2250,8 @@ function bind(){
   document.addEventListener('pointerdown',nudgeAwake,{capture:true,passive:true});
   document.addEventListener('keydown',e=>{
     nudgeAwake();
-    if(e.target&&e.target.tagName==='TEXTAREA')return;
+    if(e.target&&e.target.id==='kidName'&&e.key==='Enter'){e.preventDefault();const b=document.querySelector('[data-action="kid-start"]');if(b)b.click();return;}
+    if(e.target&&(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT'))return;
     if(S.statsOpen){if(e.key==='Escape')navClose('stats',closeStatsNow);return;}
     if((e.metaKey||e.ctrlKey)&&(e.key==='z'||e.key==='Z')){undo();e.preventDefault();return;}
     if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -1968,6 +2276,11 @@ function bind(){
 
 /* ---------- Boot ---------- */
 function snapshot(){
+  if(S.kids){ // keep the grown-up's game, never the kids sandbox
+    const st=S.stash;
+    if(!st||!st.game)return{v:1,status:'idle'};
+    return{v:1,status:st.status,view:'home',game:Object.assign({},st.game),selected:-1,notesMode:st.notesMode,undo:st.undo,revealed:st.revealed,lastResult:st.lastResult,sheet:st.sheet};
+  }
   const status=S.status==='loading'?'idle':S.status;
   const game=S.game&&status!=='idle'?Object.assign({},S.game,{elapsed:elapsedMs()}):null;
   if(game&&status==='won')game.values=game.solution.slice();

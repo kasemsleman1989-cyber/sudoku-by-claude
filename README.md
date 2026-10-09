@@ -2,7 +2,7 @@
 
 A clean Sudoku game you can install on Android phones and tablets.
 
-**Current version: 1.1**
+**Current version: 1.2**
 
 - A home screen to continue your game, start a new one, or open your stats
 - Easy, Medium, Hard, Expert and Extreme 9×9 puzzles built to standard difficulty, plus a quick Fast 6×6 mode, each with exactly one solution
@@ -12,7 +12,8 @@ A clean Sudoku game you can install on Android phones and tablets.
 - Encouraging words for clever finds and mistake-free streaks
 - The game in progress is saved; closing the app pauses it
 - Stats for today, this week, month, year or all time, with Brain Activity scores
-- Backup codes to move your history between devices
+- Backup codes to move your history between devices, and Clear history to start fresh
+- Kids 9×9 and Kids 6×6: very easy puzzles that praise the child by name, with sounds, vibration and fireworks
 - Works offline and keeps the screen on while you play
 
 ## Install
@@ -20,6 +21,16 @@ A clean Sudoku game you can install on Android phones and tablets.
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 1.2
+- Clear history: removes every finished game and resets stats and Brain Activity, with an option to copy a backup code first; a game in progress stays
+- Kids 9×9 (52 starting numbers) and Kids 6×6 (22 starting numbers), using only the easiest techniques
+- Kids games ask "Who's playing?" and remember names
+- Praise for every correct number, with the child's name every few numbers and at the halfway point
+- A short buzz and a chime for each number (the chime rises as the board fills), and a speaker button to mute
+- No mistakes counter and no game over for kids: a wrong number shows why in the top bar (for example "There's already a 5 in this row."), outlines the clashing number, then fades away
+- Unlimited hints, a Skip button for a fresh puzzle, and fireworks with "Congratulations, name!" at the end
+- Kids games are a sandbox: they're never recorded in stats and never touch a grown-up's game in progress
 
 ### 1.1
 - Difficulty now follows the usual community ladder: Easy 38–42 starting numbers (box scanning), Medium 33–37 (row and column scanning), Hard 28–32 (pairs and locked candidates), Expert 24–28 (triples, X-Wing, Swordfish, Y-Wing, never guessing)

@@ -386,6 +386,7 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 
 /* ===== Pocket Games: hub, game home pages, card tables and Minesweeper (2.0, reworked in 2.1) ===== */
 :root{
+  --su-s:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2C9 6.6 3.5 9.6 3.5 14.1a4.5 4.5 0 0 0 7.6 3.2c-.3 1.9-1.2 3.4-2.6 4.7h7c-1.4-1.3-2.3-2.8-2.6-4.7a4.5 4.5 0 0 0 7.6-3.2C20.5 9.6 15 6.6 12 2z%22/%3E%3C/svg%3E");--su-h:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 21.4l-1.5-1.3C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.6L12 21.4z%22/%3E%3C/svg%3E");--su-d:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 1.6c-2.1 3.7-4.6 7.1-7.6 10.4 3 3.3 5.5 6.7 7.6 10.4 2.1-3.7 4.6-7.1 7.6-10.4-3-3.3-5.5-6.7-7.6-10.4z%22/%3E%3C/svg%3E");--su-c:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2.4a4.4 4.4 0 0 0-4 6.2 4.4 4.4 0 1 0 3 7.5c-.3 1.9-1.2 3.4-2.6 4.6h7.2c-1.4-1.2-2.3-2.7-2.6-4.6a4.4 4.4 0 1 0 3-7.5 4.4 4.4 0 0 0-4-6.2z%22/%3E%3C/svg%3E");--cr-k:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 14%22%3E%3Cpath d=%22M2.6 11 1.4 3.2l5.3 3.6L12 .9l5.3 5.9 5.3-3.6L21.4 11z%22/%3E%3Crect x=%222.6%22 y=%2211.9%22 width=%2218.8%22 height=%222.1%22 rx=%22.6%22/%3E%3Ccircle cx=%221.4%22 cy=%222.6%22 r=%221.2%22/%3E%3Ccircle cx=%2222.6%22 cy=%222.6%22 r=%221.2%22/%3E%3C/svg%3E");--cr-q:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 14%22%3E%3Cpath d=%22M3 11.2c.2-3.7 2-6 4.4-6 2 0 3.4 1.4 4.6 3.6 1.2-2.2 2.6-3.6 4.6-3.6 2.4 0 4.2 2.3 4.4 6z%22/%3E%3Ccircle cx=%2212%22 cy=%223%22 r=%222%22/%3E%3Crect x=%223%22 y=%2212%22 width=%2218%22 height=%222%22 rx=%22.6%22/%3E%3C/svg%3E");--cr-j:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 14%22%3E%3Cpath d=%22M3.2 11.6C4 6.8 7.4 4.2 12 4.2s8 2.6 8.8 7.4z%22/%3E%3Cpath d=%22M13.5 4.6C15 1.6 19 .4 22.6 1.4c-2.8.4-5.6 1.7-7.4 3.8z%22/%3E%3Crect x=%223.2%22 y=%2212.2%22 width=%2217.6%22 height=%221.8%22 rx=%22.6%22/%3E%3C/svg%3E");
   --card:#FCFBF7; --card-2:#ECE9E0; --card-edge:rgb(24 28 36 / .32);
   --suit-r:#C3263A; --suit-b:#191D27; --suit-d4:#1E5CC0; --suit-c4:#197346;
   --gold:#FFD36B;
@@ -436,7 +437,7 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .ghome .home-mark{font-size:clamp(44px,13vw,64px)}
 .gh-art{position:relative;width:80px;height:80px;flex:none;border-radius:18px;overflow:hidden;display:grid;place-items:center}
 .gh-art.plain{background:var(--peer)}
-.pc-card.pc-art{left:50%;top:50%;margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);transition:none;cursor:inherit;--cr:calc(var(--cw)*.085)}
+.pc-card.pc-art{left:50%;top:50%;margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);transition:none;will-change:auto;contain:none;cursor:inherit;--cr:calc(var(--cw)*.085)}
 .gmodes{display:flex;flex-direction:column;gap:8px}
 .gmode{display:flex;align-items:center;gap:14px;min-width:0;padding:12px 14px 12px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit}
 .gmode:hover{border-color:var(--accent)}
@@ -513,86 +514,84 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .pg-stats b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
 
 /* Felt table */
-.pg.felt{background:var(--felt-bg);color:#F6F7F1}
+.pg.felt{position:relative;isolation:isolate;background:none;color:#F6F7F1}
+.pg.felt::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--felt-bg);will-change:transform;pointer-events:none}
 .pg.felt .pg-title b{color:#F6F7F1}
 .pg.felt .pg-meta{color:rgb(246 247 241 / .76)}
 .pg.felt .icon-btn{background:rgb(255 255 255 / .1);border-color:rgb(255 255 255 / .16);color:#F6F7F1}
 .pg.felt .pg-new{background:#F6F7F1;color:#13201A}
-.pg.felt .pg-tools{width:auto;max-width:100%;padding:4px 6px;border-radius:22px;background:rgb(0 0 0 / .24);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08),0 6px 18px rgb(0 0 0 / .2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.pg.felt .pg-tools{width:auto;max-width:100%;padding:4px 6px;border-radius:22px;background:rgb(0 0 0 / .3);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08),0 6px 18px rgb(0 0 0 / .2)}
 .pg.felt .tool{flex:none;width:80px;color:rgb(246 247 241 / .88)}
 .pg.felt .tool:disabled{opacity:.32}
 .pg.felt .pg-toast{background:#F6F7F1;color:#13201A}
 .pg.felt .pg-sheet{color:var(--ink)}
 
 .pc-table{position:relative;width:100%;--cr:calc(var(--cw)*.085);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.pc-slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);display:grid;place-items:center;border-radius:var(--cr);background:rgb(0 0 0 / .14);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13),inset 0 2px 7px rgb(0 0 0 / .24);color:rgb(255 255 255 / .24);transition:box-shadow .16s,background-color .16s}
+.pc-slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);display:grid;place-items:center;border-radius:var(--cr);background:rgb(0 0 0 / .14);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13),inset 0 2px 7px rgb(0 0 0 / .24);color:rgb(255 255 255 / .24)}
 .pc-slot b{font:400 calc(var(--cw)*.56)/1 var(--display)}
 .pc-slot.stock{cursor:pointer;color:rgb(255 255 255 / .6)}
 .pc-slot.stock svg{width:46%;height:46%}
 .pc-slot.found.wide{background:none;box-shadow:none}
 .pc-slot.tgt{background:rgb(255 211 107 / .08);box-shadow:inset 0 0 0 2px rgb(255 211 107 / .9),0 0 16px 2px rgb(255 211 107 / .35)}
 .pc-slot.hot{background:rgb(255 211 107 / .2);box-shadow:inset 0 0 0 3px #FFD36B,0 0 26px 7px rgb(255 211 107 / .5)}
-.pc-slot.hint{animation:pcSlotHint 1.6s ease-in-out}
-.pc-slot.nope{animation:nope .32s}
-@keyframes pcSlotHint{0%,100%{box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13)}20%,60%{box-shadow:inset 0 0 0 3px #FFD36B,0 0 22px 6px rgb(255 211 107 / .55)}40%,80%{box-shadow:inset 0 0 0 1.5px rgb(255 211 107 / .6)}}
+.pc-slot::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 3px #FFD36B,0 0 22px 6px rgb(255 211 107 / .5);pointer-events:none}
+.pc-slot.hint::after{animation:pcGlow 1.4s ease-in-out}
 
 /* Cards */
-.pc-card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:var(--cr);transition:transform .3s cubic-bezier(.22,.8,.26,1);cursor:pointer}
+.pc-card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:var(--cr);transition:transform .2s cubic-bezier(.2,.8,.25,1);contain:layout style size;cursor:pointer}
+.pc-card.up,.pc-card.drag{will-change:transform}
+.pc-card.pend{display:none}
 .pc-lift,.pc-inner{position:absolute;inset:0;border-radius:inherit}
-.pc-lift{transition:transform .16s cubic-bezier(.3,.7,.3,1)}
+.pc-lift{transition:transform .14s cubic-bezier(.3,.7,.3,1)}
+.pc-sh{position:absolute;inset:0;border-radius:inherit;opacity:0;box-shadow:0 14px 26px rgb(0 0 0 / .38),0 5px 10px rgb(0 0 0 / .2);pointer-events:none}
+.pc-lift::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;box-shadow:0 0 0 2.5px #FFD36B,0 0 16px 4px rgb(255 211 107 / .5);transition:opacity .12s;pointer-events:none}
 .pc-face,.pc-back{position:absolute;inset:0;border-radius:inherit}
-.pc-face{display:none;overflow:hidden;color:var(--suit-b);background:linear-gradient(168deg,var(--card) 0%,var(--card) 56%,var(--card-2) 100%);box-shadow:0 0 0 .6px var(--card-edge),0 1px 1.5px rgb(0 0 0 / .26),0 3px 7px rgb(0 0 0 / .14);transition:box-shadow .16s}
+.pc-face{display:none;color:var(--suit-b);background:linear-gradient(168deg,var(--card) 0%,var(--card) 56%,var(--card-2) 100%);box-shadow:0 0 0 .6px var(--card-edge),0 1px 1.5px rgb(0 0 0 / .26),0 3px 7px rgb(0 0 0 / .14)}
 .pc-card.red .pc-face{color:var(--suit-r)}
 .pc-four .pc-card.s2 .pc-face{color:var(--suit-d4)}
 .pc-four .pc-card.s3 .pc-face{color:var(--suit-c4)}
 .pc-card.up .pc-face{display:block}
 .pc-card.up .pc-back{display:none}
-.pc-back{background:#F7F5EF var(--pc-back) center / 100% 100% no-repeat;box-shadow:0 0 0 .6px rgb(0 0 0 / .42),0 1px 1.5px rgb(0 0 0 / .28),0 3px 7px rgb(0 0 0 / .14);transition:box-shadow .16s}
+.pc-back{background:#F7F5EF var(--pc-back) center / 100% 100% no-repeat;box-shadow:0 0 0 .6px rgb(0 0 0 / .42),0 1px 1.5px rgb(0 0 0 / .28),0 3px 7px rgb(0 0 0 / .14)}
 .pc-card.deep .pc-face,.pc-card.deep .pc-back{box-shadow:0 0 0 .6px rgb(0 0 0 / .42),0 .7px 0 rgb(0 0 0 / .3)}
 .pc-idx{position:absolute;left:6%;top:3%;display:flex;align-items:center;line-height:1}
 .pc-idx b{font:700 calc(var(--cw)*.31)/1 var(--ui);letter-spacing:-.04em}
 .pc-card.r10 .pc-idx b{letter-spacing:-.11em}
-.pc-idx svg{flex:none;width:calc(var(--cw)*.22);height:calc(var(--cw)*.22);margin-left:calc(var(--cw)*.03)}
+.su{display:block;background-color:currentColor;-webkit-mask:var(--su) center / contain no-repeat;mask:var(--su) center / contain no-repeat}
+.pc-card.s0{--su:var(--su-s)} .pc-card.s1{--su:var(--su-h)} .pc-card.s2{--su:var(--su-d)} .pc-card.s3{--su:var(--su-c)}
+.pc-idx .su{flex:none;width:calc(var(--cw)*.22);height:calc(var(--cw)*.22);margin-left:calc(var(--cw)*.03)}
 .pc-mid,.pc-ace{position:absolute;left:50%;top:61%;width:52%;aspect-ratio:1;transform:translate(-50%,-50%)}
 .pc-ace{top:60%;width:58%}
 .pc-card.s0 .pc-ace{width:68%}
-.pc-mid svg,.pc-ace svg,.pc-pips svg{display:block;width:100%;height:100%}
-.pc-ace svg{filter:drop-shadow(0 1px 0 rgb(0 0 0 / .14))}
 .pc-court{position:absolute;left:12%;right:12%;top:27%;bottom:6%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:calc(var(--cw)*.06);background:linear-gradient(180deg,color-mix(in srgb,currentColor 14%,transparent),color-mix(in srgb,currentColor 4%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 34%,transparent)}
-.pc-crown{width:50%;height:auto;margin-bottom:5%}
+.pc-crown{display:block;width:50%;aspect-ratio:24 / 14;margin-bottom:5%;background-color:currentColor;-webkit-mask:var(--cr) center / contain no-repeat;mask:var(--cr) center / contain no-repeat}
+.pc-court.ck{--cr:var(--cr-k)} .pc-court.cq{--cr:var(--cr-q)} .pc-court.cj{--cr:var(--cr-j)}
 .pc-court b{font:400 calc(var(--cw)*.62)/.78 var(--display)}
 .pc-table.big .pc-court b{font-size:calc(var(--cw)*.56)}
 .pc-pips{position:absolute;left:18%;right:18%;top:27%;bottom:6%}
-.pc-pips i{position:absolute;width:31%;aspect-ratio:1;transform:translate(-50%,-50%)}
-.pc-pips i.dn{transform:translate(-50%,-50%) rotate(180deg)}
+.pc-pips .su{position:absolute;width:31%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.pc-pips .su.dn{transform:translate(-50%,-50%) rotate(180deg)}
 
 /* Touch, drag and drop */
 .pc-card.press .pc-lift{transform:translateY(-2px) scale(1.035)}
-.pc-card.press .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 0 0 2px rgb(255 211 107 / .75),0 8px 16px rgb(0 0 0 / .3)}
+.pc-card.press .pc-lift::after{opacity:.8}
 .pc-card.drag{transition:none;z-index:1000!important;cursor:grabbing}
 .pc-card.drag .pc-lift{transform:scale(1.07)}
-.pc-card.drag .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 16px 30px rgb(0 0 0 / .42),0 5px 10px rgb(0 0 0 / .22)}
-.pc-card.tgt .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 0 0 2.5px rgb(255 211 107 / .9),0 0 16px 3px rgb(255 211 107 / .45)}
+.pc-card.drag .pc-sh{opacity:1}
+.pc-card.tgt .pc-lift::after{opacity:.75}
 .pc-card.hot .pc-lift{transform:scale(1.03)}
-.pc-card.hot .pc-face{box-shadow:0 0 0 3.5px #FFD36B,0 0 26px 8px rgb(255 211 107 / .6)}
-.pc-card.nope{animation:nope .32s}
-.pc-card.hint .pc-lift{animation:pcHop 1.6s ease-in-out}
-.pc-card.hint .pc-face,.pc-card.hint .pc-back{animation:pcHint 1.6s ease-in-out}
+.pc-card.hot .pc-lift::after{opacity:1;box-shadow:0 0 0 3.5px #FFD36B,0 0 24px 7px rgb(255 211 107 / .6)}
+.pc-card.hint .pc-lift{animation:pcHop 1.4s ease-in-out}
+.pc-card.hint .pc-lift::after{transition:none;animation:pcGlow 1.4s ease-in-out}
 @keyframes pcHop{0%,40%,80%,100%{transform:none}20%,60%{transform:translateY(-5px) scale(1.04)}}
-@keyframes pcHint{0%,100%{box-shadow:0 0 0 .6px var(--card-edge),0 1px 1.5px rgb(0 0 0 / .26)}20%,60%{box-shadow:0 0 0 3px #FFD36B,0 0 22px 6px rgb(255 211 107 / .6)}40%,80%{box-shadow:0 0 0 1.5px rgb(255 211 107 / .7),0 0 10px 2px rgb(255 211 107 / .3)}}
+@keyframes pcGlow{0%,100%{opacity:0}20%,60%{opacity:1}40%,80%{opacity:.35}}
 
-/* Moves: a card lifts as it flies, and turns over in 3D */
-.pc-card.fly .pc-lift{animation:pcLift .38s cubic-bezier(.3,.7,.3,1) var(--fd,0ms) both}
-.pc-card.fly .pc-face,.pc-card.fly .pc-back{animation:pcLiftShadow .38s ease var(--fd,0ms) both}
-@keyframes pcLift{0%{transform:none}42%{transform:scale(1.1)}100%{transform:none}}
-@keyframes pcLiftShadow{0%,100%{box-shadow:0 0 0 .6px rgb(0 0 0 / .35),0 1px 1.5px rgb(0 0 0 / .26),0 3px 7px rgb(0 0 0 / .14)}42%{box-shadow:0 0 0 .6px rgb(0 0 0 / .3),0 16px 28px rgb(0 0 0 / .34),0 5px 10px rgb(0 0 0 / .2)}}
-.pc-card.flip .pc-inner,.pc-card.flipdn .pc-inner{transform-style:preserve-3d}
-.pc-card.flip .pc-face,.pc-card.flip .pc-back,.pc-card.flipdn .pc-face,.pc-card.flipdn .pc-back{display:block;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.pc-card.flip .pc-back,.pc-card.flipdn .pc-back{transform:rotateY(180deg)}
-.pc-card.flip .pc-inner{animation:pcFlip .46s cubic-bezier(.33,.6,.3,1) var(--flipd,0ms) both}
-.pc-card.flipdn .pc-inner{animation:pcFlipDn .4s cubic-bezier(.33,.6,.3,1) var(--flipd,0ms) both}
-@keyframes pcFlip{0%{transform:perspective(600px) rotateY(180deg)}50%{transform:perspective(600px) rotateY(90deg) scale(1.09)}100%{transform:perspective(600px) rotateY(0deg)}}
-@keyframes pcFlipDn{0%{transform:perspective(600px) rotateY(0deg)}50%{transform:perspective(600px) rotateY(90deg) scale(1.06)}100%{transform:perspective(600px) rotateY(180deg)}}
+/* Turning over in 3D (the motion itself runs as a Web Animation) */
+/* during the first half of a turn the card still shows the side it had before */
+.pc-card.up.flip-old .pc-face{display:none}
+.pc-card.up.flip-old .pc-back{display:block}
+.pc-card.flip-old:not(.up) .pc-face{display:block}
+.pc-card.flip-old:not(.up) .pc-back{display:none}
 .pc-cascade{position:fixed;inset:0;z-index:24;width:100%;height:100%;cursor:pointer;transition:opacity .6s ease}
 
 /* Minesweeper */
@@ -644,7 +643,7 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 
 @media (prefers-reduced-motion: reduce){
   .pc-card,.pc-lift,.switch::after,.ms-mode .knob{transition:none}
-  .pc-card.nope,.ms-cell.nope,.pc-slot.nope,.ms-board.shake,.pc-card.hint .pc-lift,.ms-cell.rv,.ms-cell.mrv,.ms-cell.xrv,.ms-cell.fl svg,.ms-cell.mrv svg,.ms-cell.xrv svg,.ms-cell.xrv::after,.ms-cell.boom::after,.ms-cell.boom::before{animation:none}
+  .ms-cell.nope,.ms-board.shake,.pc-card.hint .pc-lift,.pc-card.hint .pc-lift::after,.ms-cell.rv,.ms-cell.mrv,.ms-cell.xrv,.ms-cell.fl svg,.ms-cell.mrv svg,.ms-cell.xrv svg,.ms-cell.xrv::after,.ms-cell.boom::after,.ms-cell.boom::before{animation:none}
 }
 </style>
 </head>
@@ -1076,7 +1075,12 @@ const RANK_NAME=['','Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','K
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const reduced=()=>{try{return !!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}};
+// Number and date formatters are built once: toLocaleString() builds a new one on every call, which is slow.
+const NF=(()=>{try{return new Intl.NumberFormat();}catch(e){return null;}})();
+const num=n=>NF?NF.format(n):String(n);
+const DF=new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric'}),TF=new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit'});
+const RM=(()=>{try{return window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):null;}catch(e){return null;}})();
+const reduced=()=>!!(RM&&RM.matches);
 const SUIT_PATH={
   s:'M12 2C9 6.6 3.5 9.6 3.5 14.1a4.5 4.5 0 0 0 7.6 3.2c-.3 1.9-1.2 3.4-2.6 4.7h7c-1.4-1.3-2.3-2.8-2.6-4.7a4.5 4.5 0 0 0 7.6-3.2C20.5 9.6 15 6.6 12 2z',
   h:'M12 21.4l-1.5-1.3C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.6L12 21.4z',
@@ -1244,11 +1248,12 @@ const PIPS={
 const suitSVG=s=>`<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#suit-${SUIT[s]}"/></svg>`;
 function faceHTML(c,big){
   let body;
-  if(c.r===1)body=`<span class="pc-ace">${suitSVG(c.s)}</span>`;
-  else if(c.r>10)body=`<span class="pc-court"><svg class="pc-crown" viewBox="0 0 24 14" aria-hidden="true"><use href="#crown-${'jqk'[c.r-11]}"/></svg><b>${RANK[c.r]}</b></span>`;
-  else if(big)body=`<span class="pc-pips">${PIPS[c.r].map(([x,y])=>`<i style="left:${x}%;top:${y}%"${y>50?' class="dn"':''}>${suitSVG(c.s)}</i>`).join('')}</span>`;
-  else body=`<span class="pc-mid">${suitSVG(c.s)}</span>`;
-  return `<span class="pc-idx"><b>${RANK[c.r]}</b>${suitSVG(c.s)}</span>${body}`;
+  // suits and crowns are CSS masks: plain boxes, much lighter to draw than SVG copies
+  if(c.r===1)body='<i class="su pc-ace"></i>';
+  else if(c.r>10)body=`<span class="pc-court c${'jqk'[c.r-11]}"><i class="pc-crown"></i><b>${RANK[c.r]}</b></span>`;
+  else if(big)body=`<span class="pc-pips">${PIPS[c.r].map(([x,y])=>`<i class="su${y>50?' dn':''}" style="left:${x}%;top:${y}%"></i>`).join('')}</span>`;
+  else body='<i class="su pc-mid"></i>';
+  return `<span class="pc-idx"><b>${RANK[c.r]}</b><i class="su"></i></span>${body}`;
 }
 const cardCls=c=>'pc-card s'+c.s+(RED(c.s)?' red':'')+(c.r===10?' r10':'');
 function cardEl(c,big){
@@ -1256,8 +1261,8 @@ function cardEl(c,big){
   d.className=cardCls(c);
   d.dataset.id=c.id;
   d.setAttribute('aria-label',`${RANK_NAME[c.r]} of ${SUIT_NAME[c.s]}`);
-  d.innerHTML=`<div class="pc-lift"><div class="pc-inner"><span class="pc-face">${faceHTML(c,big)}</span><span class="pc-back"></span></div></div>`;
-  d._big=big;
+  d.innerHTML=`<div class="pc-lift"><span class="pc-sh"></span><div class="pc-inner"><span class="pc-face">${faceHTML(c,big)}</span><span class="pc-back"></span></div></div>`;
+  d._big=big;d._key=c.s+'-'+c.r;d._lift=d.firstChild;d._sh=d._lift.firstChild;d._inner=d._lift.lastChild;d._face=d._inner.firstChild;
   return d;
 }
 // A still card for artwork (game cards on the home pages)
@@ -1292,6 +1297,9 @@ function cardImage(c,w,h,dpr){
   }else{const z=c.r===1?w*0.6:w*0.52;suit(w/2-z/2,h*0.61-z/2,z);}
   return cv;
 }
+
+// Animation timings (ms): quick enough to keep up with fast play, long enough to follow the cards.
+const T={move:200,flip:280,ease:'cubic-bezier(.2,.8,.25,1)'};
 
 /* ---------- play screen shell: top bar, play area, tool row, sheet ---------- */
 function Shell(id,title,toolsHTML,felt){
@@ -1332,83 +1340,155 @@ function Table(host,spec){
   wrap.className='pc-table';
   host.appendChild(wrap);
   const els=new Map(),slots=new Map();
-  let lay=null,start=null,drag=null,busyUntil=0,marked=[],casc=null;
+  let lay=null,geom=null,start=null,drag=null,busyUntil=0,marked=[],casc=null,raf=0;
   const now=()=>performance.now();
+  const dpr=()=>window.devicePixelRatio||1;
+  const snapPx=v=>{const r=dpr();return Math.round(v*r)/r;};   // whole device pixels keep cards crisp
+  const tr=(x,y)=>`translate3d(${x}px,${y}px,0)`;
+  const anim=()=>!reduced();
+  // Every Web Animation is dropped the moment it ends: a finished one left on a card stops that
+  // card's next move from running on the graphics chip.
+  const play=(el,k,o)=>{const a=el.animate(k,o);a.onfinish=()=>a.cancel();return a;};
   function pileTop(id){let best=null;for(const p of lay.cards)if(p.pile===id&&(!best||p.idx>best.idx))best=p;return best?els.get(best.c.id):slots.get(id);}
   function mark(ids,cls,byElement){for(const id of ids){const e=byElement?(els.get(id)||slots.get(id)):pileTop(id);if(e){e.classList.add(cls);marked.push([e,cls]);}}}
   function unmark(cls){marked=marked.filter(([e,c])=>{if(!cls||c===cls){e.classList.remove(c);return false;}return true;});}
-  function fly(e,d,lift){
-    e.style.setProperty('--fd',d+'ms');
-    if(lift){e.classList.remove('fly');void e.offsetWidth;e.classList.add('fly');}
-    clearTimeout(e._ft);
-    e._ft=setTimeout(()=>{e.classList.remove('fly');e.style.transitionDelay='';e._flyUntil=0;e._zs=e._z;e.style.zIndex=e._z;},d+400);
+  // Flights, lifts and flips run on the graphics chip (Web Animations on transform and opacity),
+  // so nothing is laid out or repainted while a card moves.
+  function lift(e,d){
+    if(e._la)e._la.cancel();
+    e._la=play(e._lift,[{transform:'none'},{transform:'scale(1.07)',offset:.45},{transform:'none'}],{duration:T.move+40,delay:d,easing:'ease-out'});
+    if(e._sa)e._sa.cancel();
+    e._sa=play(e._sh,[{opacity:0},{opacity:1,offset:.45},{opacity:0}],{duration:T.move+40,delay:d,easing:'ease-out'});
   }
+  function raise(e,until){
+    e._flyUntil=Math.max(e._flyUntil||0,until);
+    const z=400+e._z;if(e._zs!==z){e._zs=z;e.style.zIndex=z;}
+    clearTimeout(e._ft);
+    e._ft=setTimeout(()=>{e._flyUntil=0;if(e._zs!==e._z){e._zs=e._z;e.style.zIndex=e._z;}},until-now()+20);
+  }
+  // A turn in two halves: the old side rotates to edge-on, the faces swap once, the new side rotates in.
+  // Only one face is ever drawn, so the graphics chip turns the card without redrawing it each frame.
   function flip(e,up,d){
-    e.style.setProperty('--flipd',d+'ms');
-    e.classList.remove('flip','flipdn');void e.offsetWidth;e.classList.add(up?'flip':'flipdn');
-    clearTimeout(e._fpt);e._fpt=setTimeout(()=>e.classList.remove('flip','flipdn'),d+520);
+    if(e._fa){const o=e._fa;e._fa=null;o.cancel();}
+    e.classList.add('flip-old');
+    const P='perspective(700px) ',h=T.flip/2;
+    const st={};e._fa=st;
+    const a1=e._inner.animate([{transform:P+'rotateY(0deg)'},{transform:P+'rotateY(90deg) scale(1.05)'}],{duration:h,delay:d,easing:'ease-in',fill:'backwards'});
+    st.a=a1;
+    st.cancel=()=>{st.a.cancel();e.classList.remove('flip-old');};
+    a1.onfinish=()=>{
+      if(e._fa!==st)return;
+      e.classList.remove('flip-old');
+      const a2=e._inner.animate([{transform:P+'rotateY(-90deg) scale(1.05)'},{transform:P+'rotateY(0deg)'}],{duration:h,easing:'ease-out'});
+      a1.cancel();st.a=a2;
+      a2.onfinish=()=>{a2.cancel();if(e._fa===st)e._fa=null;};
+    };
+  }
+  // Dealing: a card stays hidden at the deck until its turn, then its flight (and turn) starts.
+  // Starting each card's animation only when it leaves spreads the work of a deal over its frames.
+  let pending=[],pendRaf=0;
+  function dealOut(e,p,from,d,t,lag){
+    const sx=snapPx(from.x),sy=snapPx(from.y),to=tr(p.x,p.y),up=!!p.up;
+    const go=late=>{
+      e.classList.remove('pend');
+      const a=e._ma=e.animate([{transform:tr(sx,sy)},{transform:to}],{duration:T.move+40,delay:Math.max(0,d-late),easing:T.ease,fill:'backwards'});
+      a.onfinish=()=>{a.cancel();if(e._ma===a){e._ma=null;e.style.transition='';}};
+      a.oncancel=()=>{if(e._ma===a){e._ma=null;e.style.transition='';}};
+      if(up)flip(e,true,Math.max(0,d-late)+lag);
+      raise(e,t+d+T.move+60);
+    };
+    if(d>24){e.classList.add('pend');pending.push([t+d-16,e,go,t]);if(!pendRaf)pendRaf=requestAnimationFrame(reveal);}
+    else{e.classList.remove('pend');go(0);}
+  }
+  function reveal(){
+    const t=now();
+    pending=pending.filter(([at,e,go,t0])=>{if(at<=t){go(t-t0);return false;}return true;});
+    pendRaf=pending.length?requestAnimationFrame(reveal):0;
+  }
+  function measure(){
+    const r=wrap.getBoundingClientRect();
+    geom={W:wrap.clientWidth,H:Math.max(260,window.innerHeight-r.top-spec.bottomSpace())};
   }
   function render(opts){
     opts=opts||{};
     if(!wrap.isConnected||host.closest('[hidden]'))return;
-    const W=wrap.clientWidth,top=wrap.getBoundingClientRect().top;
-    const H=Math.max(260,window.innerHeight-top-spec.bottomSpace());
-    lay=spec.layout(W,H);
-    const big=lay.cw>=62,t=now();
-    wrap.classList.toggle('big',big);
-    wrap.style.height=lay.h+'px';
-    wrap.style.setProperty('--cw',lay.cw+'px');wrap.style.setProperty('--ch',lay.ch+'px');
+    if(!geom||!geom.W)measure();
+    lay=spec.layout(geom.W,geom.H);
+    for(const s of lay.slots){s.x=snapPx(s.x);s.y=snapPx(s.y);}
+    for(const p of lay.cards){p.x=snapPx(p.x);p.y=snapPx(p.y);}
+    const big=lay.cw>=62,t=now(),go=anim()&&!opts.instant;
+    if(wrap._big!==big){wrap._big=big;wrap.classList.toggle('big',big);}
+    if(wrap._h!==lay.h){wrap._h=lay.h;wrap.style.height=lay.h+'px';}
+    if(wrap._cw!==lay.cw||wrap._ch!==lay.ch){wrap._cw=lay.cw;wrap._ch=lay.ch;wrap.style.setProperty('--cw',lay.cw+'px');wrap.style.setProperty('--ch',lay.ch+'px');}
     const seenS=new Set();
     for(const s of lay.slots){
       let e=slots.get(s.id);
       if(!e){e=document.createElement('div');e.dataset.slot=s.id;wrap.appendChild(e);slots.set(s.id,e);}
       const cls='pc-slot'+(s.cls?' '+s.cls:'');
       if(e._cls!==cls){e._cls=cls;e.className=cls;}
-      e.style.transform=`translate(${s.x}px,${s.y}px)`;
+      const tf=tr(s.x,s.y);if(e._tf!==tf){e._tf=tf;e.style.transform=tf;}
       if(e._label!==s.label){e._label=s.label;e.innerHTML=s.label||'';}
-      if(s.aria)e.setAttribute('aria-label',s.aria);
+      if(s.aria&&e._aria!==s.aria){e._aria=s.aria;e.setAttribute('aria-label',s.aria);}
       seenS.add(s.id);
     }
     for(const [id,e] of slots)if(!seenS.has(id)){e.remove();slots.delete(id);}
-    // New cards appear where they belong, or at the deck when dealing.
-    const from=opts.from?spec.dealFrom():null;
-    let created=false;
+    const delays=opts.delays||null,from=opts.from?spec.dealFrom():null;
+    const seen=new Set();let last=0;
     for(const p of lay.cards){
-      if(els.has(p.c.id))continue;
-      const e=cardEl(p.c,big),s=from||p;
-      e._x=s.x;e._y=s.y;e._up=from?false:!!p.up;e._z=p.z;e._zs=p.z;e._flyUntil=0;
-      e.classList.toggle('up',e._up);
-      e.style.transform=`translate(${e._x}px,${e._y}px)`;e.style.zIndex=p.z;
-      wrap.appendChild(e);els.set(p.c.id,e);created=true;
-    }
-    if(created&&from)void wrap.offsetWidth;
-    const delays=opts.delays||null,anim=!opts.instant&&!reduced();
-    const seen=new Set();
-    for(const p of lay.cards){
-      const e=els.get(p.c.id);seen.add(p.c.id);
-      if(e._big!==big){e.querySelector('.pc-face').innerHTML=faceHTML(p.c,big);e._big=big;}
+      let e=els.get(p.c.id);
       const d=delays&&delays.has(p.c.id)?delays.get(p.c.id):0;
-      const dragging=drag&&drag.ids.has(p.c.id);
-      let moved=false;
-      if(!dragging&&(e._x!==p.x||e._y!==p.y)){
-        moved=true;
-        const far=Math.hypot(p.x-e._x,p.y-e._y)>lay.cw*0.6;
-        e.style.transitionDelay=d?d+'ms':'';
-        e.style.transform=`translate(${p.x}px,${p.y}px)`;
-        e._x=p.x;e._y=p.y;
-        if(far||d){e._flyUntil=t+d+380;fly(e,d,anim&&far&&!e._dropped);}
+      seen.add(p.c.id);
+      if(!e){
+        // a new card: placed where it belongs; when dealing it flies there from the deck
+        e=cardEl(p.c,big);e._x=p.x;e._y=p.y;e._up=!!p.up;e._z=p.z;e._zs=p.z;e._flyUntil=0;
+        e.classList.toggle('up',e._up);
+        e.style.transform=tr(p.x,p.y);e.style.zIndex=p.z;
+        wrap.appendChild(e);els.set(p.c.id,e);
+        if(from&&go){dealOut(e,p,from,d,t,opts.flipLag||0);last=Math.max(last,d+T.move+40);}
+      }else if(from&&go){
+        // a new deal reuses the cards already on the table: they gather at the deck and fly out again
+        e._z=p.z;e._pre=false;
+        const key=p.c.s+'-'+p.c.r;
+        if(e._key!==key){e._key=key;e.className=cardCls(p.c)+(p.up?' up':'');e._deep=false;e._face.innerHTML=faceHTML(p.c,big);e._big=big;e.setAttribute('aria-label',`${RANK_NAME[p.c.r]} of ${SUIT_NAME[p.c.s]}`);}
+        else if(e._big!==big){e._face.innerHTML=faceHTML(p.c,big);e._big=big;}
+        if(e._ma)e._ma.cancel();if(e._fa)e._fa.cancel();if(e._la)e._la.cancel();if(e._sa)e._sa.cancel();
+        e.style.transition='none';e.style.transitionDelay='';
+        e.style.transform=tr(p.x,p.y);e._x=p.x;e._y=p.y;
+        e._up=!!p.up;e.classList.toggle('up',e._up);e.style.visibility='';
+        dealOut(e,p,from,d,t,opts.flipLag||0);last=Math.max(last,d+T.move+40);
+      }else{
+        const key=p.c.s+'-'+p.c.r;
+        if(e._key!==key){e._key=key;e.className=cardCls(p.c)+(e._up?' up':'');e._deep=false;e._face.innerHTML=faceHTML(p.c,big);e._big=big;}
+        if(e._pre){
+          // built ahead of time while hidden: put it straight in place
+          e._pre=false;e.classList.remove('pend');
+          e.style.transform=tr(p.x,p.y);e._x=p.x;e._y=p.y;
+          e._up=!!p.up;e.classList.toggle('up',e._up);
+        }
+        else if(e._big!==big){e._face.innerHTML=faceHTML(p.c,big);e._big=big;}
+        const dragging=drag&&drag.ids.has(p.c.id);
+        let moved=false;
+        if(!dragging&&(e._x!==p.x||e._y!==p.y)){
+          moved=true;
+          const far=Math.hypot(p.x-e._x,p.y-e._y)>lay.cw*0.6;
+          e.style.transitionDelay=d?d+'ms':'';
+          e.style.transform=tr(p.x,p.y);
+          e._x=p.x;e._y=p.y;
+          if(go&&(far||d)){e._z=p.z;raise(e,t+d+T.move+40);if(far&&!e._dropped)lift(e,d);}
+        }
+        e._dropped=false;
+        const up=!!p.up;
+        if(e._up!==up){e._up=up;e.classList.toggle('up',up);if(go)flip(e,up,moved?d+(opts.flipLag||0):90);}
       }
-      e._dropped=false;
-      const up=!!p.up;
-      if(e._up!==up){e._up=up;e.classList.toggle('up',up);if(anim)flip(e,up,moved?d+(opts.flipLag||0):110);}
       e._z=p.z;
       const z=e._flyUntil>t?400+p.z:p.z;
       if(e._zs!==z){e._zs=z;e.style.zIndex=z;}
-      e.classList.toggle('deep',!!p.deep);
-      e.dataset.pile=p.pile;e.dataset.idx=p.idx;
+      const deep=!!p.deep;if(e._deep!==deep){e._deep=deep;e.classList.toggle('deep',deep);}
+      if(e._pile!==p.pile){e._pile=p.pile;e.dataset.pile=p.pile;}
+      if(e._idx!==p.idx){e._idx=p.idx;e.dataset.idx=p.idx;}
     }
     for(const [id,e] of els)if(!seen.has(id)){e.remove();els.delete(id);}
-    if(delays&&delays.size){let mx=0;for(const v of delays.values())mx=Math.max(mx,v);busyUntil=Math.max(busyUntil,t+mx+(from?520:320));}
+    if(from&&go)busyUntil=Math.max(busyUntil,t+last);   // only a new deal holds taps, until the last card lands
   }
   const local=e=>{const r=wrap.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
   function hit(pt){
@@ -1423,12 +1503,24 @@ function Table(host,spec){
     return bd<lay.cw*0.6?best:null;
   }
   function runOf(pile,idx){const out=[];for(const p of lay.cards)if(p.pile===pile&&p.idx>=idx)out.push({e:els.get(p.c.id),id:p.c.id,x:p.x,y:p.y});return out;}
+  let origin=null;
+  // Dragging moves the cards once per screen frame, whatever rate the finger events arrive at.
+  function dragFrame(){
+    raf=0;
+    if(!drag||!drag.pt)return;
+    const dx=drag.pt.x-start.x,dy=drag.pt.y-start.y;
+    for(const b of drag.base){b.e._x=b.x+dx;b.e._y=b.y+dy;b.e.style.transform=tr(b.e._x,b.e._y);}
+    const f=drag.base[0],h=hit({x:f.x+dx+lay.cw/2,y:f.y+dy+lay.ch*0.3});
+    const hot=h&&drag.targets.indexOf(h)>=0?h:null;
+    if(hot!==drag.hot){unmark('hot');drag.hot=hot;if(hot){mark([hot],'hot');A.buzz(6);}}
+  }
   wrap.addEventListener('pointerdown',e=>{
     if(e.button>0||!lay||casc)return;
     if(now()<busyUntil){start=null;return;}
     unmark('hint');
     const ce=e.target.closest('.pc-card'),se=e.target.closest('.pc-slot');
-    const pt=local(e);
+    origin=wrap.getBoundingClientRect();
+    const pt={x:e.clientX-origin.left,y:e.clientY-origin.top};
     if(ce&&ce.dataset.pile){
       const pile=ce.dataset.pile,idx=+ce.dataset.idx;
       start={pile,idx,x:pt.x,y:pt.y,pick:spec.canPick(pile,idx)};
@@ -1441,28 +1533,29 @@ function Table(host,spec){
   });
   wrap.addEventListener('pointermove',e=>{
     if(!start||!start.pick)return;
-    const pt=local(e),dx=pt.x-start.x,dy=pt.y-start.y;
+    const pt={x:e.clientX-origin.left,y:e.clientY-origin.top};
     if(!drag){
-      if(Math.hypot(dx,dy)<8)return;
-      drag={ids:new Set(start.run.map(r=>r.id)),base:start.run,hot:null,targets:spec.targets(start.pile,start.idx)};
-      drag.base.forEach(b=>{b.e.classList.remove('press');b.e.classList.add('drag');});
+      if(Math.hypot(pt.x-start.x,pt.y-start.y)<8)return;
+      drag={ids:new Set(start.run.map(r=>r.id)),base:start.run,hot:null,targets:spec.targets(start.pile,start.idx),pt};
+      drag.base.forEach(b=>{b.e.classList.remove('press');b.e.classList.add('drag');b.e.style.transitionDelay='';if(b.e._ma)b.e._ma.cancel();});
       mark(drag.targets,'tgt');
     }
-    drag.base.forEach(b=>{b.e._x=b.x+dx;b.e._y=b.y+dy;b.e.style.transitionDelay='';b.e.style.transform=`translate(${b.e._x}px,${b.e._y}px)`;});
-    const f=drag.base[0],h=hit({x:f.x+dx+lay.cw/2,y:f.y+dy+lay.ch*0.3});
-    const hot=h&&drag.targets.indexOf(h)>=0?h:null;
-    if(hot!==drag.hot){unmark('hot');drag.hot=hot;if(hot){mark([hot],'hot');A.buzz(6);}}
+    drag.pt=pt;
+    if(!raf)raf=requestAnimationFrame(dragFrame);
   });
   const finish=(e,cancel)=>{
     const s=start;start=null;
     if(s&&s.run)s.run.forEach(r=>r.e.classList.remove('press'));
     if(drag){
+      if(raf){cancelAnimationFrame(raf);raf=0;}
+      if(!cancel&&origin)drag.pt={x:e.clientX-origin.left,y:e.clientY-origin.top};
+      start=s;dragFrame();start=null;
       const d=drag;drag=null;
       unmark('tgt');unmark('hot');
-      d.base.forEach(b=>{b.e.classList.remove('drag');b.e._dropped=true;});
+      d.base.forEach(b=>{b.e.classList.remove('drag');b.e._dropped=true;raise(b.e,now()+T.move+40);});
       let ok=false;
       if(!cancel){
-        const pt=local(e),f=d.base[0];
+        const pt=d.pt,f=d.base[0];
         const target=d.hot||hit({x:f.x+(pt.x-s.x)+lay.cw/2,y:f.y+(pt.y-s.y)+lay.ch*0.3})||hit(pt);
         if(target&&target!==s.pile)ok=spec.drop(s.pile,s.idx,target);
       }
@@ -1475,22 +1568,24 @@ function Table(host,spec){
   };
   wrap.addEventListener('pointerup',e=>finish(e,false));
   wrap.addEventListener('pointercancel',e=>finish(e,true));
-  window.addEventListener('resize',()=>render({instant:true}));
+  window.addEventListener('resize',()=>{geom=null;render({instant:true});});
 
   // Win cascade: cards leap off their piles and bounce away, leaving trails.
   function cascade(ids,onEnd){
     stopCascade();
     if(reduced()||!ids.length||!lay){if(onEnd)onEnd();return;}
     const cv=document.createElement('canvas');cv.className='pc-cascade';cv.setAttribute('aria-hidden','true');
-    const dpr=Math.min(2,window.devicePixelRatio||1),W=window.innerWidth,H=window.innerHeight;
+    const dpr=Math.min(1.5,window.devicePixelRatio||1),W=window.innerWidth,H=window.innerHeight;
     cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);document.body.appendChild(cv);
     const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
     const cw=lay.cw,ch=lay.ch,byId=new Map(lay.cards.map(p=>[p.c.id,p.c])),every=ids.length>60?44:72;
+    const imgs=new Map();
     const run={raf:0,live:[],next:0,t0:now(),last:0,done:false};
     function launch(id){
       const e=els.get(id),c=byId.get(id);if(!e||!c)return;
       const r=e.getBoundingClientRect();e.style.visibility='hidden';
-      run.live.push({x:r.left,y:r.top,vx:(Math.random()<.5?-1:1)*(2.2+Math.random()*3.4),vy:-(1+Math.random()*6),img:cardImage(c,cw,ch,dpr)});
+      const key=c.s+'-'+c.r;let img=imgs.get(key);if(!img){img=cardImage(c,cw,ch,dpr);imgs.set(key,img);}
+      run.live.push({x:r.left,y:r.top,vx:(Math.random()<.5?-1:1)*(2.2+Math.random()*3.4),vy:-(1+Math.random()*6),img});
     }
     function frame(t){
       if(run.done)return;
@@ -1520,10 +1615,18 @@ function Table(host,spec){
   function stopCascade(){if(casc)casc.end();}
   return{
     render,cascade,stopCascade,
+    invalidate(){geom=null;},
     busy:()=>now()<busyUntil||!!casc,
-    hint(ids){unmark('hint');mark(ids,'hint',true);setTimeout(()=>unmark('hint'),1700);},
-    nope(ids){ids.forEach(id=>{const e=els.get(id)||slots.get(id);if(e){e.classList.remove('nope');void e.offsetWidth;e.classList.add('nope');setTimeout(()=>e.classList.remove('nope'),360);}});},
-    reset(){stopCascade();unmark();for(const e of els.values())e.remove();els.clear();busyUntil=0;}
+    hint(ids){unmark('hint');mark(ids,'hint',true);setTimeout(()=>unmark('hint'),1500);},
+    nope(ids){ids.forEach(id=>{const e=els.get(id)||slots.get(id);if(e){if(e._na)e._na.cancel();e._na=play(e,[{translate:'0 0'},{translate:'-4px 0'},{translate:'4px 0'},{translate:'-2px 0'},{translate:'0 0'}],{duration:280,easing:'ease-out'});}});},
+    reset(){stopCascade();unmark();for(const e of els.values())e.remove();els.clear();busyUntil=0;geom=null;},
+    // Cards built while the game's home page is open, so the first deal only has to move them.
+    prebuild(cards){
+      if(els.size)return;
+      for(const c of cards){const e=cardEl(c,false);e._pre=true;e._up=false;e._z=0;e._zs=0;e._flyUntil=0;e.classList.add('pend');wrap.appendChild(e);els.set(c.id,e);}
+    },
+    // a new game keeps the card elements (cheaper than building them again) and deals them out afresh
+    regather(){stopCascade();unmark();busyUntil=0;pending.forEach(([,e])=>e.classList.remove('pend'));pending=[];}
   };
 }
 
@@ -1631,13 +1734,13 @@ function renderStats(){
   const pct=s.rate==null?null:Math.round(s.rate*100),wPct=s.played?s.won/s.played*100:0;
   const rows=s.list.slice(0,60).map(e=>{
     const won=e.r==='won',d=new Date(e.t);
-    const when=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    const when=DF.format(d)+' · '+TF.format(d);
     return `<div class="row"><span class="key ${won?'w':'l'}"></span><div class="main"><span class="t1">${A.esc(def.longName(e.m))} · ${won?'Won':'Lost'}</span><span class="t2">${when}</span></div><div class="right"><span class="time">${e.s?A.fmt(e.s):'—'}</span><span class="t2">${def.detail(e)}</span></div></div>`;
   }).join('');
   const T=(label,val,note)=>`<div class="tile"><span class="eyebrow">${label}</span><span class="val">${val}</span><span class="note">${note}</span></div>`;
   const tiles=T('Win streak',s.streak,'current')+T('Best streak',s.bestStreak,'wins in a row')+T('Time played',A.fmtTotal(s.total),'all games')+
     T('Best time',A.fmt(s.best),'wins only')+T('Avg time',A.fmt(s.avg),'wins only')+
-    (def.scored?T('Best score',s.bestScore!=null?s.bestScore.toLocaleString():'—','points'):T('Games won',s.won,per==='all'?'all time':A.PERIOD_NAME[per].toLowerCase()));
+    (def.scored?T('Best score',s.bestScore!=null?num(s.bestScore):'—','points'):T('Games won',s.won,per==='all'?'all time':A.PERIOD_NAME[per].toLowerCase()));
   const old=!since?core.log.baseCount(mode):0;
   const scope=mode==='all'?'':` ${def.longName(mode)}`;
   const phrase={day:'today',week:'this week',month:'this month',year:'this year',all:'yet'}[per];
@@ -1660,7 +1763,7 @@ function renderStats(){
 function miniStats(core,mode){
   const s=core.log.stats(mode,0);
   const cells=[['Played',s.played],['Win rate',s.rate==null?'—':Math.round(s.rate*100)+'%'],['Streak',s.streak],['Best time',A.fmt(s.best)],['Avg time',A.fmt(s.avg)],
-    core.def.scored?['Best score',s.bestScore!=null?s.bestScore.toLocaleString():'—']:['Best streak',s.bestStreak]];
+    core.def.scored?['Best score',s.bestScore!=null?num(s.bestScore):'—']:['Best streak',s.bestStreak]];
   return `<div class="pg-stats">${cells.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
 }
 
@@ -1756,7 +1859,8 @@ function Game(def){
       setInterval(()=>{if(core.vis&&core.view==='play'&&!document.hidden)def.tick();},1000);
     },
     status:()=>def.status(),
-    show(){core.view='home';core.vis=true;applyVis();renderHome();},
+    show(){core.view='home';core.vis=true;applyVis();renderHome();
+      if(def.prebuild){const go=()=>{try{def.prebuild();}catch(e){}};if(window.requestIdleCallback)requestIdleCallback(go,{timeout:1200});else setTimeout(go,300);}},
     hide(){def.pause();core.hideSheet();home.hideSheet();if(GS.open&&GS.core===core){GS.open=false;GS.root.hidden=true;}core.vis=false;core.view='home';applyVis();A.setThemeColor(null);},
     setVisible(on){if(core.vis!==on){core.vis=on;applyVis();}},
     onBack:()=>core.onBack(),
@@ -1830,7 +1934,7 @@ function Game(def){
     if(st.stock.length){
       snap();
       const n=Math.min(st.draw,st.stock.length),delays=new Map();
-      for(let k=0;k<n;k++){const c=st.stock.pop();c.up=true;st.waste.push(c);delays.set(c.id,k*80);}
+      for(let k=0;k<n;k++){const c=st.stock.pop();c.up=true;st.waste.push(c);delays.set(c.id,k*45);}
       st.moves++;after({delays});
     }else if(st.waste.length){
       snap();
@@ -1866,7 +1970,7 @@ function Game(def){
       const c=st.tab[best.t].pop();st.found[best.f].push(c);st.score+=10;st.moves++;
       if(st.found.every(p=>p.length===13)){clearInterval(autoT);autoT=0;win();}
       else render();
-    },120);
+    },95);
   }
   function win(){
     if(autoT){clearInterval(autoT);autoT=0;}
@@ -1882,11 +1986,11 @@ function Game(def){
     setTimeout(()=>{
       if(st!==game||!core.onScreen(true)){partying=false;return;}
       table.cascade(order,()=>{partying=false;if(st===game&&core.onScreen(true))showWin(sec,bonus);});
-    },450);
+    },320);
   }
   function showWin(sec,bonus){
     core.showSheet(`<div class="lede"><h2>You won!</h2><p>Draw ${st.draw} · ${A.fmt(sec)} · ${A.plural(st.moves,'move')}</p></div>
-      <div class="win-score"><b>${st.score.toLocaleString()}</b><span>points${bonus?`, with a ${bonus.toLocaleString()} time bonus`:''}</span></div>
+      <div class="win-score"><b>${num(st.score)}</b><span>points${bonus?`, with a ${num(bonus)} time bonus`:''}</span></div>
       ${core.miniStats(String(st.draw))}
       <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Solitaire home</button></div>`,true);
   }
@@ -1916,7 +2020,7 @@ function Game(def){
   const playing=()=>!!(st&&st.status==='playing'&&core.onScreen()&&!partying);
   function renderMeta(){
     if(!st)return;
-    sh.meta(mi('score',st.score.toLocaleString(),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('moves',st.moves,'Moves'));
+    sh.meta(mi('score',num(st.score),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('moves',st.moves,'Moves'));
   }
   function render(opts){
     if(!sh)return;
@@ -1934,10 +2038,13 @@ function Game(def){
     slots.push({id:'stock',x:X(0),y:0,cls:'stock'+(st.stock.length?'':' empty'),label:st.stock.length?'':(st.waste.length?ICON.recycle:''),aria:st.stock.length?'Deck':'Turn the waste back over'});
     for(let f=0;f<4;f++)slots.push({id:'f'+f,x:X(3+f),y:0,cls:'found',label:'<b>A</b>',aria:'Foundation'});
     const n=st.stock.length;
-    st.stock.forEach((c,i)=>{const o=Math.floor((n-1-i)/4);cards.push({c,x:X(0)+o*0.5,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:i<n-1});});
+    // pile thickness: each card's offset is fixed by its place in a full pile, so drawing never shifts the rest;
+    // a full pile's top card lines up with the row and the pile sinks a little as it thins
+    st.stock.forEach((c,i)=>{const o=Math.floor(Math.max(0,23-i)/4);cards.push({c,x:X(0),y:o,z:i+1,up:false,pile:'stock',idx:i,deep:i<n-1});});
     const wn=st.waste.length,fan=st.draw===3?Math.max(0,wn-3):wn-1,fx=Math.round(cw*0.34);
-    st.waste.forEach((c,i)=>{const fanned=i>=fan,o=fanned?0:Math.floor((fan-1-i)/6);cards.push({c,x:X(1)+(st.draw===3?Math.max(0,i-fan)*fx:0)+o*0.5,y:o,z:i+1,up:true,pile:'waste',idx:i,deep:!fanned});});
-    st.found.forEach((p,f)=>p.forEach((c,i)=>{const o=Math.floor((p.length-1-i)/3);cards.push({c,x:X(3+f)+o*0.5,y:o*0.7,z:i+1,up:true,pile:'f'+f,idx:i,deep:i<p.length-1});}));
+    const ot=Math.floor(Math.max(0,23-Math.max(0,fan-1))/6);
+    st.waste.forEach((c,i)=>{const fanned=i>=fan,o=fanned?ot:Math.floor(Math.max(0,23-i)/6);cards.push({c,x:X(1)+(st.draw===3?Math.max(0,i-fan)*fx:0),y:o,z:i+1,up:true,pile:'waste',idx:i,deep:!fanned});});
+    st.found.forEach((p,f)=>p.forEach((c,i)=>{const o=Math.floor((12-i)/3);cards.push({c,x:X(3+f),y:o*0.7,z:i+1,up:true,pile:'f'+f,idx:i,deep:i<p.length-1});}));
     const y0=ch+g*3+4,dn=Math.max(5,Math.round(ch*0.11)),uo=Math.round(ch*0.27);
     let bottom=y0+ch;
     st.tab.forEach((p,t)=>{
@@ -1957,7 +2064,7 @@ function Game(def){
     for(let t=0;t<7;t++)r.push({id:'t'+t,x:L.X(t),y:L.y0,w:L.cw,h:Math.max(L.ch,L.H-L.y0)});
     return r;
   }
-  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<7;r++)for(let t=r;t<7;t++){m.set(st.tab[t][r].id,k*30);k++;}return m;}
+  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<7;r++)for(let t=r;t<7;t++){m.set(st.tab[t][r].id,k*16);k++;}return m;}
   const inProgress=()=>!!(st&&st.status==='playing'&&st.moves>0);
   const curMode=()=>String(st?st.draw:(A.lsGet(DRAW)||1));
   core=Game({
@@ -1965,7 +2072,7 @@ function Game(def){
     logKey:'pocket-games.klondike.log',legacy:{draw:'pocket-games.klondike.stats'},
     modes:[['1','Draw 1','One card at a time'],['3','Draw 3','The classic challenge']],
     longName:m=>m==='3'?'Draw 3':m==='1'?'Draw 1':'Solitaire',
-    detail:e=>e.r==='won'?`${(e.p||0).toLocaleString()} points`:'Left unfinished',
+    detail:e=>e.r==='won'?`${num(e.p||0)} points`:'Left unfinished',
     blurb:'Build four piles from Ace to King, one per suit.',go:'Deal',
     tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('stats','Stats',ICON.stats),
     rules:`<ul>
@@ -1993,9 +2100,10 @@ function Game(def){
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
     },
     inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
+    prebuild(){const cs=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)cs.push({id:'k'+s+'-'+r,s,r});table.prebuild(cs);},
     resume(){
       const home=st.found.reduce((a,p)=>a+p.length,0);
-      return{title:`Draw ${st.draw}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${st.score.toLocaleString()} points · ${home} of 52 cards home`,pct:home/52*100};
+      return{title:`Draw ${st.draw}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${num(st.score)} points · ${home} of 52 cards home`,pct:home/52*100};
     },
     modesHTML(){
       return `<div class="diffs">${[['1','Draw 1'],['3','Draw 3']].map(([m,l])=>{
@@ -2008,8 +2116,8 @@ function Game(def){
       table.stopCascade();partying=false;
       const d=mode==='3'?3:1;
       st=deal(d);undo=[];clock.set(0);A.lsSet(DRAW,d);
-      table.reset();saveNow();
-      render({from:true,delays:dealDelays(),flipLag:160});
+      table.regather();saveNow();
+      render({from:true,delays:dealDelays(),flipLag:110});
     },
     abandon(){core.log.add({t:Date.now(),m:String(st.draw),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
     action(act){
@@ -2067,7 +2175,7 @@ function Game(def){
     const run=p.slice(-13);
     for(let k=0;k<13;k++){if(!run[k].up||run[k].s!==run[0].s||run[k].r!==13-k)return false;}
     p.splice(-13);st.done.push(run);st.score+=100;flipTop(p);
-    run.forEach((c,k)=>delays.set(c.id,base+(12-k)*38));
+    run.forEach((c,k)=>delays.set(c.id,base+(12-k)*24));
     A.buzz(30);
     return true;
   }
@@ -2081,7 +2189,7 @@ function Game(def){
     flipTop(st.tab[f]);
     st.score=Math.max(0,st.score-1);st.moves++;
     const delays=new Map();
-    clearRuns(t,delays,300);
+    clearRuns(t,delays,180);
     after({delays});return true;
   }
   function dealRow(){
@@ -2090,9 +2198,9 @@ function Game(def){
     if(st.tab.some(p=>!p.length)){table.nope(['stock',top(st.stock).id]);return sh.toast('Fill every column before dealing.');}
     snap();
     const delays=new Map();
-    for(let t=0;t<10;t++){const c=st.stock.pop();c.up=true;st.tab[t].push(c);delays.set(c.id,t*45);}
+    for(let t=0;t<10;t++){const c=st.stock.pop();c.up=true;st.tab[t].push(c);delays.set(c.id,t*28);}
     st.score=Math.max(0,st.score-1);st.moves++;
-    for(let t=0;t<10;t++)clearRuns(t,delays,10*45+300);
+    for(let t=0;t<10;t++)clearRuns(t,delays,10*28+200);
     after({delays});
   }
   function autoMove(pile,idx){
@@ -2123,11 +2231,11 @@ function Game(def){
     setTimeout(()=>{
       if(st!==game||!core.onScreen(true)){partying=false;return;}
       table.cascade(order,()=>{partying=false;if(st===game&&core.onScreen(true))showWin(sec);});
-    },1150);
+    },820);
   }
   function showWin(sec){
     core.showSheet(`<div class="lede"><h2>You won!</h2><p>${st.suits} ${st.suits===1?'suit':'suits'} · ${A.fmt(sec)} · ${A.plural(st.moves,'move')}</p></div>
-      <div class="win-score"><b>${st.score.toLocaleString()}</b><span>points</span></div>
+      <div class="win-score"><b>${num(st.score)}</b><span>points</span></div>
       ${core.miniStats(String(st.suits))}
       <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Spider home</button></div>`,true);
   }
@@ -2155,7 +2263,7 @@ function Game(def){
   const playing=()=>!!(st&&st.status==='playing'&&core.onScreen()&&!partying);
   function renderMeta(){
     if(!st)return;
-    sh.meta(mi('score',st.score.toLocaleString(),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('runs',`${st.done.length}/8`,'Runs cleared'));
+    sh.meta(mi('score',num(st.score),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('runs',`${st.done.length}/8`,'Runs cleared'));
   }
   function render(opts){
     if(!sh)return;
@@ -2175,7 +2283,7 @@ function Game(def){
     const n=st.stock.length,deals=Math.ceil(n/10),so=Math.max(3,Math.round(cw*0.24));
     const stockX=X(9)-(Math.max(deals,1)-1)*so;
     slots.push({id:'stock',x:X(9),y:0,cls:'stock'+(n?'':' empty'),label:'',aria:'Deck'});
-    st.stock.forEach((c,i)=>{const grp=Math.floor(i/10),j=i%10,o=Math.floor((9-j)/3)*0.6;cards.push({c,x:stockX+grp*so+o*0.5,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:j<9});});
+    st.stock.forEach((c,i)=>{const grp=Math.floor(i/10),j=i%10,o=Math.floor((9-j)/3)*0.6;cards.push({c,x:stockX+grp*so,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:j<9});});
     const dx=Math.max(4,Math.round(cw*0.36));
     slots.push({id:'done',x:X(0),y:0,cls:'found wide',label:'',aria:'Cleared runs'});
     st.done.forEach((run,k)=>run.forEach((c,i)=>cards.push({c,x:X(0)+k*dx,y:0,z:k*20+(13-i),up:true,pile:'done',idx:i,deep:i>0})));
@@ -2197,7 +2305,7 @@ function Game(def){
     for(let t=0;t<10;t++)r.push({id:'t'+t,x:L.X(t),y:L.y0,w:L.cw,h:Math.max(L.ch,L.H-L.y0)});
     return r;
   }
-  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<6;r++)for(let t=0;t<10;t++){const c=st.tab[t][r];if(c){m.set(c.id,k*19);k++;}}return m;}
+  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<6;r++)for(let t=0;t<10;t++){const c=st.tab[t][r];if(c){m.set(c.id,k*9);k++;}}return m;}
   const inProgress=()=>!!(st&&st.status==='playing'&&st.moves>0);
   const curMode=()=>String(st?st.suits:(A.lsGet(SUITS)||1));
   const suitIcons=n=>`<span class="gm-suits">${[0,1,2,3].slice(0,n===1?1:n).map(s=>`<i class="${RED(s)?'red':''}${s>=2?' s'+s:''}">${suitSVG(s)}</i>`).join('')}</span>`;
@@ -2206,7 +2314,7 @@ function Game(def){
     logKey:'pocket-games.spider.log',legacy:{suits:'pocket-games.spider.stats'},
     modes:[['1','1 suit','Relaxed, all spades'],['2','2 suits','Spades and hearts'],['4','4 suits','The full challenge']],
     longName:m=>m==='1'?'1 suit':m==='2'?'2 suits':m==='4'?'4 suits':'Spider',
-    detail:e=>e.r==='won'?`${(e.p||0).toLocaleString()} points`:'Left unfinished',
+    detail:e=>e.r==='won'?`${num(e.p||0)} points`:'Left unfinished',
     blurb:'Build runs from King down to Ace in one suit to clear them. Clear all 8 to win.',go:'Deal',
     tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('deal','Deal',ICON.deal)+toolBtn('stats','Stats',ICON.stats),
     rules:`<ul>
@@ -2233,19 +2341,24 @@ function Game(def){
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
     },
     inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
-    resume(){return{title:`${st.suits} ${st.suits===1?'suit':'suits'}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${st.score.toLocaleString()} points · ${st.done.length} of 8 runs cleared`,pct:st.done.length/8*100};},
+    prebuild(){
+      const n=st?st.suits:(+A.lsGet(SUITS)||1),pattern=n===1?[0,0,0,0,0,0,0,0]:n===2?[0,1,0,1,0,1,0,1]:[0,1,2,3,0,1,2,3],cs=[];
+      pattern.forEach((s,k)=>{for(let r=1;r<=13;r++)cs.push({id:'p'+k+'-'+r,s,r});});
+      table.prebuild(cs);
+    },
+    resume(){return{title:`${st.suits} ${st.suits===1?'suit':'suits'}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${num(st.score)} points · ${st.done.length} of 8 runs cleared`,pct:st.done.length/8*100};},
     modesHTML(){
       return `<div class="gmodes">${[['1','1 suit','Relaxed'],['2','2 suits','Medium'],['4','4 suits','Hard']].map(([m,l,sub])=>{
         const s=core.log.stats(m,0);
-        const meta=s.bestScore!=null?`Best ${s.bestScore.toLocaleString()}`:s.played?A.plural(s.played,'game'):'Not played yet';
+        const meta=s.bestScore!=null?`Best ${num(s.bestScore)}`:s.played?A.plural(s.played,'game'):'Not played yet';
         return `<button type="button" class="gmode" data-gh="new" data-mode="${m}">${suitIcons(+m)}<span class="gm-t"><b>${l}</b><small>${sub}</small></span><span class="gm-best">${meta}</span></button>`;}).join('')}</div>`;
     },
     start(mode){
       table.stopCascade();partying=false;
       const n=mode==='4'?4:mode==='2'?2:1;
       st=deal(n);undo=[];clock.set(0);A.lsSet(SUITS,n);
-      table.reset();saveNow();
-      render({from:true,delays:dealDelays(),flipLag:150});
+      table.regather();saveNow();
+      render({from:true,delays:dealDelays(),flipLag:100});
     },
     abandon(){core.log.add({t:Date.now(),m:String(st.suits),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
     action(act){
@@ -2255,7 +2368,7 @@ function Game(def){
     },
     status(){
       if(inProgress())return{resume:true,line:`Continue · ${st.suits} ${st.suits===1?'suit':'suits'} · ${st.done.length}/8`};
-      const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestScore!=null?s.bestScore.toLocaleString():'—'}`:'1, 2 or 4 suits'};
+      const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestScore!=null?num(s.bestScore):'—'}`:'1, 2 or 4 suits'};
     },
     render,playing,tick:()=>{clock.run(playing());renderMeta();},
     pause(){saveNow();clock.run(false);table.stopCascade();},
@@ -2515,8 +2628,8 @@ window.PCGamesInit=function(api){
 (function(){
 'use strict';
 
-const APP_VERSION='2.1';
-const LS_NEWS='pocket-games.news.2.1';
+const APP_VERSION='2.2';
+const LS_NEWS='pocket-games.news.2.2';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
@@ -3429,7 +3542,7 @@ function fanfare(){
 
 /* ---------- Fireworks ---------- */
 let fwRun=null;
-function stopFireworks(){if(fwRun){cancelAnimationFrame(fwRun.raf);fwRun.timers.forEach(clearTimeout);fwRun=null;}const cv=$('fw');if(cv){cv.hidden=true;const c=cv.getContext&&cv.getContext('2d');if(c)c.clearRect(0,0,cv.width,cv.height);}}
+function stopFireworks(){if(!fwRun)return;cancelAnimationFrame(fwRun.raf);fwRun.timers.forEach(clearTimeout);fwRun=null;const cv=$('fw');if(cv){cv.hidden=true;const c=cv.getContext&&cv.getContext('2d');if(c)c.clearRect(0,0,cv.width,cv.height);}}
 function fireworks(){
   stopFireworks();
   try{if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
@@ -3541,7 +3654,7 @@ function renderHub(){
       <span class="gt"><b>${it.name}</b><small>${esc(it.line)}</small></span>
     </button>`).join(''));
   let seen=false;try{seen=!!localStorage.getItem(LS_NEWS);}catch(e){}
-  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.1</b><p>Solitaire, Spider and Minesweeper now have their own home pages with levels and full stats, like Sudoku. The card games get a felt table, 3D card flips and your choice of felt and card back. Minesweeper gets raised tiles and new animations.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
+  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.2</b><p>Solitaire and Spider run much smoother. Cards glide without stutter, deals and draws are quicker, and every quick tap on the deck now counts.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
   $('hubVersion').textContent='Version '+APP_VERSION;
 }
 

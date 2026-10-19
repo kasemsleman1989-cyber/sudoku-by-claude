@@ -2,7 +2,7 @@
 
 Four classic games in one app for Android phones and tablets: Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.
 
-**Current version: 2.1**
+**Current version: 2.2**
 
 ## Games
 
@@ -33,6 +33,15 @@ Each game has its own home page, like Sudoku: continue a game in progress, pick 
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 2.2
+- Smoother Solitaire and Spider: every move, lift, flip and deal now runs on the phone's graphics chip, so nothing is redrawn while cards move
+- Snappier timing: moves take 0.2 s, flips 0.28 s, and a new deal is about twice as fast
+- Every tap on the deck counts, even fast ones (2.1 ignored taps for a moment after each draw)
+- The deck no longer shimmers when you draw, and its top card lines up with the row
+- Dragging follows your finger frame by frame, with no repainting behind the cards
+- Cards are prepared while the game's home page is open and reused between games, so the first deal no longer freezes
+- Lighter card faces (suits drawn as masks instead of SVG copies) and a faster score display
 
 ### 2.1
 - Solitaire, Spider and Minesweeper each get a home page like Sudoku's: continue card, levels with your best result, a stats summary, and How to play

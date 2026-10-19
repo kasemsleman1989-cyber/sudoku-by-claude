@@ -1,26 +1,46 @@
-# Pocket Sudoku
+# Pocket Games
 
-A clean Sudoku game you can install on Android phones and tablets.
+Four classic games in one app for Android phones and tablets: Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.
 
-**Current version: 1.25**
+**Current version: 2.0**
 
-- A home screen to continue your game, start a new one, or open your stats
+## Games
+
+**Sudoku**
 - Easy, Medium, Hard, Expert and Extreme 9×9 puzzles built to standard difficulty, plus a quick Fast 6×6 mode, each with exactly one solution
-- Wrong numbers turn red right away; the third mistake ends the game
-- Notes, auto notes, undo, erase and 3 hints per game
-- Finishes the last cells for you, number by number, once only 2 numbers are incomplete or every number has 1 spot left
-- Encouraging words for clever finds and mistake-free streaks
-- The game in progress is saved; closing the app pauses it
-- Stats for today, this week, month, year or all time, with Brain Activity scores
-- Backup codes to move your history between devices, and Clear history to start fresh
-- Kids 9×9 and Kids 6×6: very easy puzzles that praise the child by name, with sounds, vibration and fireworks
-- Works offline and keeps the screen on while you play
+- Kids 9×9 and Kids 6×6: extra-easy puzzles that cheer the child on by name, with sounds, vibration and fireworks
+- Notes, auto notes, undo, erase, hints, auto-finish, encouraging words, saved games
+- Stats for today, this week, month, year or all time, with Brain Activity scores, backup codes and Clear history
+
+**Solitaire (Klondike)**
+- Draw 1 or Draw 3, unlimited passes through the stock; build down in alternating colours; only Kings fill empty columns
+- Tap a card to send it to the best spot, or drag it; undo, hints, and auto-finish once every card is face up
+- Standard scoring: +10 to a foundation, +5 waste to column, +5 for turning a card, −15 foundation to column, time bonus of 700,000 ÷ seconds
+
+**Spider Solitaire**
+- 1, 2 or 4 suits; two decks, ten columns (four of 6 cards, six of 5), 50 cards in the stock for 5 deals
+- Only same-suit runs move together; full King-to-Ace runs clear automatically; no dealing while a column is empty
+- Microsoft scoring: start at 500, −1 per move, deal or undo, +100 per cleared run
+
+**Minesweeper**
+- Beginner 9×9 with 10 mines, Intermediate 16×16 with 40, Expert 30×16 with 99 (upright on a phone)
+- The first tap always opens an area; long-press or Flag mode to flag; tap a number to open its neighbours once its flags are placed
+
+Each game saves the game in progress, pauses when you leave, and keeps its own stats on the device.
 
 ## Install
 
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 2.0
+- Renamed to Pocket Games, with a new icon
+- New games home showing all four games and any game in progress
+- New: Solitaire (Klondike), Spider Solitaire and Minesweeper
+- Sudoku moved to its own page with everything it had before
+- The phone back button works across every game
+
 
 ### 1.25
 - Kids levels about 30% easier: Kids 9×9 now has about 20 cells to fill (61 starting numbers), Kids 6×6 has 10 (26 starting numbers)

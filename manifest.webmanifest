@@ -1,7 +1,7 @@
 {
-  "name": "Pocket Sudoku",
-  "short_name": "Pocket Sudoku",
-  "description": "A clean Sudoku with a quick 6×6 mode, auto notes, game history and Brain Activity scores.",
+  "name": "Pocket Games",
+  "short_name": "Pocket Games",
+  "description": "Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.",
   "id": "./",
   "start_url": "./",
   "scope": "./",
@@ -11,7 +11,8 @@
   "theme_color": "#0E1117",
   "categories": [
     "games",
-    "puzzle"
+    "puzzle",
+    "card"
   ],
   "icons": [
     {

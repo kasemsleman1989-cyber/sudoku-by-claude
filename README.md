@@ -2,7 +2,7 @@
 
 Four classic games in one app for Android phones and tablets: Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.
 
-**Current version: 2.0**
+**Current version: 2.1**
 
 ## Games
 
@@ -26,13 +26,22 @@ Four classic games in one app for Android phones and tablets: Sudoku, Solitaire,
 - Beginner 9×9 with 10 mines, Intermediate 16×16 with 40, Expert 30×16 with 99 (upright on a phone)
 - The first tap always opens an area; long-press or Flag mode to flag; tap a number to open its neighbours once its flags are placed
 
-Each game saves the game in progress, pauses when you leave, and keeps its own stats on the device.
+Each game has its own home page, like Sudoku: continue a game in progress, pick a level, see your stats, read how to play. Games save as you go, pause when you leave, and keep their stats on the device.
 
 ## Install
 
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 2.1
+- Solitaire, Spider and Minesweeper each get a home page like Sudoku's: continue card, levels with your best result, a stats summary, and How to play
+- Full stats for each game: Today, Week, Month, Year or All, filtered by level, with win rate, streaks, best and average times, best score, recent games and Clear history (stats from 2.0 carry over)
+- Card games on a felt table with a fine grain texture; choose Emerald, Ocean, Wine or Slate felt and one of four card backs; optional four-colour suits
+- New cards: crisp corner indices, court cards with crowns, full pip layouts on tablets, and a deck that shows its thickness
+- 3D flips when cards turn over, cards that lift as they fly, an animated deal, glowing drop spots while you drag, pulsing hints, and the classic bouncing-card cascade when you win
+- Minesweeper: raised tiles, a press effect, a growing ring while you long-press to flag, reveals that ripple out from your tap, flags that drop in, a blast and a mine-by-mine reveal when you hit one, and a Dig/Flag switch
+- The status bar takes the felt colour while a card game is on screen
 
 ### 2.0
 - Renamed to Pocket Games, with a new icon

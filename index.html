@@ -384,24 +384,33 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 @media (prefers-reduced-motion: reduce){.cheer{animation-duration:2.1s}}
 .cheer.kid.name{font-size:24px}
 
-/* ===== V2.0: Pocket Games ===== */
+/* ===== Pocket Games: hub, game home pages, card tables and Minesweeper (2.0, reworked in 2.1) ===== */
 :root{
-  --card:#FFFFFF; --card-line:#D3D8E2; --suit-r:#C8323C; --suit-b:#1A1E28; --back-a:#2A4FC4; --back-b:#3B60D8; --slot:#C4CBD8;
-  --ms-hidden:#D9DFEB; --ms-hidden-hi:#E9EDF5; --ms-open:#FFFFFF;
+  --card:#FCFBF7; --card-2:#ECE9E0; --card-edge:rgb(24 28 36 / .32);
+  --suit-r:#C3263A; --suit-b:#191D27; --suit-d4:#1E5CC0; --suit-c4:#197346;
+  --gold:#FFD36B;
+  --felt-hi:#2E8F5E; --felt:#1B6C45; --felt-lo:#0B3A24;
+  --felt-bg:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .5 0 0 0 -.19'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg,color-mix(in srgb,var(--felt-lo) 80%,transparent) 0,transparent 110px),
+    radial-gradient(125% 80% at 50% 42%,var(--felt-hi) 0%,var(--felt) 48%,var(--felt-lo) 100%);
+  --ms-tray:#A1AEC6; --ms-top:#E3E9F5; --ms-bot:#BDC8DD; --ms-hl:rgb(255 255 255 / .75); --ms-open:#FBFCFE; --ms-open-line:#D3DAE6; --ms-pole:#2A3142; --ms-mine:#1B1F2A; --knob:#FFFFFF;
   --m1:#2A4FC4; --m2:#1C8155; --m3:#C83838; --m4:#283A8C; --m5:#8A2B2B; --m6:#0E7C86; --m7:#161A24; --m8:#687089;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --card:#E9ECF2; --card-line:#AEB5C4; --suit-r:#C02C38; --suit-b:#161A24; --back-a:#2C458C; --back-b:#3A55A6; --slot:#363D4C;
-    --ms-hidden:#2A3142; --ms-hidden-hi:#343C50; --ms-open:#161A22;
+    --card:#F2F0E9; --card-2:#DCD8CD; --card-edge:rgb(0 0 0 / .5);
+    --ms-tray:#07090D; --ms-top:#3D4866; --ms-bot:#2A3249; --ms-hl:rgb(255 255 255 / .12); --ms-open:#131821; --ms-open-line:#1D232E; --ms-pole:#D4DAE6; --ms-mine:#E6E9F0; --knob:#30394D;
     --m1:#86A2FF; --m2:#4CC48C; --m3:#FF6E6E; --m4:#B4C2FF; --m5:#FF9E9E; --m6:#5FD0D8; --m7:#E6E9F0; --m8:#8B92A6;
   }
 }
 :root[data-theme="dark"]{
-  --card:#E9ECF2; --card-line:#AEB5C4; --suit-r:#C02C38; --suit-b:#161A24; --back-a:#2C458C; --back-b:#3A55A6; --slot:#363D4C;
-  --ms-hidden:#2A3142; --ms-hidden-hi:#343C50; --ms-open:#161A22;
+  --card:#F2F0E9; --card-2:#DCD8CD; --card-edge:rgb(0 0 0 / .5);
+  --ms-tray:#07090D; --ms-top:#3D4866; --ms-bot:#2A3249; --ms-hl:rgb(255 255 255 / .12); --ms-open:#131821; --ms-open-line:#1D232E; --ms-pole:#D4DAE6; --ms-mine:#E6E9F0; --knob:#30394D;
   --m1:#86A2FF; --m2:#4CC48C; --m3:#FF6E6E; --m4:#B4C2FF; --m5:#FF9E9E; --m6:#5FD0D8; --m7:#E6E9F0; --m8:#8B92A6;
 }
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@keyframes nope{0%,100%{translate:0}25%{translate:-4px 0}75%{translate:4px 0}}
 
 /* Games home */
 .hub{min-height:100%;display:flex;justify-content:center;padding-inline:16px;padding-block:28px 20px}
@@ -409,22 +418,13 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .gcard{display:flex;flex-direction:column;gap:12px;min-width:0;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit}
 .gcard:hover{border-color:var(--accent)}
-.gcard .art{position:relative;height:92px;border-radius:10px;background:var(--peer);overflow:hidden;display:grid;place-items:center}
+.gcard .art{position:relative;height:96px;border-radius:11px;background:var(--peer);overflow:hidden;display:grid;place-items:center}
 .gcard .gt{display:flex;flex-direction:column;gap:4px;padding:0 2px 2px}
 .gcard .gt b{font-family:var(--display);font-weight:400;font-size:27px;line-height:1}
 .gcard .gt small{font-size:12px;color:var(--muted);line-height:1.35}
 .gcard.resume .gt small{color:var(--accent);font-weight:600}
 .gcard .glyph{width:58px;height:58px}
-.mini{position:absolute;width:40px;height:56px;border-radius:6px;background:var(--card);border:1px solid var(--card-line);box-shadow:0 2px 6px var(--shadow);color:var(--suit-b);display:flex;flex-direction:column;padding:4px 5px;font:700 13px/1 var(--ui)}
-.mini.red{color:var(--suit-r)}
-.mini svg{width:12px;height:12px;margin-top:2px}
-.mini .big{position:absolute;right:5px;bottom:5px;width:18px;height:18px}
-.mini.back{background:repeating-linear-gradient(45deg,var(--back-a) 0 3px,var(--back-b) 3px 6px);border:2px solid var(--card)}
-.mini-grid{display:grid;grid-template-columns:repeat(4,16px);gap:2px;padding:3px;border-radius:6px;background:var(--box)}
-.mini-grid i{height:16px;border-radius:2px;background:var(--ms-hidden-hi);display:grid;place-items:center;font:700 10px/1 var(--ui);font-style:normal}
-.mini-grid i.o{background:var(--ms-open)}
-.mini-grid i.m1{color:var(--m1)} .mini-grid i.m2{color:var(--m2)} .mini-grid i.f{color:var(--error)}
-.mini-grid i svg{width:11px;height:11px}
+.gcard .art.felt,.gh-art.felt,.look-prev{background:var(--felt-bg);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .06),inset 0 -14px 26px rgb(0 0 0 / .2)}
 .news{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--peer)}
 .news b{font-size:15px}
 .news p{margin:0;font-size:14px;color:var(--muted);line-height:1.45}
@@ -432,20 +432,76 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .back-link{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;height:34px;margin:-6px 0 -10px;padding:0 12px 0 6px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:600 13px var(--ui);cursor:pointer}
 .back-link svg{width:18px;height:18px}
 
-/* Game screens */
-.pg{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-inline:12px;padding-block:10px 16px}
+/* Game home pages (same layout as the Sudoku page) */
+.ghome .home-mark{font-size:clamp(44px,13vw,64px)}
+.gh-art{position:relative;width:80px;height:80px;flex:none;border-radius:18px;overflow:hidden;display:grid;place-items:center}
+.gh-art.plain{background:var(--peer)}
+.pc-card.pc-art{left:50%;top:50%;margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);transition:none;cursor:inherit;--cr:calc(var(--cw)*.085)}
+.gmodes{display:flex;flex-direction:column;gap:8px}
+.gmode{display:flex;align-items:center;gap:14px;min-width:0;padding:12px 14px 12px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;font:inherit}
+.gmode:hover{border-color:var(--accent)}
+.gm-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.gm-t b{font-size:17px;font-weight:600}
+.gm-t small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gm-best{flex:none;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.gm-suits{flex:none;width:46px;height:46px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:2px;padding:7px;border-radius:11px;background:var(--felt-bg)}
+.gm-suits i{width:15px;height:15px;color:#F6F4EE}
+.gm-suits i.red{color:#FF8E99}
+.gm-suits i:only-child{width:24px;height:24px}
+.gm-suits i:first-child:nth-last-child(2),.gm-suits i:first-child:nth-last-child(2) ~ i{width:16px;height:16px}
+.pc-four .gm-suits i.s2{color:#8DB6FF}
+.pc-four .gm-suits i.s3{color:#7FE0A6}
+.gm-suits svg{display:block;width:100%;height:100%}
+.gm-grid{flex:none;width:46px;height:46px;display:grid;grid-template-columns:repeat(var(--n),1fr);gap:1.5px;padding:4px;border-radius:11px;background:var(--ms-tray)}
+.gm-grid i{border-radius:2px;background:linear-gradient(var(--ms-top),var(--ms-bot));box-shadow:inset 0 1px 0 var(--ms-hl)}
+.win-score{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;padding:12px 14px;border-radius:12px;background:var(--peer)}
+.win-score b{font-family:var(--display);font-weight:400;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.win-score span{font-size:13px;color:var(--muted)}
+
+/* Table look */
+.look{display:flex;flex-direction:column;padding:12px 14px 4px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.look-prev{position:relative;height:112px;margin-bottom:6px;border-radius:10px;overflow:hidden}
+.look-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:8px 0;border-top:1px solid var(--line)}
+.look-prev + .look-row{border-top:0}
+.look-l{display:flex;flex-direction:column;gap:3px;font-size:14px;font-weight:600;color:var(--ink)}
+.look-l small{font-size:12px;font-weight:400;color:var(--muted)}
+.swatches{display:flex;align-items:center;gap:10px}
+.sw{flex:none;width:30px;height:30px;padding:0;border:0;border-radius:50%;cursor:pointer;box-shadow:inset 0 0 0 1px rgb(0 0 0 / .2)}
+.sw.felt{background:radial-gradient(circle at 35% 30%,var(--a),var(--b))}
+.sw.back{width:26px;height:37px;border-radius:5px;background-color:#F7F5EF;background-size:100% 100%;box-shadow:0 0 0 .6px rgb(0 0 0 / .35),0 1px 3px rgb(0 0 0 / .2)}
+.sw[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:3px}
+.look-toggle{width:100%;border-left:0;border-right:0;border-bottom:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.switch{position:relative;flex:none;width:46px;height:28px;border-radius:14px;background:var(--line);transition:background-color .2s}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(0 0 0 / .3);transition:transform .2s cubic-bezier(.3,.7,.3,1)}
+.look-toggle[aria-pressed="true"] .switch{background:var(--accent)}
+.look-toggle[aria-pressed="true"] .switch::after{transform:translateX(18px)}
+
+/* How to play */
+.rules{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.rules summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;font-size:15px;font-weight:600;cursor:pointer;list-style:none}
+.rules summary::-webkit-details-marker{display:none}
+.rules summary svg{width:18px;height:18px;color:var(--muted);transition:transform .2s}
+.rules[open] summary svg{transform:rotate(180deg)}
+.rules-body{padding:0 16px 16px}
+.rules ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5;color:var(--muted)}
+.gstats{z-index:12}
+
+/* Play screens */
+.pg{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding-inline:12px;padding-block:10px 14px}
 .pg > *{width:min(100%,780px)}
 .pg-bar{display:flex;align-items:center;gap:12px;min-height:40px}
-.pg-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pg-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .pg-title b{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pg-title span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-meta{display:flex;gap:12px;min-width:0;overflow:hidden;font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mi{display:inline-flex;align-items:center;gap:4px}
+.mi svg{flex:none;width:13px;height:13px;opacity:.8}
 .pg-new{height:36px;flex:none;padding:0 14px;border:0;border-radius:999px;background:var(--ink);color:var(--bg);font:600 13px var(--ui);cursor:pointer}
 .pg-area{position:relative}
-.pg-tools{display:flex;justify-content:center;gap:4px}
-.pg-tools .tool{flex:0 1 96px}
+.pg-tools{display:flex;justify-content:center;align-items:center;gap:4px}
+.pg-tools .tool{flex:0 1 92px}
 .pg-sheet{position:fixed;inset:0;z-index:25;display:flex;padding:16px;overflow:auto;background:var(--veil);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .pg-sheet .card{margin:auto}
-.pg-toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:26;width:max-content;max-width:calc(100% - 32px);padding:10px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font:600 14px/1.35 var(--ui);text-align:center;box-shadow:0 8px 20px var(--shadow)}
+.pg-toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:26;width:max-content;max-width:calc(100% - 32px);padding:10px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font:600 14px/1.35 var(--ui);text-align:center;box-shadow:0 8px 20px var(--shadow)}
 .pg-opts{display:flex;flex-direction:column;gap:8px}
 .pg-opt{display:flex;justify-content:space-between;align-items:baseline;gap:12px;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-align:left;cursor:pointer;font:inherit}
 .pg-opt b{font-size:15px;font-weight:600}
@@ -455,58 +511,141 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .pg-stats div{display:flex;flex-direction:column;gap:4px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px}
 .pg-stats span{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
 .pg-stats b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
-.ms-stats{display:flex;flex-direction:column}
-.ms-srow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
-.ms-srow span{color:var(--muted);font-variant-numeric:tabular-nums}
 
-/* Card table */
-.pc-table{position:relative;width:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.pc-slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);display:grid;place-items:center;border:1.5px dashed var(--slot);border-radius:calc(var(--cw)*.1);color:var(--faint);font:600 calc(var(--cw)*.34)/1 var(--ui)}
-.pc-slot.tab{border-style:dotted}
-.pc-slot.stock{cursor:pointer;color:var(--muted)}
-.pc-slot.stock svg{width:44%;height:44%}
-.pc-slot.found.wide{border:0}
-.pc-slot.hint{border:2px solid var(--accent)}
+/* Felt table */
+.pg.felt{background:var(--felt-bg);color:#F6F7F1}
+.pg.felt .pg-title b{color:#F6F7F1}
+.pg.felt .pg-meta{color:rgb(246 247 241 / .76)}
+.pg.felt .icon-btn{background:rgb(255 255 255 / .1);border-color:rgb(255 255 255 / .16);color:#F6F7F1}
+.pg.felt .pg-new{background:#F6F7F1;color:#13201A}
+.pg.felt .pg-tools{width:auto;max-width:100%;padding:4px 6px;border-radius:22px;background:rgb(0 0 0 / .24);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08),0 6px 18px rgb(0 0 0 / .2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.pg.felt .tool{flex:none;width:80px;color:rgb(246 247 241 / .88)}
+.pg.felt .tool:disabled{opacity:.32}
+.pg.felt .pg-toast{background:#F6F7F1;color:#13201A}
+.pg.felt .pg-sheet{color:var(--ink)}
+
+.pc-table{position:relative;width:100%;--cr:calc(var(--cw)*.085);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pc-slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);display:grid;place-items:center;border-radius:var(--cr);background:rgb(0 0 0 / .14);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13),inset 0 2px 7px rgb(0 0 0 / .24);color:rgb(255 255 255 / .24);transition:box-shadow .16s,background-color .16s}
+.pc-slot b{font:400 calc(var(--cw)*.56)/1 var(--display)}
+.pc-slot.stock{cursor:pointer;color:rgb(255 255 255 / .6)}
+.pc-slot.stock svg{width:46%;height:46%}
+.pc-slot.found.wide{background:none;box-shadow:none}
+.pc-slot.tgt{background:rgb(255 211 107 / .08);box-shadow:inset 0 0 0 2px rgb(255 211 107 / .9),0 0 16px 2px rgb(255 211 107 / .35)}
+.pc-slot.hot{background:rgb(255 211 107 / .2);box-shadow:inset 0 0 0 3px #FFD36B,0 0 26px 7px rgb(255 211 107 / .5)}
+.pc-slot.hint{animation:pcSlotHint 1.6s ease-in-out}
 .pc-slot.nope{animation:nope .32s}
-.pc-card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:calc(var(--cw)*.1);transition:transform .22s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+@keyframes pcSlotHint{0%,100%{box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13)}20%,60%{box-shadow:inset 0 0 0 3px #FFD36B,0 0 22px 6px rgb(255 211 107 / .55)}40%,80%{box-shadow:inset 0 0 0 1.5px rgb(255 211 107 / .6)}}
+
+/* Cards */
+.pc-card{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);border-radius:var(--cr);transition:transform .3s cubic-bezier(.22,.8,.26,1);cursor:pointer}
+.pc-lift,.pc-inner{position:absolute;inset:0;border-radius:inherit}
+.pc-lift{transition:transform .16s cubic-bezier(.3,.7,.3,1)}
 .pc-face,.pc-back{position:absolute;inset:0;border-radius:inherit}
-.pc-face{display:none;background:var(--card);border:1px solid var(--card-line);color:var(--suit-b);box-shadow:0 1px 2px var(--shadow)}
+.pc-face{display:none;overflow:hidden;color:var(--suit-b);background:linear-gradient(168deg,var(--card) 0%,var(--card) 56%,var(--card-2) 100%);box-shadow:0 0 0 .6px var(--card-edge),0 1px 1.5px rgb(0 0 0 / .26),0 3px 7px rgb(0 0 0 / .14);transition:box-shadow .16s}
 .pc-card.red .pc-face{color:var(--suit-r)}
+.pc-four .pc-card.s2 .pc-face{color:var(--suit-d4)}
+.pc-four .pc-card.s3 .pc-face{color:var(--suit-c4)}
 .pc-card.up .pc-face{display:block}
 .pc-card.up .pc-back{display:none}
-.pc-back{background:repeating-linear-gradient(45deg,var(--back-a) 0 3px,var(--back-b) 3px 6px);border:2px solid var(--card);box-shadow:0 1px 2px var(--shadow)}
-.pc-corner{position:absolute;left:7%;top:4%;display:flex;align-items:center;gap:1px;line-height:1}
-.pc-corner b{font:700 calc(var(--cw)*.3)/1 var(--ui);letter-spacing:-.03em}
-.pc-corner svg{width:calc(var(--cw)*.24);height:calc(var(--cw)*.24)}
-.pc-pip{position:absolute;right:9%;bottom:7%;width:calc(var(--cw)*.44);height:calc(var(--cw)*.44)}
-.pc-card.drag{transition:none;z-index:1000!important}
-.pc-card.drag .pc-face{box-shadow:0 10px 20px var(--shadow)}
-.pc-card.hint .pc-face{box-shadow:0 0 0 3px var(--accent)}
+.pc-back{background:#F7F5EF var(--pc-back) center / 100% 100% no-repeat;box-shadow:0 0 0 .6px rgb(0 0 0 / .42),0 1px 1.5px rgb(0 0 0 / .28),0 3px 7px rgb(0 0 0 / .14);transition:box-shadow .16s}
+.pc-card.deep .pc-face,.pc-card.deep .pc-back{box-shadow:0 0 0 .6px rgb(0 0 0 / .42),0 .7px 0 rgb(0 0 0 / .3)}
+.pc-idx{position:absolute;left:6%;top:3%;display:flex;align-items:center;line-height:1}
+.pc-idx b{font:700 calc(var(--cw)*.31)/1 var(--ui);letter-spacing:-.04em}
+.pc-card.r10 .pc-idx b{letter-spacing:-.11em}
+.pc-idx svg{flex:none;width:calc(var(--cw)*.22);height:calc(var(--cw)*.22);margin-left:calc(var(--cw)*.03)}
+.pc-mid,.pc-ace{position:absolute;left:50%;top:61%;width:52%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.pc-ace{top:60%;width:58%}
+.pc-card.s0 .pc-ace{width:68%}
+.pc-mid svg,.pc-ace svg,.pc-pips svg{display:block;width:100%;height:100%}
+.pc-ace svg{filter:drop-shadow(0 1px 0 rgb(0 0 0 / .14))}
+.pc-court{position:absolute;left:12%;right:12%;top:27%;bottom:6%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:calc(var(--cw)*.06);background:linear-gradient(180deg,color-mix(in srgb,currentColor 14%,transparent),color-mix(in srgb,currentColor 4%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 34%,transparent)}
+.pc-crown{width:50%;height:auto;margin-bottom:5%}
+.pc-court b{font:400 calc(var(--cw)*.62)/.78 var(--display)}
+.pc-table.big .pc-court b{font-size:calc(var(--cw)*.56)}
+.pc-pips{position:absolute;left:18%;right:18%;top:27%;bottom:6%}
+.pc-pips i{position:absolute;width:31%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.pc-pips i.dn{transform:translate(-50%,-50%) rotate(180deg)}
+
+/* Touch, drag and drop */
+.pc-card.press .pc-lift{transform:translateY(-2px) scale(1.035)}
+.pc-card.press .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 0 0 2px rgb(255 211 107 / .75),0 8px 16px rgb(0 0 0 / .3)}
+.pc-card.drag{transition:none;z-index:1000!important;cursor:grabbing}
+.pc-card.drag .pc-lift{transform:scale(1.07)}
+.pc-card.drag .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 16px 30px rgb(0 0 0 / .42),0 5px 10px rgb(0 0 0 / .22)}
+.pc-card.tgt .pc-face{box-shadow:0 0 0 .6px var(--card-edge),0 0 0 2.5px rgb(255 211 107 / .9),0 0 16px 3px rgb(255 211 107 / .45)}
+.pc-card.hot .pc-lift{transform:scale(1.03)}
+.pc-card.hot .pc-face{box-shadow:0 0 0 3.5px #FFD36B,0 0 26px 8px rgb(255 211 107 / .6)}
 .pc-card.nope{animation:nope .32s}
-@keyframes nope{0%,100%{translate:0}25%{translate:-4px 0}75%{translate:4px 0}}
+.pc-card.hint .pc-lift{animation:pcHop 1.6s ease-in-out}
+.pc-card.hint .pc-face,.pc-card.hint .pc-back{animation:pcHint 1.6s ease-in-out}
+@keyframes pcHop{0%,40%,80%,100%{transform:none}20%,60%{transform:translateY(-5px) scale(1.04)}}
+@keyframes pcHint{0%,100%{box-shadow:0 0 0 .6px var(--card-edge),0 1px 1.5px rgb(0 0 0 / .26)}20%,60%{box-shadow:0 0 0 3px #FFD36B,0 0 22px 6px rgb(255 211 107 / .6)}40%,80%{box-shadow:0 0 0 1.5px rgb(255 211 107 / .7),0 0 10px 2px rgb(255 211 107 / .3)}}
+
+/* Moves: a card lifts as it flies, and turns over in 3D */
+.pc-card.fly .pc-lift{animation:pcLift .38s cubic-bezier(.3,.7,.3,1) var(--fd,0ms) both}
+.pc-card.fly .pc-face,.pc-card.fly .pc-back{animation:pcLiftShadow .38s ease var(--fd,0ms) both}
+@keyframes pcLift{0%{transform:none}42%{transform:scale(1.1)}100%{transform:none}}
+@keyframes pcLiftShadow{0%,100%{box-shadow:0 0 0 .6px rgb(0 0 0 / .35),0 1px 1.5px rgb(0 0 0 / .26),0 3px 7px rgb(0 0 0 / .14)}42%{box-shadow:0 0 0 .6px rgb(0 0 0 / .3),0 16px 28px rgb(0 0 0 / .34),0 5px 10px rgb(0 0 0 / .2)}}
+.pc-card.flip .pc-inner,.pc-card.flipdn .pc-inner{transform-style:preserve-3d}
+.pc-card.flip .pc-face,.pc-card.flip .pc-back,.pc-card.flipdn .pc-face,.pc-card.flipdn .pc-back{display:block;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.pc-card.flip .pc-back,.pc-card.flipdn .pc-back{transform:rotateY(180deg)}
+.pc-card.flip .pc-inner{animation:pcFlip .46s cubic-bezier(.33,.6,.3,1) var(--flipd,0ms) both}
+.pc-card.flipdn .pc-inner{animation:pcFlipDn .4s cubic-bezier(.33,.6,.3,1) var(--flipd,0ms) both}
+@keyframes pcFlip{0%{transform:perspective(600px) rotateY(180deg)}50%{transform:perspective(600px) rotateY(90deg) scale(1.09)}100%{transform:perspective(600px) rotateY(0deg)}}
+@keyframes pcFlipDn{0%{transform:perspective(600px) rotateY(0deg)}50%{transform:perspective(600px) rotateY(90deg) scale(1.06)}100%{transform:perspective(600px) rotateY(180deg)}}
+.pc-cascade{position:fixed;inset:0;z-index:24;width:100%;height:100%;cursor:pointer;transition:opacity .6s ease}
 
 /* Minesweeper */
-.ms-board{display:grid;gap:1px;width:max-content;max-width:100%;margin-inline:auto;padding:1px;border:2px solid var(--box);border-radius:6px;background:var(--line);touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.ms-cell{display:grid;place-items:center;width:var(--cs);height:var(--cs);margin:0;padding:0;border:0;border-radius:2px;background:var(--ms-hidden);color:var(--ink);font:700 calc(var(--cs)*.58)/1 var(--ui);cursor:pointer}
-.ms-cell:not(.open):not(.flag):hover{background:var(--ms-hidden-hi)}
-.ms-cell.open{background:var(--ms-open);cursor:default}
-.ms-cell svg{width:66%;height:66%}
-.ms-cell.flag{color:var(--error)}
-.ms-cell.mine{color:var(--ink)}
-.ms-cell.boom{background:var(--error);color:var(--bg)}
-.ms-cell.wrong{background:var(--error-soft)}
+.ms-board{display:grid;gap:1px;width:max-content;max-width:100%;margin-inline:auto;padding:5px;border-radius:12px;background:var(--ms-tray);box-shadow:inset 0 1px 0 rgb(255 255 255 / .3),inset 0 -2px 0 rgb(0 0 0 / .12),0 14px 34px var(--shadow),0 2px 6px var(--shadow);touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:box-shadow .4s}
+.ms-board.won{box-shadow:0 0 0 3px var(--win),0 0 36px color-mix(in srgb,var(--win) 45%,transparent),0 14px 34px var(--shadow)}
+.ms-board.shake{animation:msShake .5s cubic-bezier(.36,.07,.19,.97)}
+@keyframes msShake{10%,90%{translate:-1px 0}20%,80%{translate:3px 0}30%,50%,70%{translate:-5px 0}40%,60%{translate:5px 0}}
+.ms-cell{position:relative;display:grid;place-items:center;width:var(--cs);height:var(--cs);margin:0;padding:0;border:0;border-radius:calc(var(--cs)*.17);background:linear-gradient(180deg,var(--ms-top),var(--ms-bot));box-shadow:inset 0 1px 0 var(--ms-hl),inset 0 -2px 0 rgb(0 0 0 / .14);color:var(--ink);font:700 calc(var(--cs)*.62)/1 var(--ui);font-style:normal;cursor:pointer;transition:transform .09s ease,filter .09s ease}
+.ms-cell.down{transform:scale(.88);filter:brightness(.88)}
+.ms-cell.open{background:var(--ms-open);box-shadow:inset 0 0 0 .5px var(--ms-open-line);border-radius:calc(var(--cs)*.1);cursor:default}
+.ms-cell svg{width:68%;height:68%;pointer-events:none}
 .ms-cell.n1{color:var(--m1)} .ms-cell.n2{color:var(--m2)} .ms-cell.n3{color:var(--m3)} .ms-cell.n4{color:var(--m4)}
 .ms-cell.n5{color:var(--m5)} .ms-cell.n6{color:var(--m6)} .ms-cell.n7{color:var(--m7)} .ms-cell.n8{color:var(--m8)}
+.ms-cell.flag{color:#E23B3B}
+.ms-cell.flag svg{width:74%;height:74%}
+.ms-cell.mine{color:var(--ms-mine)}
+.ms-cell.mine svg{width:72%;height:72%}
+.ms-cell.boom{z-index:2;background:radial-gradient(circle at 50% 45%,#FF8D6E,#E0283C 72%);color:#2A0A0A}
+.ms-cell.boom::after,.ms-cell.boom::before{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid rgb(255 128 88 / .9);pointer-events:none;animation:msBoom .85s cubic-bezier(.2,.7,.3,1) both}
+.ms-cell.boom::before{border-width:2px;animation-delay:.12s}
+@keyframes msBoom{0%{transform:scale(.6);opacity:1}100%{transform:scale(7);opacity:0}}
+.ms-cell.wrong{background:var(--error-soft)}
+.ms-cell.wrong::after{content:'';position:absolute;inset:16%;background:linear-gradient(45deg,transparent 43%,var(--error) 43% 57%,transparent 57%),linear-gradient(-45deg,transparent 43%,var(--error) 43% 57%,transparent 57%)}
 .ms-cell.nope{animation:nope .3s}
-@media (prefers-reduced-motion: reduce){.pc-card{transition:none}.pc-card.nope,.ms-cell.nope,.pc-slot.nope{animation:none}}
-.gcard .mini{left:50%;top:50%;margin:-28px 0 0 -20px}
-/* Minesweeper grid lines need contrast against the hidden tiles */
-:root{--ms-grid:#AEB7C8}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ms-grid:#0B0E13}}
-:root[data-theme="dark"]{--ms-grid:#0B0E13}
-.ms-board{background:var(--ms-grid)}
-.ms-cell{box-shadow:inset 0 1px 0 var(--ms-hidden-hi)}
-.ms-cell.open{box-shadow:none}
+/* opening: the raised tile sinks, then the cell pops in, rippling out from the tap */
+.ms-cell.rv{animation:msRv .32s cubic-bezier(.2,.8,.3,1.25) var(--d,0ms) both}
+@keyframes msRv{0%,32%{background-image:linear-gradient(180deg,var(--ms-top),var(--ms-bot));box-shadow:inset 0 1px 0 var(--ms-hl),inset 0 -2px 0 rgb(0 0 0 / .14);color:transparent;transform:none}33%{background-image:none;color:transparent;transform:scale(.7)}100%{transform:none}}
+.ms-cell.mrv,.ms-cell.xrv{animation:msMine .4s cubic-bezier(.3,1.5,.5,1) var(--d,0ms) both}
+@keyframes msMine{0%,38%{background-image:linear-gradient(180deg,var(--ms-top),var(--ms-bot));color:transparent;transform:none}40%{background-image:none;color:transparent;transform:scale(.35)}100%{transform:none}}
+.ms-cell.mrv svg,.ms-cell.xrv svg,.ms-cell.xrv::after{animation:msLate .4s var(--d,0ms) both}
+@keyframes msLate{0%,39%{opacity:0}40%,100%{opacity:1}}
+.ms-cell.fl svg{animation:msFlag .42s cubic-bezier(.3,1.6,.5,1) var(--d,0ms) both}
+@keyframes msFlag{0%{transform:translateY(-70%) scale(1.5);opacity:0}100%{transform:none;opacity:1}}
+/* long-press: a ring grows around the finger until the flag goes in */
+.ms-cell.charge{z-index:3}
+.ms-cell.charge::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:2.5px solid var(--accent);pointer-events:none;animation:msCharge .26s linear .12s both}
+.ms-board.flagging .ms-cell.charge::before{border-color:var(--ink)}
+@keyframes msCharge{from{transform:scale(.35);opacity:0}to{transform:scale(1);opacity:1}}
+.ms-art{display:grid;grid-template-columns:repeat(4,var(--cs));gap:1px;padding:3px;border-radius:7px;background:var(--ms-tray);box-shadow:0 4px 12px var(--shadow)}
+.ms-art .ms-cell{cursor:inherit}
+.ms-mode{position:relative;flex:none;display:grid;grid-template-columns:1fr 1fr;width:192px;height:48px;padding:4px;border-radius:999px;background:var(--peer);box-shadow:inset 0 1px 2px var(--shadow)}
+.ms-mode .knob{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:var(--knob);box-shadow:0 1px 4px var(--shadow),0 0 0 1px var(--line);transition:transform .24s cubic-bezier(.3,.7,.3,1)}
+.ms-mode.flag .knob{transform:translateX(100%)}
+.ms-mode button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;padding:0;border:0;border-radius:999px;background:none;color:var(--muted);font:600 14px var(--ui);cursor:pointer;transition:color .2s}
+.ms-mode button svg{width:20px;height:20px}
+.ms-mode button[aria-pressed="true"]{color:var(--ink)}
+.ms-mode.flag button[data-pg="flag"]{color:#E23B3B}
+#pg-mines .pg-tools{gap:16px}
+
+@media (prefers-reduced-motion: reduce){
+  .pc-card,.pc-lift,.switch::after,.ms-mode .knob{transition:none}
+  .pc-card.nope,.ms-cell.nope,.pc-slot.nope,.ms-board.shake,.pc-card.hint .pc-lift,.ms-cell.rv,.ms-cell.mrv,.ms-cell.xrv,.ms-cell.fl svg,.ms-cell.mrv svg,.ms-cell.xrv svg,.ms-cell.xrv::after,.ms-cell.boom::after,.ms-cell.boom::before{animation:none}
+}
 </style>
 </head>
 <body>
@@ -921,11 +1060,12 @@ function makeGen(){
 
 
 /* Pocket Games: Solitaire (Klondike), Spider Solitaire and Minesweeper.
-   Each game registers itself in window.PCGames; the app calls init(api) once at start. */
+   Each game has a home page (continue, levels, stats, table look, rules) and a play screen.
+   Each game registers itself in window.PCGames; the app calls PCGamesInit(api) once at start. */
 (function(){
 'use strict';
 const REG=window.PCGames=window.PCGames||[];
-let A=null; // services from the app: $, fmt, plural, esc, clamp, lsGet, lsSet, buzz, fireworks, stopFireworks, leave, nudgeAwake, isActive
+let A=null; // services from the app
 
 /* ---------- shared helpers ---------- */
 const SUIT=['s','h','d','c'];                 // spades, hearts, diamonds, clubs
@@ -936,7 +1076,13 @@ const RANK_NAME=['','Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','K
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const cardName=c=>`${RANK_NAME[c.r]} of ${SUIT_NAME[c.s]}`;
+const reduced=()=>{try{return !!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(e){return false;}};
+const SUIT_PATH={
+  s:'M12 2C9 6.6 3.5 9.6 3.5 14.1a4.5 4.5 0 0 0 7.6 3.2c-.3 1.9-1.2 3.4-2.6 4.7h7c-1.4-1.3-2.3-2.8-2.6-4.7a4.5 4.5 0 0 0 7.6-3.2C20.5 9.6 15 6.6 12 2z',
+  h:'M12 21.4l-1.5-1.3C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.6L12 21.4z',
+  d:'M12 1.6c-2.1 3.7-4.6 7.1-7.6 10.4 3 3.3 5.5 6.7 7.6 10.4 2.1-3.7 4.6-7.1 7.6-10.4-3-3.3-5.5-6.7-7.6-10.4z',
+  c:'M12 2.4a4.4 4.4 0 0 0-4 6.2 4.4 4.4 0 1 0 3 7.5c-.3 1.9-1.2 3.4-2.6 4.6h7.2c-1.4-1.2-2.3-2.7-2.6-4.6a4.4 4.4 0 1 0 3-7.5 4.4 4.4 0 0 0-4-6.2z'
+};
 
 // Game clock that only runs while the game is on screen and being played.
 function Clock(){
@@ -947,128 +1093,322 @@ function Clock(){
     run(on){if(on&&!since)since=performance.now();if(!on&&since){acc+=performance.now()-since;since=0;}}
   };
 }
-// Wins, losses, streaks and bests, kept on this device.
-function Stats(key){
-  const blank=()=>({played:0,won:0,streak:0,bestStreak:0,bestTime:null,bestScore:null});
-  const load=()=>Object.assign(blank(),A.lsGet(key)||{});
+
+/* ---------- game history ----------
+   Every finished game is one entry, newest first: {t: end time, m: level, r: won|lost|left, s: seconds, p: score, mv: moves}.
+   Version 2.0 only kept totals; those carry over once into a "base" that counts toward all-time stats. */
+function Log(key,legacy){
+  let list=null,base=null;
+  function load(){
+    if(list)return;
+    const a=A.lsGet(key);list=Array.isArray(a)?a.filter(e=>e&&typeof e.t==='number'):[];
+    base=A.lsGet(key+'.base');
+    if(!base||typeof base!=='object'){
+      base={};
+      for(const [m,k] of Object.entries(legacy||{})){
+        const o=A.lsGet(k);
+        if(o&&o.played>0)base[m]={played:o.played|0,won:o.won|0,streak:o.streak|0,bestStreak:o.bestStreak|0,bestTime:o.bestTime==null?null:+o.bestTime,bestScore:o.bestScore==null?null:+o.bestScore};
+      }
+      A.lsSet(key+'.base',base);
+    }
+  }
   return{
-    get:load,
-    record(won,timeSec,score){
-      const s=load();s.played++;
-      if(won){s.won++;s.streak++;s.bestStreak=Math.max(s.bestStreak,s.streak);
-        if(timeSec>0&&(s.bestTime==null||timeSec<s.bestTime))s.bestTime=timeSec;
-        if(score!=null&&(s.bestScore==null||score>s.bestScore))s.bestScore=score;}
-      else s.streak=0;
-      A.lsSet(key,s);return s;
-    },
-    reset(){A.lsSet(key,blank());}
+    add(e){load();list.unshift(e);if(list.length>3000)list.length=3000;A.lsSet(key,list);},
+    list(mode,since){load();return list.filter(e=>(mode==='all'||e.m===mode)&&e.t>=(since||0));},
+    baseCount(mode){load();let n=0;for(const [m,b] of Object.entries(base))if(mode==='all'||mode===m)n+=b.played;return n;},
+    count(){load();return list.length+this.baseCount('all');},
+    clear(){load();list=[];base={};A.lsSet(key,[]);A.lsSet(key+'.base',{});},
+    stats(mode,since){
+      load();
+      const L=this.list(mode,since),wins=L.filter(e=>e.r==='won');
+      const times=wins.map(e=>e.s).filter(t=>t>0),scores=wins.map(e=>e.p).filter(p=>typeof p==='number');
+      let streak=0;for(const e of L){if(e.r==='won')streak++;else break;}
+      let bestStreak=0,run=0;for(let k=L.length-1;k>=0;k--){if(L[k].r==='won'){run++;if(run>bestStreak)bestStreak=run;}else run=0;}
+      const s={list:L,played:L.length,won:wins.length,streak,bestStreak,
+        best:times.length?Math.min(...times):null,avg:times.length?times.reduce((a,b)=>a+b,0)/times.length:null,
+        bestScore:scores.length?Math.max(...scores):null,total:L.reduce((a,e)=>a+(e.s||0),0)};
+      if(!since){
+        const bs=Object.entries(base).filter(([m])=>mode==='all'||mode===m).map(([,b])=>b);
+        if(bs.length===1&&streak===L.length)s.streak+=bs[0].streak;   // no loss since 2.1, so the old streak carries on
+        for(const b of bs){
+          s.played+=b.played;s.won+=b.won;s.bestStreak=Math.max(s.bestStreak,b.bestStreak);
+          if(b.bestTime!=null&&(s.best==null||b.bestTime<s.best))s.best=b.bestTime;
+          if(b.bestScore!=null&&(s.bestScore==null||b.bestScore>s.bestScore))s.bestScore=b.bestScore;
+        }
+        s.bestStreak=Math.max(s.bestStreak,s.streak);
+      }
+      s.lost=s.played-s.won;s.rate=s.played?s.won/s.played:null;
+      return s;
+    }
   };
 }
-function statsHTML(s,opts){
-  const pct=s.played?Math.round(s.won/s.played*100)+'%':'—';
-  const cells=[['Played',s.played],['Won',s.won],['Win rate',pct],['Streak',s.streak],['Best streak',s.bestStreak],['Best time',s.bestTime!=null?A.fmt(s.bestTime):'—']];
-  if(opts&&opts.score)cells.push(['Best score',s.bestScore!=null?s.bestScore.toLocaleString():'—']);
-  return `<div class="pg-stats">${cells.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
+
+/* ---------- table look: felt, card back, four-colour suits ---------- */
+const LOOK_KEY='pocket-games.look';
+const FELTS={
+  emerald:{name:'Emerald',hi:'#2E8F5E',mid:'#1B6C45',lo:'#0B3A24'},
+  ocean:{name:'Ocean',hi:'#3466A8',mid:'#21477E',lo:'#0D2246'},
+  wine:{name:'Wine',hi:'#973349',mid:'#6E2032',lo:'#370C17'},
+  slate:{name:'Slate',hi:'#55607A',mid:'#3A4255',lo:'#181C25'}
+};
+const BACKS={
+  royal:{name:'Royal blue',a:'#3157C9',b:'#1A3285',ink:'#E9EEFF'},
+  ruby:{name:'Ruby',a:'#C93445',b:'#7A1424',ink:'#FFEAEE'},
+  night:{name:'Midnight gold',a:'#2A3552',b:'#111727',ink:'#E3C27A'},
+  jade:{name:'Jade',a:'#1A8C73',b:'#0A4A3D',ink:'#DDF8EF'}
+};
+let look={felt:'emerald',back:'royal',four:false};
+const backCache={};
+function backURL(k){
+  if(backCache[k])return backCache[k];
+  const b=BACKS[k]||BACKS.royal;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 142" preserveAspectRatio="none">`+
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${b.a}"/><stop offset="1" stop-color="${b.b}"/></linearGradient>`+
+    `<pattern id="p" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0H9M0 0V9" stroke="${b.ink}" stroke-opacity=".2" stroke-width="1.1" fill="none"/></pattern>`+
+    `<clipPath id="c"><rect x="9" y="9" width="82" height="124" rx="5"/></clipPath></defs>`+
+    `<rect width="100" height="142" fill="#F7F5EF"/>`+
+    `<rect x="4" y="4" width="92" height="134" rx="7" fill="url(#g)"/>`+
+    `<g clip-path="url(#c)"><rect width="100" height="142" fill="url(#p)"/></g>`+
+    `<rect x="9" y="9" width="82" height="124" rx="5" fill="none" stroke="${b.ink}" stroke-opacity=".6" stroke-width="1.3"/>`+
+    `<rect x="13" y="13" width="74" height="116" rx="3.5" fill="none" stroke="${b.ink}" stroke-opacity=".25" stroke-width=".9"/>`+
+    `<g transform="translate(50 71)"><circle r="18" fill="${b.b}" stroke="${b.ink}" stroke-opacity=".75" stroke-width="1.3"/>`+
+    `<circle r="13.5" fill="none" stroke="${b.ink}" stroke-opacity=".35" stroke-width=".9"/>`+
+    `<path d="M0-10.5 2.8-2.8 10.5 0 2.8 2.8 0 10.5-2.8 2.8-10.5 0-2.8-2.8Z" fill="${b.ink}" fill-opacity=".9"/>`+
+    `<path d="M0-5.5 1.4-1.4 5.5 0 1.4 1.4 0 5.5-1.4 1.4-5.5 0-1.4-1.4Z" fill="${b.b}" transform="rotate(45)"/></g></svg>`;
+  return (backCache[k]=`url('data:image/svg+xml,${encodeURIComponent(svg)}')`);
 }
-function svgSuit(s,cls){return `<svg class="${cls||''}" viewBox="0 0 24 24" aria-hidden="true"><use href="#suit-${SUIT[s]}"/></svg>`;}
+function loadLook(){
+  const l=A.lsGet(LOOK_KEY)||{};
+  look={felt:FELTS[l.felt]?l.felt:'emerald',back:BACKS[l.back]?l.back:'royal',four:!!l.four};
+  applyLook();
+}
+function setLook(k,v){look[k]=v;A.lsSet(LOOK_KEY,look);applyLook();}
+function applyLook(){
+  const r=document.documentElement,f=FELTS[look.felt];
+  r.style.setProperty('--felt-hi',f.hi);r.style.setProperty('--felt',f.mid);r.style.setProperty('--felt-lo',f.lo);
+  r.style.setProperty('--pc-back',backURL(look.back));
+  r.classList.toggle('pc-four',look.four);
+}
+
+/* ---------- icons and the SVG sprite ---------- */
+const sv=(p,extra)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra||''}>${p}</svg>`;
+const ICON={
+  home:sv('<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10h12V9"/><path d="M10 19v-5h4v5"/>'),
+  undo:sv('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+  hint:sv('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v.2h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>'),
+  stats:sv('<path d="M3 20h18M6.5 20v-6M12 20V5M17.5 20v-10"/>'),
+  deal:sv('<rect x="4" y="6" width="11" height="15" rx="2"/><path d="M9 3h9a2 2 0 0 1 2 2v12"/>'),
+  x:sv('<path d="M6 6l12 12M18 6 6 18"/>',' stroke-width="2"'),
+  chevL:sv('<path d="m15 6-6 6 6 6"/>',' stroke-width="2"'),
+  chevR:sv('<path d="m9 6 6 6-6 6"/>',' stroke-width="2"'),
+  chevD:sv('<path d="m6 9 6 6 6-6"/>',' stroke-width="2"'),
+  recycle:sv('<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>'),
+  dig:sv('<path d="M4 20l7.5-7.5"/><path d="M13.6 4.6l5.8 5.8-3.1 3.1a2.6 2.6 0 0 1-3.7 0l-2.1-2.1a2.6 2.6 0 0 1 0-3.7z"/><path d="M2.8 17.6l3.6 3.6"/>'),
+  flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ms-flag"/></svg>'
+};
+const MI={
+  score:'<path d="m12 3.6 2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z" fill="currentColor"/>',
+  clock:'<circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.6V12l2.9 1.9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  moves:'<path d="M5 8.5h12.5l-3-3M19 15.5H6.5l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  runs:'<rect x="5" y="3.5" width="10" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 7v11.5a2 2 0 0 1-2 2H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  mine:'<use href="#ms-mine"/>'
+};
+const mi=(ic,txt,label)=>`<span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true">${MI[ic]}</svg><span class="sr">${label} </span>${txt}</span>`;
 function ensureSprite(){
   if(document.getElementById('pc-sprite'))return;
   const d=document.createElement('div');
   d.innerHTML=`<svg id="pc-sprite" width="0" height="0" style="position:absolute" aria-hidden="true">
-    <symbol id="suit-s" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C9 6.6 3.5 9.6 3.5 14.1a4.5 4.5 0 0 0 7.6 3.2c-.3 1.9-1.2 3.4-2.6 4.7h7c-1.4-1.3-2.3-2.8-2.6-4.7a4.5 4.5 0 0 0 7.6-3.2C20.5 9.6 15 6.6 12 2z"/></symbol>
-    <symbol id="suit-h" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.4l-1.5-1.3C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.5 11.6L12 21.4z"/></symbol>
-    <symbol id="suit-d" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l7.5 10L12 22 4.5 12z"/></symbol>
-    <symbol id="suit-c" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.4a4.4 4.4 0 0 0-4 6.2 4.4 4.4 0 1 0 3 7.5c-.3 1.9-1.2 3.4-2.6 4.6h7.2c-1.4-1.2-2.3-2.7-2.6-4.6a4.4 4.4 0 1 0 3-7.5 4.4 4.4 0 0 0-4-6.2z"/></symbol>
-    <symbol id="ms-flag" viewBox="0 0 24 24"><path fill="currentColor" d="M6 3h2v18H6zM8 4h9.5l-2.6 3.7L17.5 11H8z"/></symbol>
-    <symbol id="ms-mine" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="10" cy="10" r="1.6" style="fill:var(--ms-open,#fff)"/></symbol>
+    ${Object.entries(SUIT_PATH).map(([k,p])=>`<symbol id="suit-${k}" viewBox="0 0 24 24"><path fill="currentColor" d="${p}"/></symbol>`).join('')}
+    <symbol id="crown-k" viewBox="0 0 24 14"><path fill="currentColor" d="M2.6 11 1.4 3.2l5.3 3.6L12 .9l5.3 5.9 5.3-3.6L21.4 11z"/><rect fill="currentColor" x="2.6" y="11.9" width="18.8" height="2.1" rx=".6"/><circle fill="currentColor" cx="1.4" cy="2.6" r="1.2"/><circle fill="currentColor" cx="22.6" cy="2.6" r="1.2"/></symbol>
+    <symbol id="crown-q" viewBox="0 0 24 14"><path fill="currentColor" d="M3 11.2c.2-3.7 2-6 4.4-6 2 0 3.4 1.4 4.6 3.6 1.2-2.2 2.6-3.6 4.6-3.6 2.4 0 4.2 2.3 4.4 6z"/><circle fill="currentColor" cx="12" cy="3" r="2"/><rect fill="currentColor" x="3" y="12" width="18" height="2" rx=".6"/></symbol>
+    <symbol id="crown-j" viewBox="0 0 24 14"><path fill="currentColor" d="M3.2 11.6C4 6.8 7.4 4.2 12 4.2s8 2.6 8.8 7.4z"/><path fill="currentColor" d="M13.5 4.6C15 1.6 19 .4 22.6 1.4c-2.8.4-5.6 1.7-7.4 3.8z"/><rect fill="currentColor" x="3.2" y="12.2" width="17.6" height="1.8" rx=".6"/></symbol>
+    <symbol id="ms-flag" viewBox="0 0 24 24"><path style="fill:var(--ms-pole,#2A3142)" d="M7 2.6h1.9v15.6H7z"/><path fill="currentColor" d="M8.9 3c3.1 1.3 5.1-.9 9.6.7v6.9c-4.5-1.6-6.5.6-9.6-.7z"/><path style="fill:var(--ms-pole,#2A3142)" d="M4.4 18.4h7.2a1.6 1.6 0 0 1 1.6 1.6v1.4H2.8V20a1.6 1.6 0 0 1 1.6-1.6z"/></symbol>
+    <symbol id="ms-mine" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2.3" stroke-linecap="round" d="M12 1.9v3.6M12 18.5v3.6M1.9 12h3.6M18.5 12h3.6M4.9 4.9l2.6 2.6M16.5 16.5l2.6 2.6M4.9 19.1l2.6-2.6M16.5 7.5l2.6-2.6"/><circle cx="12" cy="12" r="6.7" fill="currentColor"/><circle cx="9.7" cy="9.6" r="2.1" style="fill:#fff;fill-opacity:.85"/></symbol>
   </svg>`;
   document.body.appendChild(d.firstElementChild);
 }
 
-/* ---------- game screen shell: top bar, play area, tool row, sheet ---------- */
-const ICON={
-  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10h12V9"/><path d="M10 19v-5h4v5"/></svg>',
-  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
-  hint:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v.2h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>',
-  stats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6.5 20v-6M12 20V5M17.5 20v-10"/></svg>',
-  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
-  pause:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>'
+/* ---------- cards ---------- */
+// Pip positions for 2–10 on big cards, as % of the pip area; pips below the middle are turned upside down.
+const PIPS={
+  2:[[50,8],[50,92]],
+  3:[[50,8],[50,50],[50,92]],
+  4:[[18,8],[82,8],[18,92],[82,92]],
+  5:[[18,8],[82,8],[50,50],[18,92],[82,92]],
+  6:[[18,8],[82,8],[18,50],[82,50],[18,92],[82,92]],
+  7:[[18,8],[82,8],[50,29],[18,50],[82,50],[18,92],[82,92]],
+  8:[[18,8],[82,8],[50,29],[18,50],[82,50],[50,71],[18,92],[82,92]],
+  9:[[18,8],[82,8],[18,36],[82,36],[50,50],[18,64],[82,64],[18,92],[82,92]],
+  10:[[18,8],[82,8],[50,22],[18,36],[82,36],[18,64],[82,64],[50,78],[18,92],[82,92]]
 };
-function Shell(id,title,tools){
+const suitSVG=s=>`<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#suit-${SUIT[s]}"/></svg>`;
+function faceHTML(c,big){
+  let body;
+  if(c.r===1)body=`<span class="pc-ace">${suitSVG(c.s)}</span>`;
+  else if(c.r>10)body=`<span class="pc-court"><svg class="pc-crown" viewBox="0 0 24 14" aria-hidden="true"><use href="#crown-${'jqk'[c.r-11]}"/></svg><b>${RANK[c.r]}</b></span>`;
+  else if(big)body=`<span class="pc-pips">${PIPS[c.r].map(([x,y])=>`<i style="left:${x}%;top:${y}%"${y>50?' class="dn"':''}>${suitSVG(c.s)}</i>`).join('')}</span>`;
+  else body=`<span class="pc-mid">${suitSVG(c.s)}</span>`;
+  return `<span class="pc-idx"><b>${RANK[c.r]}</b>${suitSVG(c.s)}</span>${body}`;
+}
+const cardCls=c=>'pc-card s'+c.s+(RED(c.s)?' red':'')+(c.r===10?' r10':'');
+function cardEl(c,big){
+  const d=document.createElement('div');
+  d.className=cardCls(c);
+  d.dataset.id=c.id;
+  d.setAttribute('aria-label',`${RANK_NAME[c.r]} of ${SUIT_NAME[c.s]}`);
+  d.innerHTML=`<div class="pc-lift"><div class="pc-inner"><span class="pc-face">${faceHTML(c,big)}</span><span class="pc-back"></span></div></div>`;
+  d._big=big;
+  return d;
+}
+// A still card for artwork (game cards on the home pages)
+function artCard(r,s,back,style){
+  const c={r,s};
+  return `<span class="${cardCls(c)} pc-art${back?'':' up'}" style="${style}"><span class="pc-lift"><span class="pc-inner">${back?'<span class="pc-back"></span>':`<span class="pc-face">${faceHTML(c,false)}</span>`}</span></span></span>`;
+}
+// Card pictures for the win cascade, drawn once onto small canvases.
+const pathCache={};
+const suitPath=s=>pathCache[s]||(pathCache[s]=new Path2D(SUIT_PATH[SUIT[s]]));
+function suitColor(s){
+  const cs=getComputedStyle(document.documentElement);
+  const v=n=>cs.getPropertyValue(n).trim();
+  if(look.four&&s===2)return v('--suit-d4')||'#1F5FC4';
+  if(look.four&&s===3)return v('--suit-c4')||'#1D7A45';
+  return RED(s)?(v('--suit-r')||'#C42638'):(v('--suit-b')||'#1B1F2A');
+}
+function cardImage(c,w,h,dpr){
+  const cv=document.createElement('canvas');cv.width=Math.ceil(w*dpr);cv.height=Math.ceil(h*dpr);
+  const x=cv.getContext('2d');x.scale(dpr,dpr);
+  const r=w*0.085,col=suitColor(c.s);
+  x.beginPath();x.moveTo(r,0);x.arcTo(w,0,w,h,r);x.arcTo(w,h,0,h,r);x.arcTo(0,h,0,0,r);x.arcTo(0,0,w,0,r);x.closePath();
+  const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#FBFAF6');g.addColorStop(1,'#ECE9E1');
+  x.fillStyle=g;x.fill();x.strokeStyle='rgba(20,24,32,.35)';x.lineWidth=.8;x.stroke();
+  const suit=(px,py,size)=>{x.save();x.translate(px,py);x.scale(size/24,size/24);x.fill(suitPath(c.s));x.restore();};
+  x.fillStyle=col;x.textBaseline='top';x.font=`700 ${w*0.31}px Figtree,system-ui,sans-serif`;
+  x.fillText(RANK[c.r],w*0.06,h*0.04);
+  suit(w*0.06+x.measureText(RANK[c.r]).width+w*0.02,h*0.05,w*0.22);
+  if(c.r>10){
+    x.globalAlpha=.12;x.fillRect(w*0.11,h*0.27,w*0.78,h*0.67);x.globalAlpha=1;
+    x.font=`${w*0.62}px "Instrument Serif",Georgia,serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(RANK[c.r],w/2,h*0.64);
+  }else{const z=c.r===1?w*0.6:w*0.52;suit(w/2-z/2,h*0.61-z/2,z);}
+  return cv;
+}
+
+/* ---------- play screen shell: top bar, play area, tool row, sheet ---------- */
+function Shell(id,title,toolsHTML,felt){
   const root=document.createElement('section');
-  root.className='pg';root.id='pg-'+id;root.hidden=true;root.setAttribute('aria-label',title);
+  root.className='pg'+(felt?' felt':'');root.id='pg-'+id;root.hidden=true;root.setAttribute('aria-label',title);
   root.innerHTML=`
     <div class="pg-bar">
-      <button class="icon-btn" type="button" data-pg="leave" aria-label="All games">${ICON.back}</button>
-      <div class="pg-title"><b data-pg-title>${title}</b><span data-pg-meta></span></div>
+      <button class="icon-btn" type="button" data-pg="home" aria-label="${title} home">${ICON.home}</button>
+      <div class="pg-title"><b data-pg-title>${title}</b><span class="pg-meta" data-pg-meta aria-live="off"></span></div>
       <button class="pg-new" type="button" data-pg="new">New game</button>
     </div>
     <div class="pg-area" data-pg-area></div>
-    <div class="pg-tools">${tools.map(t=>`<button class="tool" type="button" data-pg="${t[0]}" ${t[3]||''}>${t[2]}<span>${t[1]}</span></button>`).join('')}</div>
+    <div class="pg-tools">${toolsHTML}</div>
     <div class="pg-sheet" data-pg-sheet hidden></div>
     <div class="pg-toast" data-pg-toast hidden></div>`;
   document.body.appendChild(root);
   const q=s=>root.querySelector(s);
+  const titleEl=q('[data-pg-title]'),metaEl=q('[data-pg-meta]'),toastEl=q('[data-pg-toast]');
   let toastT=0;
   return{
-    root,area:q('[data-pg-area]'),sheet:q('[data-pg-sheet]'),
-    title(t){q('[data-pg-title]').textContent=t;},
-    meta(t){const m=q('[data-pg-meta]');if(m.textContent!==t)m.textContent=t;},
+    root,area:q('[data-pg-area]'),sheet:q('[data-pg-sheet]'),tools:q('.pg-tools'),
+    title(t){if(titleEl.textContent!==t)titleEl.textContent=t;},
+    meta(h){if(metaEl._h!==h){metaEl._h=h;metaEl.innerHTML=h;}},
     tool(name){return q(`[data-pg="${name}"]`);},
     showSheet(html){this.sheet.innerHTML=`<div class="card" role="dialog" aria-modal="true">${html}</div>`;this.sheet.hidden=false;},
     hideSheet(){this.sheet.hidden=true;this.sheet.innerHTML='';},
-    toast(text){const t=q('[data-pg-toast]');t.textContent=text;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true;},2600);}
+    toast(text){toastEl.textContent=text;toastEl.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{toastEl.hidden=true;},2600);}
   };
 }
-// Options row used on "new game" sheets.
-function optRow(name,opts,cur){
-  return `<div class="pg-opts" role="group">${opts.map(([v,l,s])=>`<button type="button" class="pg-opt" data-opt="${name}" data-val="${v}" aria-pressed="${String(v)===String(cur)}"><b>${l}</b>${s?`<small>${s}</small>`:''}</button>`).join('')}</div>`;
+const toolBtn=(act,label,icon,extra)=>`<button class="tool" type="button" data-pg="${act}"${extra||''}>${icon}<span>${label}</span></button>`;
+function optRow(opts,cur){
+  return `<div class="pg-opts" role="group">${opts.map(([v,l,s])=>`<button type="button" class="pg-opt" data-opt="mode" data-val="${v}" aria-pressed="${String(v)===String(cur)}"><b>${l}</b>${s?`<small>${s}</small>`:''}</button>`).join('')}</div>`;
 }
 
-/* ---------- card table: positions cards, animates moves, handles taps and dragging ---------- */
-function cardEl(c){
-  const d=document.createElement('div');
-  d.className='pc-card'+(RED(c.s)?' red':'');
-  d.dataset.id=c.id;
-  d.innerHTML=`<span class="pc-face"><span class="pc-corner"><b>${RANK[c.r]}</b>${svgSuit(c.s)}</span>${svgSuit(c.s,'pc-pip')}</span><span class="pc-back"></span>`;
-  return d;
-}
+/* ---------- card table: lays out cards, animates moves and flips, handles taps and dragging ---------- */
 function Table(host,spec){
   const wrap=document.createElement('div');
   wrap.className='pc-table';
   host.appendChild(wrap);
   const els=new Map(),slots=new Map();
-  let lay=null,start=null,drag=null;
-  function render(){
+  let lay=null,start=null,drag=null,busyUntil=0,marked=[],casc=null;
+  const now=()=>performance.now();
+  function pileTop(id){let best=null;for(const p of lay.cards)if(p.pile===id&&(!best||p.idx>best.idx))best=p;return best?els.get(best.c.id):slots.get(id);}
+  function mark(ids,cls,byElement){for(const id of ids){const e=byElement?(els.get(id)||slots.get(id)):pileTop(id);if(e){e.classList.add(cls);marked.push([e,cls]);}}}
+  function unmark(cls){marked=marked.filter(([e,c])=>{if(!cls||c===cls){e.classList.remove(c);return false;}return true;});}
+  function fly(e,d,lift){
+    e.style.setProperty('--fd',d+'ms');
+    if(lift){e.classList.remove('fly');void e.offsetWidth;e.classList.add('fly');}
+    clearTimeout(e._ft);
+    e._ft=setTimeout(()=>{e.classList.remove('fly');e.style.transitionDelay='';e._flyUntil=0;e._zs=e._z;e.style.zIndex=e._z;},d+400);
+  }
+  function flip(e,up,d){
+    e.style.setProperty('--flipd',d+'ms');
+    e.classList.remove('flip','flipdn');void e.offsetWidth;e.classList.add(up?'flip':'flipdn');
+    clearTimeout(e._fpt);e._fpt=setTimeout(()=>e.classList.remove('flip','flipdn'),d+520);
+  }
+  function render(opts){
+    opts=opts||{};
     if(!wrap.isConnected||host.closest('[hidden]'))return;
-    const W=wrap.clientWidth;
-    const top=wrap.getBoundingClientRect().top;
+    const W=wrap.clientWidth,top=wrap.getBoundingClientRect().top;
     const H=Math.max(260,window.innerHeight-top-spec.bottomSpace());
     lay=spec.layout(W,H);
+    const big=lay.cw>=62,t=now();
+    wrap.classList.toggle('big',big);
     wrap.style.height=lay.h+'px';
     wrap.style.setProperty('--cw',lay.cw+'px');wrap.style.setProperty('--ch',lay.ch+'px');
     const seenS=new Set();
     for(const s of lay.slots){
       let e=slots.get(s.id);
       if(!e){e=document.createElement('div');e.dataset.slot=s.id;wrap.appendChild(e);slots.set(s.id,e);}
-      e.className='pc-slot'+(s.cls?' '+s.cls:'');
+      const cls='pc-slot'+(s.cls?' '+s.cls:'');
+      if(e._cls!==cls){e._cls=cls;e.className=cls;}
       e.style.transform=`translate(${s.x}px,${s.y}px)`;
       if(e._label!==s.label){e._label=s.label;e.innerHTML=s.label||'';}
       if(s.aria)e.setAttribute('aria-label',s.aria);
       seenS.add(s.id);
     }
     for(const [id,e] of slots)if(!seenS.has(id)){e.remove();slots.delete(id);}
+    // New cards appear where they belong, or at the deck when dealing.
+    const from=opts.from?spec.dealFrom():null;
+    let created=false;
+    for(const p of lay.cards){
+      if(els.has(p.c.id))continue;
+      const e=cardEl(p.c,big),s=from||p;
+      e._x=s.x;e._y=s.y;e._up=from?false:!!p.up;e._z=p.z;e._zs=p.z;e._flyUntil=0;
+      e.classList.toggle('up',e._up);
+      e.style.transform=`translate(${e._x}px,${e._y}px)`;e.style.zIndex=p.z;
+      wrap.appendChild(e);els.set(p.c.id,e);created=true;
+    }
+    if(created&&from)void wrap.offsetWidth;
+    const delays=opts.delays||null,anim=!opts.instant&&!reduced();
     const seen=new Set();
     for(const p of lay.cards){
-      let e=els.get(p.c.id);
-      if(!e){e=cardEl(p.c);e.style.transform=`translate(${p.x}px,${p.y}px)`;wrap.appendChild(e);els.set(p.c.id,e);}
-      if(!drag||!drag.ids.has(p.c.id))e.style.transform=`translate(${p.x}px,${p.y}px)`;
-      e.style.zIndex=p.z;
-      e.classList.toggle('up',!!p.up);
+      const e=els.get(p.c.id);seen.add(p.c.id);
+      if(e._big!==big){e.querySelector('.pc-face').innerHTML=faceHTML(p.c,big);e._big=big;}
+      const d=delays&&delays.has(p.c.id)?delays.get(p.c.id):0;
+      const dragging=drag&&drag.ids.has(p.c.id);
+      let moved=false;
+      if(!dragging&&(e._x!==p.x||e._y!==p.y)){
+        moved=true;
+        const far=Math.hypot(p.x-e._x,p.y-e._y)>lay.cw*0.6;
+        e.style.transitionDelay=d?d+'ms':'';
+        e.style.transform=`translate(${p.x}px,${p.y}px)`;
+        e._x=p.x;e._y=p.y;
+        if(far||d){e._flyUntil=t+d+380;fly(e,d,anim&&far&&!e._dropped);}
+      }
+      e._dropped=false;
+      const up=!!p.up;
+      if(e._up!==up){e._up=up;e.classList.toggle('up',up);if(anim)flip(e,up,moved?d+(opts.flipLag||0):110);}
+      e._z=p.z;
+      const z=e._flyUntil>t?400+p.z:p.z;
+      if(e._zs!==z){e._zs=z;e.style.zIndex=z;}
+      e.classList.toggle('deep',!!p.deep);
       e.dataset.pile=p.pile;e.dataset.idx=p.idx;
-      seen.add(p.c.id);
     }
     for(const [id,e] of els)if(!seen.has(id)){e.remove();els.delete(id);}
+    if(delays&&delays.size){let mx=0;for(const v of delays.values())mx=Math.max(mx,v);busyUntil=Math.max(busyUntil,t+mx+(from?520:320));}
   }
   const local=e=>{const r=wrap.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
   function hit(pt){
@@ -1082,14 +1422,20 @@ function Table(host,spec){
     }
     return bd<lay.cw*0.6?best:null;
   }
+  function runOf(pile,idx){const out=[];for(const p of lay.cards)if(p.pile===pile&&p.idx>=idx)out.push({e:els.get(p.c.id),id:p.c.id,x:p.x,y:p.y});return out;}
   wrap.addEventListener('pointerdown',e=>{
-    if(e.button>0)return;
+    if(e.button>0||!lay||casc)return;
+    if(now()<busyUntil){start=null;return;}
+    unmark('hint');
     const ce=e.target.closest('.pc-card'),se=e.target.closest('.pc-slot');
     const pt=local(e);
-    if(ce){
+    if(ce&&ce.dataset.pile){
       const pile=ce.dataset.pile,idx=+ce.dataset.idx;
       start={pile,idx,x:pt.x,y:pt.y,pick:spec.canPick(pile,idx)};
-      if(start.pick)try{wrap.setPointerCapture(e.pointerId);}catch(err){}
+      if(start.pick){
+        try{wrap.setPointerCapture(e.pointerId);}catch(err){}
+        start.run=runOf(pile,idx);start.run.forEach(r=>r.e.classList.add('press'));
+      }
     }else if(se)start={slot:se.dataset.slot,x:pt.x,y:pt.y};
     else start=null;
   });
@@ -1098,24 +1444,26 @@ function Table(host,spec){
     const pt=local(e),dx=pt.x-start.x,dy=pt.y-start.y;
     if(!drag){
       if(Math.hypot(dx,dy)<8)return;
-      const ids=new Set(),base=[];
-      for(const p of lay.cards)if(p.pile===start.pile&&p.idx>=start.idx){ids.add(p.c.id);base.push({e:els.get(p.c.id),x:p.x,y:p.y});}
-      drag={ids,base};
-      base.forEach(b=>b.e.classList.add('drag'));
+      drag={ids:new Set(start.run.map(r=>r.id)),base:start.run,hot:null,targets:spec.targets(start.pile,start.idx)};
+      drag.base.forEach(b=>{b.e.classList.remove('press');b.e.classList.add('drag');});
+      mark(drag.targets,'tgt');
     }
-    drag.base.forEach(b=>{b.e.style.transform=`translate(${b.x+dx}px,${b.y+dy}px)`;});
+    drag.base.forEach(b=>{b.e._x=b.x+dx;b.e._y=b.y+dy;b.e.style.transitionDelay='';b.e.style.transform=`translate(${b.e._x}px,${b.e._y}px)`;});
+    const f=drag.base[0],h=hit({x:f.x+dx+lay.cw/2,y:f.y+dy+lay.ch*0.3});
+    const hot=h&&drag.targets.indexOf(h)>=0?h:null;
+    if(hot!==drag.hot){unmark('hot');drag.hot=hot;if(hot){mark([hot],'hot');A.buzz(6);}}
   });
   const finish=(e,cancel)=>{
     const s=start;start=null;
+    if(s&&s.run)s.run.forEach(r=>r.e.classList.remove('press'));
     if(drag){
       const d=drag;drag=null;
-      d.base.forEach(b=>b.e.classList.remove('drag'));
+      unmark('tgt');unmark('hot');
+      d.base.forEach(b=>{b.e.classList.remove('drag');b.e._dropped=true;});
       let ok=false;
       if(!cancel){
-        const pt=local(e),first=d.base[0];
-        // aim with the top of the dragged card rather than the finger
-        const aim={x:first.x+(pt.x-s.x)+lay.cw/2,y:first.y+(pt.y-s.y)+lay.ch*0.3};
-        const target=hit(aim)||hit(pt);
+        const pt=local(e),f=d.base[0];
+        const target=d.hot||hit({x:f.x+(pt.x-s.x)+lay.cw/2,y:f.y+(pt.y-s.y)+lay.ch*0.3})||hit(pt);
         if(target&&target!==s.pile)ok=spec.drop(s.pile,s.idx,target);
       }
       if(!ok)render();
@@ -1127,12 +1475,298 @@ function Table(host,spec){
   };
   wrap.addEventListener('pointerup',e=>finish(e,false));
   wrap.addEventListener('pointercancel',e=>finish(e,true));
-  window.addEventListener('resize',()=>render());
+  window.addEventListener('resize',()=>render({instant:true}));
+
+  // Win cascade: cards leap off their piles and bounce away, leaving trails.
+  function cascade(ids,onEnd){
+    stopCascade();
+    if(reduced()||!ids.length||!lay){if(onEnd)onEnd();return;}
+    const cv=document.createElement('canvas');cv.className='pc-cascade';cv.setAttribute('aria-hidden','true');
+    const dpr=Math.min(2,window.devicePixelRatio||1),W=window.innerWidth,H=window.innerHeight;
+    cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);document.body.appendChild(cv);
+    const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+    const cw=lay.cw,ch=lay.ch,byId=new Map(lay.cards.map(p=>[p.c.id,p.c])),every=ids.length>60?44:72;
+    const run={raf:0,live:[],next:0,t0:now(),last:0,done:false};
+    function launch(id){
+      const e=els.get(id),c=byId.get(id);if(!e||!c)return;
+      const r=e.getBoundingClientRect();e.style.visibility='hidden';
+      run.live.push({x:r.left,y:r.top,vx:(Math.random()<.5?-1:1)*(2.2+Math.random()*3.4),vy:-(1+Math.random()*6),img:cardImage(c,cw,ch,dpr)});
+    }
+    function frame(t){
+      if(run.done)return;
+      const dt=run.last?Math.min(2.5,(t-run.last)/16.67):1;run.last=t;
+      while(run.next<ids.length&&t-run.t0>=run.next*every){launch(ids[run.next]);run.next++;}
+      for(let k=run.live.length-1;k>=0;k--){
+        const p=run.live[k];
+        p.vy+=0.55*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+        if(p.y>H-ch){p.y=H-ch;p.vy=-p.vy*0.74;}
+        ctx.drawImage(p.img,p.x,p.y,cw,ch);
+        if(p.x<-cw-2||p.x>W+2)run.live.splice(k,1);
+      }
+      if((run.next>=ids.length&&!run.live.length)||t-run.t0>13000)return end();
+      run.raf=requestAnimationFrame(frame);
+    }
+    function end(){
+      if(run.done)return;run.done=true;casc=null;
+      cancelAnimationFrame(run.raf);
+      cv.style.opacity='0';setTimeout(()=>cv.remove(),650);
+      for(const e of els.values())e.style.visibility='';
+      if(onEnd)onEnd();
+    }
+    cv.addEventListener('pointerdown',end);
+    casc={end};
+    run.raf=requestAnimationFrame(frame);
+  }
+  function stopCascade(){if(casc)casc.end();}
   return{
-    render,
-    flash(ids,cls,ms){ids.forEach(id=>{const e=els.get(id)||slots.get(id);if(e){e.classList.remove(cls);void e.offsetWidth;e.classList.add(cls);setTimeout(()=>e.classList.remove(cls),ms||400);}});},
-    reset(){for(const e of els.values())e.remove();els.clear();}
+    render,cascade,stopCascade,
+    busy:()=>now()<busyUntil||!!casc,
+    hint(ids){unmark('hint');mark(ids,'hint',true);setTimeout(()=>unmark('hint'),1700);},
+    nope(ids){ids.forEach(id=>{const e=els.get(id)||slots.get(id);if(e){e.classList.remove('nope');void e.offsetWidth;e.classList.add('nope');setTimeout(()=>e.classList.remove('nope'),360);}});},
+    reset(){stopCascade();unmark();for(const e of els.values())e.remove();els.clear();busyUntil=0;}
   };
+}
+
+/* ---------- game home page ---------- */
+function Home(def){
+  const root=document.createElement('main');
+  root.className='home ghome';root.id='gh-'+def.id;root.hidden=true;
+  root.innerHTML=`<div class="home-in">
+    <button class="back-link" type="button" data-gh="hub">${ICON.chevL}All games</button>
+    <header class="home-head"><h1 class="mark home-mark"><small>Pocket Games</small>${def.name}</h1><span class="gh-art${def.felt?' felt':' plain'}" aria-hidden="true">${def.art('home')}</span></header>
+    <div data-part="resume"></div>
+    <section class="home-sec"><span class="eyebrow">New game</span><div data-part="modes"></div></section>
+    <div data-part="stats"></div>
+    <div data-part="extra"></div>
+    <details class="rules"><summary><span>How to play</span>${ICON.chevD}</summary><div class="rules-body">${def.rules}</div></details>
+    <p class="version">Version ${A.version}</p>
+  </div>
+  <div class="sheet-wrap" data-part="sheet" hidden></div>`;
+  document.body.appendChild(root);
+  const part=n=>root.querySelector(`[data-part="${n}"]`);
+  const P={resume:part('resume'),modes:part('modes'),stats:part('stats'),extra:part('extra')},sheetEl=part('sheet');
+  return{root,
+    set(n,html){const el=P[n];if(el._html!==html){el._html=html;el.innerHTML=html;}},
+    sheet(html){sheetEl.innerHTML=html;sheetEl.hidden=false;},
+    hideSheet(){sheetEl.hidden=true;sheetEl.innerHTML='';},
+    sheetOpen:()=>!sheetEl.hidden
+  };
+}
+function resumeHTML(r){
+  return `<button type="button" class="resume" data-gh="continue">
+    <span class="r-top"><span class="r-eyebrow">Continue your game</span><span class="r-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></span></span>
+    <b>${A.esc(r.title)}</b>
+    <span class="r-meta">${A.esc(r.meta)}</span>
+    <span class="r-bar" aria-hidden="true"><i style="width:${Math.round(r.pct)}%"></i></span>
+  </button>`;
+}
+function statsCardHTML(core){
+  const s=core.log.stats('all',A.periodStart('week'));
+  return `<button type="button" class="stats-card" data-gh="stats">
+    <span class="sc-top"><span class="eyebrow">Your stats · this week</span>${ICON.chevR}</span>
+    <span class="sc-nums">
+      <span><b>${s.rate==null?'—':Math.round(s.rate*100)+'%'}</b><small>Win rate</small></span>
+      <span><b>${s.played}</b><small>${s.played===1?'Game':'Games'}</small></span>
+      <span><b>${A.fmt(s.best)}</b><small>Best time</small></span>
+    </span>
+  </button>`;
+}
+function lookHTML(){
+  const cs='--cw:46px;--ch:65px;';
+  return `<section class="home-sec"><span class="eyebrow">Table</span><div class="look">
+    <div class="look-prev" aria-hidden="true">${artCard(1,0,true,cs+'transform:translate(-54px,5px) rotate(-10deg)')}${artCard(13,0,false,cs+'transform:translate(0,-3px)')}${artCard(12,2,false,cs+'transform:translate(54px,5px) rotate(10deg)')}</div>
+    <div class="look-row"><span class="look-l">Felt</span><div class="swatches" role="group" aria-label="Felt">${Object.entries(FELTS).map(([k,f])=>`<button type="button" class="sw felt" data-gh="felt" data-v="${k}" aria-pressed="${look.felt===k}" aria-label="${f.name} felt" title="${f.name}" style="--a:${f.hi};--b:${f.lo}"></button>`).join('')}</div></div>
+    <div class="look-row"><span class="look-l">Card back</span><div class="swatches" role="group" aria-label="Card back">${Object.entries(BACKS).map(([k,b])=>`<button type="button" class="sw back" data-gh="back" data-v="${k}" aria-pressed="${look.back===k}" aria-label="${b.name} card back" title="${b.name}" style="background-image:${backURL(k)}"></button>`).join('')}</div></div>
+    <button type="button" class="look-row look-toggle" data-gh="four" aria-pressed="${look.four}"><span class="look-l">Four-colour suits<small>Blue diamonds and green clubs</small></span><i class="switch" aria-hidden="true"></i></button>
+  </div></section>`;
+}
+
+/* ---------- stats panel, shared by the three games ---------- */
+const GS={root:null,core:null,open:false,period:'all',mode:'all'};
+const PERIOD_KEY='pocket-games.period';
+function buildStats(){
+  const r=document.createElement('section');
+  r.className='panel gstats';r.id='gstats';r.hidden=true;r.setAttribute('aria-label','Statistics');
+  r.innerHTML=`<div class="panel-in">
+    <div class="panel-head"><h2 data-gs-title></h2><button class="icon-btn" type="button" data-gs="close" aria-label="Close statistics">${ICON.x}</button></div>
+    <div class="seg p5" data-gs-periods role="group" aria-label="Time period">${A.PERIODS.map(([id,l])=>`<button type="button" data-gs="period" data-v="${id}" aria-pressed="false">${l}</button>`).join('')}</div>
+    <div class="group"><span class="eyebrow">Games</span><div class="seg scroll" data-gs-modes role="group" aria-label="Level"></div><div data-gs-body></div></div>
+    <div class="group"><span class="eyebrow">Clear history</span><p class="body-note" data-gs-cleartext></p>
+      <button class="btn ghost-danger" type="button" data-gs="ask-clear">Clear history</button>
+      <div class="confirm" data-gs-confirm hidden><p class="body-note" data-gs-confirmtext></p><div class="btn-row"><button class="btn danger" type="button" data-gs="do-clear">Clear history</button></div><button class="link" type="button" data-gs="cancel-clear">Cancel</button></div>
+      <p class="msg" data-gs-msg></p>
+    </div>
+  </div>`;
+  document.body.appendChild(r);
+  const q=s=>r.querySelector(s);
+  Object.assign(GS,{root:r,title:q('[data-gs-title]'),periods:q('[data-gs-periods]'),modes:q('[data-gs-modes]'),body:q('[data-gs-body]'),clearText:q('[data-gs-cleartext]'),confirm:q('[data-gs-confirm]'),confirmText:q('[data-gs-confirmtext]'),msg:q('[data-gs-msg]')});
+  const p=A.lsGet(PERIOD_KEY);if(A.PERIODS.some(x=>x[0]===p))GS.period=p;
+  r.addEventListener('click',e=>{
+    const a=e.target.closest('[data-gs]');if(!a||!GS.core)return;
+    const act=a.dataset.gs;
+    if(act==='close')A.navClose('gstats',closeStatsNow);
+    else if(act==='period'){GS.period=a.dataset.v;A.lsSet(PERIOD_KEY,GS.period);renderStats();}
+    else if(act==='mode'){GS.mode=a.dataset.v;renderStats();}
+    else if(act==='ask-clear'){const n=GS.core.log.count();GS.confirmText.textContent=n?`This removes ${A.plural(n,'finished game')} and resets your ${GS.core.def.name} stats. This can’t be undone.`:`There are no finished ${GS.core.def.name} games yet.`;GS.confirm.hidden=false;GS.msg.textContent='';}
+    else if(act==='cancel-clear')GS.confirm.hidden=true;
+    else if(act==='do-clear'){GS.core.log.clear();GS.confirm.hidden=true;GS.msg.textContent=`${GS.core.def.name} history cleared.`;renderStats();GS.core.refresh();}
+  });
+  document.addEventListener('keydown',e=>{if(GS.open&&e.key==='Escape')A.navClose('gstats',closeStatsNow);});
+}
+function openStats(core){
+  GS.core=core;GS.mode='all';GS.open=true;
+  A.navPush('gstats');
+  GS.confirm.hidden=true;GS.msg.textContent='';
+  GS.root.hidden=false;GS.root.scrollTop=0;
+  renderStats();core.refresh();
+}
+function closeStatsNow(){if(!GS.open)return;GS.open=false;GS.root.hidden=true;if(GS.core)GS.core.refresh();}
+function renderStats(){
+  const core=GS.core,def=core.def,per=GS.period,mode=GS.mode,since=A.periodStart(per),s=core.log.stats(mode,since);
+  GS.title.textContent=`${def.name} stats`;
+  GS.periods.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===per)));
+  const modes=[['all','All']].concat(def.modes.map(m=>[m[0],m[1]]));
+  const mh=modes.map(([v,l])=>`<button type="button" data-gs="mode" data-v="${v}" aria-pressed="${v===mode}">${l}</button>`).join('');
+  if(GS.modes._h!==mh){GS.modes._h=mh;GS.modes.innerHTML=mh;}
+  const pct=s.rate==null?null:Math.round(s.rate*100),wPct=s.played?s.won/s.played*100:0;
+  const rows=s.list.slice(0,60).map(e=>{
+    const won=e.r==='won',d=new Date(e.t);
+    const when=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+    return `<div class="row"><span class="key ${won?'w':'l'}"></span><div class="main"><span class="t1">${A.esc(def.longName(e.m))} · ${won?'Won':'Lost'}</span><span class="t2">${when}</span></div><div class="right"><span class="time">${e.s?A.fmt(e.s):'—'}</span><span class="t2">${def.detail(e)}</span></div></div>`;
+  }).join('');
+  const T=(label,val,note)=>`<div class="tile"><span class="eyebrow">${label}</span><span class="val">${val}</span><span class="note">${note}</span></div>`;
+  const tiles=T('Win streak',s.streak,'current')+T('Best streak',s.bestStreak,'wins in a row')+T('Time played',A.fmtTotal(s.total),'all games')+
+    T('Best time',A.fmt(s.best),'wins only')+T('Avg time',A.fmt(s.avg),'wins only')+
+    (def.scored?T('Best score',s.bestScore!=null?s.bestScore.toLocaleString():'—','points'):T('Games won',s.won,per==='all'?'all time':A.PERIOD_NAME[per].toLowerCase()));
+  const old=!since?core.log.baseCount(mode):0;
+  const scope=mode==='all'?'':` ${def.longName(mode)}`;
+  const phrase={day:'today',week:'this week',month:'this month',year:'this year',all:'yet'}[per];
+  GS.body.innerHTML=`<div class="stack">
+    <div class="rate">
+      <span class="eyebrow">Win rate</span>
+      <div class="big">${pct==null?'—':pct}${pct==null?'':'<small>%</small>'}</div>
+      <div class="bar" role="img" aria-label="${s.won} won, ${s.lost} lost">${s.played?`<span class="w" style="width:${wPct}%"></span><span class="l" style="width:${100-wPct}%"></span>`:''}</div>
+      <div class="rate-meta"><span><span class="key w"></span><b>${s.won}</b> won</span><span><span class="key l"></span><b>${s.lost}</b> lost</span><span><b>${s.played}</b> played</span></div>
+    </div>
+    <div class="tiles">${tiles}</div>
+    <div class="section">
+      <div class="section-head"><span class="eyebrow">${per==='all'?`Recent${scope} games`:`${scope?def.longName(mode)+' games':'Games'} ${phrase}`}</span>${s.list.length>60?'<span>Latest 60</span>':''}</div>
+      ${rows?`<div class="list">${rows}</div>`:`<div class="empty">No finished${scope} games ${phrase}. Wins and losses show up here as soon as a game ends.</div>`}
+      ${old?`<p class="storage-note">Totals include ${A.plural(old,'game')} from version 2.0, before each game was saved separately.</p>`:''}
+    </div>
+  </div>`;
+  GS.clearText.textContent=`Removes every finished ${def.name} game and resets its stats. A game in progress stays. Stats are saved on this device only.`;
+}
+function miniStats(core,mode){
+  const s=core.log.stats(mode,0);
+  const cells=[['Played',s.played],['Win rate',s.rate==null?'—':Math.round(s.rate*100)+'%'],['Streak',s.streak],['Best time',A.fmt(s.best)],['Avg time',A.fmt(s.avg)],
+    core.def.scored?['Best score',s.bestScore!=null?s.bestScore.toLocaleString():'—']:['Best streak',s.bestStreak]];
+  return `<div class="pg-stats">${cells.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
+}
+
+/* ---------- one game: home page + play screen + navigation ----------
+   History steps: the app adds 'ghome' when a game opens; playing adds 'gplay'; the stats add 'gstats'.
+   Sheets don't add steps: the back button closes them and puts the step back. */
+function Game(def){
+  const core={def,view:'home',vis:false,auto:false,pending:null};
+  let home,sh;
+  core.onScreen=ignoreSheet=>core.vis&&core.view==='play'&&(ignoreSheet||sh.sheet.hidden)&&!GS.open&&!document.hidden;
+  function applyVis(){
+    const h=!(core.vis&&core.view==='home'),p=!(core.vis&&core.view==='play');
+    if(home.root.hidden!==h)home.root.hidden=h;
+    if(sh.root.hidden!==p)sh.root.hidden=p;
+    if(core.vis)A.setThemeColor(def.felt&&core.view==='play'?FELTS[look.felt].lo:null);
+  }
+  core.showSheet=(html,auto)=>{sh.showSheet(html);core.auto=!!auto;def.render();};
+  core.hideSheet=()=>{sh.hideSheet();core.auto=false;};
+  core.miniStats=mode=>miniStats(core,mode);
+  function renderHome(){
+    if(!home)return;
+    home.set('resume',def.inProgress()?resumeHTML(def.resume()):'');
+    home.set('modes',def.modesHTML());
+    home.set('stats',statsCardHTML(core));
+    home.set('extra',def.felt?lookHTML():'');
+  }
+  core.refresh=()=>{if(core.view==='play')def.render();else renderHome();};
+  function startMode(mode){
+    if(def.inProgress())def.abandon();
+    A.stopFireworks();core.hideSheet();
+    def.start(String(mode));
+  }
+  function enterPlay(){A.navPush('gplay');core.view='play';applyVis();window.scrollTo(0,0);A.nudgeAwake();}
+  core.goHome=()=>{def.pause();core.hideSheet();home.hideSheet();core.view='home';applyVis();renderHome();window.scrollTo(0,0);};
+  function newSheet(){
+    const inPlay=def.inProgress();
+    core.showSheet(`<div class="lede"><h2>New game</h2><p>${def.blurb}${inPlay?' The game in progress counts as a loss.':''}</p></div>
+      ${optRow(def.modes,def.mode())}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="start">${def.go}</button>${def.hasGame()?'<button type="button" class="btn" data-pg="close">Keep playing</button>':''}</div>`,false);
+  }
+  function homeAction(act,el){
+    if(act==='hub')return A.navClose('ghome',A.toHub);
+    if(act==='continue'){enterPlay();def.render();return;}
+    if(act==='new'){
+      const m=el.dataset.mode;
+      if(def.inProgress()){
+        core.pending=m;
+        return home.sheet(`<div class="card" role="dialog" aria-modal="true"><div class="lede"><h2>Start a new ${A.esc(def.longName(m))} game?</h2><p>Your ${A.esc(def.longName(def.mode()))} game in progress will count as a loss.</p></div><div class="btn-col"><button type="button" class="btn primary" data-gh="confirm">Start new game</button><button type="button" class="btn" data-gh="cancel">Keep my current game</button></div></div>`);
+      }
+      enterPlay();startMode(m);return;
+    }
+    if(act==='confirm'){home.hideSheet();enterPlay();startMode(core.pending);return;}
+    if(act==='cancel')return home.hideSheet();
+    if(act==='stats')return openStats(core);
+    if(act==='felt'||act==='back'){setLook(act,el.dataset.v);return renderHome();}
+    if(act==='four'){setLook('four',!look.four);return renderHome();}
+  }
+  function playAction(act,el){
+    if(act==='home')return A.navClose('gplay',core.goHome);
+    if(act==='new')return newSheet();
+    if(act==='close'){core.hideSheet();return def.render();}
+    if(act==='start'){const sel=sh.sheet.querySelector('[data-opt][aria-pressed="true"]');return startMode(sel?sel.dataset.val:def.mode());}
+    if(act==='again')return startMode(def.mode());
+    if(act==='stats')return openStats(core);
+    def.action(act,el);
+  }
+  core.onBack=()=>{
+    if(GS.open&&GS.core===core){closeStatsNow();return true;}
+    if(core.view==='play'){
+      if(!sh.sheet.hidden){
+        const auto=core.auto;core.hideSheet();
+        if(auto)core.goHome();else{A.navPush('gplay');def.render();}
+        return true;
+      }
+      core.goHome();return true;
+    }
+    if(home.sheetOpen()){home.hideSheet();A.navPush('ghome');return true;}
+    return false;
+  };
+  REG.push({
+    id:def.id,name:def.name,sub:def.sub,art:()=>def.art('hub'),felt:!!def.felt,
+    init(){
+      core.log=Log(def.logKey,def.legacy);
+      home=core.home=Home(def);
+      sh=core.sh=Shell(def.id,def.name,def.tools,def.felt);
+      def.init(core);
+      home.root.addEventListener('click',e=>{const a=e.target.closest('[data-gh]');if(a)homeAction(a.dataset.gh,a);});
+      sh.root.addEventListener('click',e=>{
+        const o=e.target.closest('[data-opt]');
+        if(o){sh.root.querySelectorAll('[data-opt]').forEach(b=>b.setAttribute('aria-pressed',String(b===o)));return;}
+        const a=e.target.closest('[data-pg]');if(a)playAction(a.dataset.pg,a);
+      });
+      setInterval(()=>{if(core.vis&&core.view==='play'&&!document.hidden)def.tick();},1000);
+    },
+    status:()=>def.status(),
+    show(){core.view='home';core.vis=true;applyVis();renderHome();},
+    hide(){def.pause();core.hideSheet();home.hideSheet();if(GS.open&&GS.core===core){GS.open=false;GS.root.hidden=true;}core.vis=false;core.view='home';applyVis();A.setThemeColor(null);},
+    setVisible(on){if(core.vis!==on){core.vis=on;applyVis();}},
+    onBack:()=>core.onBack(),
+    playing:()=>core.vis&&core.view==='play'&&def.playing(),
+    render:()=>core.refresh(),
+    pause:()=>def.pause(),
+    view:()=>core.view,
+    debug:def.debug
+  });
+  return core;
 }
 
 /* ==========================================================================
@@ -1143,8 +1777,8 @@ function Table(host,spec){
    turning a card, -15 foundation to column, time bonus 700,000 ÷ seconds.
    ========================================================================== */
 (function(){
-  const KEY='pocket-games.klondike.v1',STATS='pocket-games.klondike.stats';
-  let sh,table,stats,st=null,undo=[],clock=Clock(),autoT=0,saveT=0;
+  const KEY='pocket-games.klondike.v1',DRAW='pocket-games.klondike.draw';
+  let core,sh,table,st=null,undo=[],clock=Clock(),autoT=0,saveT=0,partying=false;
   const pileArr=id=>id==='stock'?st.stock:id==='waste'?st.waste:id[0]==='f'?st.found[+id[1]]:st.tab[+id[1]];
   const top=p=>p[p.length-1];
   function deal(draw){
@@ -1157,11 +1791,17 @@ function Table(host,spec){
   const canFound=(c,f)=>{const p=st.found[f];return p.length?(top(p).s===c.s&&c.r===top(p).r+1):c.r===1;};
   const canTab=(c,t)=>{const p=st.tab[t];if(!p.length)return c.r===13;const x=top(p);return x.up&&RED(x.s)!==RED(c.s)&&c.r===x.r-1;};
   function canPick(pile,idx){
-    if(!st||st.status!=='playing'||autoT)return false;
+    if(!st||st.status!=='playing'||autoT||table.busy())return false;
     const p=pileArr(pile);
     if(pile==='stock')return false;
     if(pile==='waste'||pile[0]==='f')return idx===p.length-1;
     return validRun(p,idx);
+  }
+  function targets(pile,idx){
+    const p=pileArr(pile),c=p[idx],out=[];if(!c)return out;
+    if(idx===p.length-1&&pile[0]!=='f')for(let f=0;f<4;f++)if(canFound(c,f))out.push('f'+f);
+    for(let t=0;t<7;t++)if('t'+t!==pile&&canTab(c,t))out.push('t'+t);
+    return out;
   }
   function legal(from,idx,to){
     const p=pileArr(from),c=p[idx];
@@ -1181,20 +1821,22 @@ function Table(host,spec){
     else if(from[0]==='f')st.score=Math.max(0,st.score-15);
     if(from[0]==='t'&&p.length&&!top(p).up){top(p).up=true;st.score+=5;}
     st.moves++;
+    if(to[0]==='f')A.buzz(8);
     after();
     return true;
   }
   function draw(){
-    if(!st||st.status!=='playing'||autoT)return;
+    if(!st||st.status!=='playing'||autoT||table.busy())return;
     if(st.stock.length){
       snap();
-      const n=Math.min(st.draw,st.stock.length);
-      for(let k=0;k<n;k++){const c=st.stock.pop();c.up=true;st.waste.push(c);}
+      const n=Math.min(st.draw,st.stock.length),delays=new Map();
+      for(let k=0;k<n;k++){const c=st.stock.pop();c.up=true;st.waste.push(c);delays.set(c.id,k*80);}
+      st.moves++;after({delays});
     }else if(st.waste.length){
       snap();
       st.stock=st.waste.reverse().map(c=>(c.up=false,c));st.waste=[];
-    }else return sh.toast('No cards left to draw.');
-    st.moves++;after();
+      st.moves++;after({instant:true});
+    }else{table.nope(['stock']);sh.toast('No cards left to draw.');}
   }
   function autoMove(pile,idx){
     const p=pileArr(pile),c=p[idx];
@@ -1205,14 +1847,13 @@ function Table(host,spec){
       if(canTab(c,t)){if(st.tab[t].length)return move(pile,idx,'t'+t);if(empty<0)empty=t;}
     }
     if(empty>=0&&!(pile[0]==='t'&&idx===0))return move(pile,idx,'t'+empty);
-    table.flash([c.id],'nope',320);buzzSoft();
+    table.nope([c.id]);A.buzz(12);
     return false;
   }
-  const buzzSoft=()=>A.buzz(12);
   const autoReady=()=>st.status==='playing'&&!st.stock.length&&!st.waste.length&&st.tab.every(p=>p.every(c=>c.up));
-  function after(){
+  function after(opts){
     if(st.found.every(p=>p.length===13))return win();
-    save();render();
+    save();render(opts);
     if(autoReady()&&!autoT)autoFinish();
   }
   // Every card is face up: send them home one by one.
@@ -1225,21 +1866,32 @@ function Table(host,spec){
       const c=st.tab[best.t].pop();st.found[best.f].push(c);st.score+=10;st.moves++;
       if(st.found.every(p=>p.length===13)){clearInterval(autoT);autoT=0;win();}
       else render();
-    },110);
+    },120);
   }
   function win(){
-    clock.run(false);
-    st.elapsed=clock.ms();
-    const sec=Math.round(st.elapsed/1000),bonus=sec>30?Math.round(700000/sec):0;
+    if(autoT){clearInterval(autoT);autoT=0;}
+    clock.run(false);st.elapsed=clock.ms();
+    const sec=Math.max(1,Math.round(st.elapsed/1000)),bonus=sec>30?Math.round(700000/sec):0;
     st.score+=bonus;st.status='won';
-    const s=stats.record(true,sec,st.score);
-    A.lsSet(KEY,null);
-    render();
-    A.fireworks();A.buzz([40,70,40,70,90]);
-    setTimeout(()=>{if(st&&st.status==='won')sh.showSheet(`<div class="lede"><h2>You won!</h2><p>${A.fmt(sec)} · ${st.moves} moves · score ${st.score.toLocaleString()}${bonus?` (time bonus ${bonus.toLocaleString()})`:''}</p></div>${statsHTML(s,{score:true})}<div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="leave">All games</button></div>`);},900);
+    core.log.add({t:Date.now(),m:String(st.draw),r:'won',s:sec,p:st.score,mv:st.moves});
+    A.lsSet(KEY,null);render();
+    A.buzz([40,70,40,70,90]);
+    const order=[];for(let r=13;r>=1;r--)for(let f=0;f<4;f++){const c=st.found[f][r-1];if(c)order.push(c.id);}
+    partying=true;
+    const game=st;
+    setTimeout(()=>{
+      if(st!==game||!core.onScreen(true)){partying=false;return;}
+      table.cascade(order,()=>{partying=false;if(st===game&&core.onScreen(true))showWin(sec,bonus);});
+    },450);
+  }
+  function showWin(sec,bonus){
+    core.showSheet(`<div class="lede"><h2>You won!</h2><p>Draw ${st.draw} · ${A.fmt(sec)} · ${A.plural(st.moves,'move')}</p></div>
+      <div class="win-score"><b>${st.score.toLocaleString()}</b><span>points${bonus?`, with a ${bonus.toLocaleString()} time bonus`:''}</span></div>
+      ${core.miniStats(String(st.draw))}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Solitaire home</button></div>`,true);
   }
   function hint(){
-    if(!st||st.status!=='playing')return;
+    if(!st||st.status!=='playing'||table.busy())return;
     const tryFrom=[];
     if(st.waste.length)tryFrom.push(['waste',st.waste.length-1]);
     for(let t=0;t<7;t++){const p=st.tab[t];for(let i=0;i<p.length;i++)if(p[i].up&&validRun(p,i)){tryFrom.push(['t'+t,i]);break;}if(p.length)tryFrom.push(['t'+t,p.length-1]);}
@@ -1252,41 +1904,44 @@ function Table(host,spec){
         const reveals=pl[0]==='t'&&i>0&&!p[i-1].up, kingShuffle=pl[0]==='t'&&i===0;
         if(reveals||pl==='waste'||(!kingShuffle&&st.tab[t].length&&pl[0]==='t'&&i>0))return showHint(c,'t'+t);}
     }
-    if(st.stock.length||st.waste.length){table.flash(['stock'],'hint',1200);return sh.toast(st.stock.length?'Draw from the stock.':'Turn the waste back over.');}
+    if(st.stock.length||st.waste.length){table.hint(st.stock.length?[top(st.stock).id]:['stock']);return sh.toast(st.stock.length?'Draw from the deck.':'Tap the empty deck to turn the waste back over.');}
     sh.toast('No moves left. Try Undo or a new game.');
   }
   function showHint(c,to){
-    const ids=[c.id];const p=pileArr(to);if(p.length)ids.push(top(p).id);else ids.push(to);
-    table.flash(ids,'hint',1200);
+    const p=pileArr(to);
+    table.hint([c.id,p.length?top(p).id:to]);
   }
   function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
   function saveNow(){clearTimeout(saveT);if(st&&st.status==='playing'){st.elapsed=clock.ms();A.lsSet(KEY,st);}}
-  function playing(){return !!(st&&st.status==='playing'&&A.isActive('klondike')&&sh.sheet.hidden&&!document.hidden);}
-  function render(){
+  const playing=()=>!!(st&&st.status==='playing'&&core.onScreen()&&!partying);
+  function renderMeta(){
+    if(!st)return;
+    sh.meta(mi('score',st.score.toLocaleString(),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('moves',st.moves,'Moves'));
+  }
+  function render(opts){
     if(!sh)return;
     clock.run(playing());
-    if(st){
-      sh.title(`Solitaire · Draw ${st.draw}`);
-      sh.meta(`Score ${st.score.toLocaleString()} · ${A.fmt(clock.ms()/1000)} · ${A.plural(st.moves,'move')}`);
-    }
-    sh.tool('undo').disabled=!st||st.status!=='playing'||!undo.length||!!autoT;
-    sh.tool('hint').disabled=!st||st.status!=='playing'||!!autoT;
-    table.render();
+    if(!st)return;
+    sh.title(`Solitaire · Draw ${st.draw}`);
+    renderMeta();
+    sh.tool('undo').disabled=st.status!=='playing'||!undo.length||!!autoT;
+    sh.tool('hint').disabled=st.status!=='playing'||!!autoT;
+    table.render(opts);
   }
   function layout(W,H){
     const g=Math.round(A.clamp(W*0.014,3,10)),cw=Math.floor((W-g*6)/7),ch=Math.round(cw*1.42);
     const X=i=>i*(cw+g),slots=[],cards=[];
-    const recycle=st.waste.length?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>':'';
-    slots.push({id:'stock',x:X(0),y:0,cls:'stock',label:st.stock.length?'':recycle,aria:'Stock'});
-    for(let f=0;f<4;f++)slots.push({id:'f'+f,x:X(3+f),y:0,cls:'found',label:'A',aria:'Foundation'});
-    st.stock.forEach((c,i)=>cards.push({c,x:X(0),y:0,z:i+1,up:false,pile:'stock',idx:i}));
+    slots.push({id:'stock',x:X(0),y:0,cls:'stock'+(st.stock.length?'':' empty'),label:st.stock.length?'':(st.waste.length?ICON.recycle:''),aria:st.stock.length?'Deck':'Turn the waste back over'});
+    for(let f=0;f<4;f++)slots.push({id:'f'+f,x:X(3+f),y:0,cls:'found',label:'<b>A</b>',aria:'Foundation'});
+    const n=st.stock.length;
+    st.stock.forEach((c,i)=>{const o=Math.floor((n-1-i)/4);cards.push({c,x:X(0)+o*0.5,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:i<n-1});});
     const wn=st.waste.length,fan=st.draw===3?Math.max(0,wn-3):wn-1,fx=Math.round(cw*0.34);
-    st.waste.forEach((c,i)=>cards.push({c,x:X(1)+(st.draw===3?Math.max(0,i-fan)*fx:0),y:0,z:i+1,up:true,pile:'waste',idx:i}));
-    st.found.forEach((p,f)=>p.forEach((c,i)=>cards.push({c,x:X(3+f),y:0,z:i+1,up:true,pile:'f'+f,idx:i})));
-    const y0=ch+g*3,dn=Math.max(5,Math.round(ch*0.11)),uo=Math.round(ch*0.27);
+    st.waste.forEach((c,i)=>{const fanned=i>=fan,o=fanned?0:Math.floor((fan-1-i)/6);cards.push({c,x:X(1)+(st.draw===3?Math.max(0,i-fan)*fx:0)+o*0.5,y:o,z:i+1,up:true,pile:'waste',idx:i,deep:!fanned});});
+    st.found.forEach((p,f)=>p.forEach((c,i)=>{const o=Math.floor((p.length-1-i)/3);cards.push({c,x:X(3+f)+o*0.5,y:o*0.7,z:i+1,up:true,pile:'f'+f,idx:i,deep:i<p.length-1});}));
+    const y0=ch+g*3+4,dn=Math.max(5,Math.round(ch*0.11)),uo=Math.round(ch*0.27);
     let bottom=y0+ch;
     st.tab.forEach((p,t)=>{
-      slots.push({id:'t'+t,x:X(t),y:y0,cls:'tab',label:'K',aria:'Column'});
+      slots.push({id:'t'+t,x:X(t),y:y0,cls:'tab',label:'<b>K</b>',aria:'Column'});
       let sum=0;for(let i=0;i<p.length-1;i++)sum+=p[i].up?uo:dn;
       const room=H-y0-ch-4,k=sum>room&&sum>0?room/sum:1;
       let y=y0;
@@ -1302,59 +1957,72 @@ function Table(host,spec){
     for(let t=0;t<7;t++)r.push({id:'t'+t,x:L.X(t),y:L.y0,w:L.cw,h:Math.max(L.ch,L.H-L.y0)});
     return r;
   }
-  function newGameSheet(){
-    const inPlay=st&&st.status==='playing'&&st.moves>0;
-    const d=(A.lsGet('pocket-games.klondike.draw'))||1;
-    sh.showSheet(`<div class="lede"><h2>New game</h2><p>Build four piles from Ace to King, one per suit.${inPlay?' The game in progress counts as a loss.':''}</p></div>
-      ${optRow('draw',[[1,'Draw 1','Easier'],[3,'Draw 3','Classic challenge']],d)}
-      <div class="btn-col"><button type="button" class="btn primary" data-pg="start">Deal</button>${st&&st.status==='playing'?'<button type="button" class="btn" data-pg="close">Keep playing</button>':''}</div>`);
-  }
-  function startGame(draw){
-    if(autoT){clearInterval(autoT);autoT=0;}
-    if(st&&st.status==='playing'&&st.moves>0)stats.record(false,0,null);
-    A.stopFireworks();
-    st=deal(draw);undo=[];clock.set(0);table.reset();
-    A.lsSet('pocket-games.klondike.draw',draw);
-    sh.hideSheet();saveNow();render();
-  }
-  function onAction(act,btn){
-    if(act==='leave'){sh.hideSheet();return A.leave();}
-    if(act==='new')return newGameSheet();
-    if(act==='close'){sh.hideSheet();return render();}
-    if(act==='start'){const sel=sh.sheet.querySelector('[data-opt="draw"][aria-pressed="true"]');return startGame(sel?+sel.dataset.val:1);}
-    if(act==='again')return startGame(st?st.draw:1);
-    if(act==='undo'){if(undo.length&&st.status==='playing'&&!autoT){st=undo.pop();st.moves++;save();render();}return;}
-    if(act==='hint')return hint();
-    if(act==='stats'){const s=stats.get();return sh.showSheet(`<div class="lede"><h2>Solitaire stats</h2><p>Saved on this device.</p></div>${statsHTML(s,{score:true})}<div class="btn-col"><button type="button" class="btn" data-pg="close">Close</button><button type="button" class="btn ghost-danger" data-pg="reset">Reset stats</button></div>`);}
-    if(act==='reset'){stats.reset();return onAction('stats');}
-  }
-  REG.push({
-    id:'klondike',name:'Solitaire',sub:'Klondike',
-    init(){
-      stats=Stats(STATS);
-      sh=Shell('klondike','Solitaire',[['undo','Undo',ICON.undo],['hint','Hint',ICON.hint],['stats','Stats',ICON.stats]]);
+  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<7;r++)for(let t=r;t<7;t++){m.set(st.tab[t][r].id,k*30);k++;}return m;}
+  const inProgress=()=>!!(st&&st.status==='playing'&&st.moves>0);
+  const curMode=()=>String(st?st.draw:(A.lsGet(DRAW)||1));
+  core=Game({
+    id:'klondike',name:'Solitaire',sub:'Klondike',felt:true,scored:true,
+    logKey:'pocket-games.klondike.log',legacy:{draw:'pocket-games.klondike.stats'},
+    modes:[['1','Draw 1','One card at a time'],['3','Draw 3','The classic challenge']],
+    longName:m=>m==='3'?'Draw 3':m==='1'?'Draw 1':'Solitaire',
+    detail:e=>e.r==='won'?`${(e.p||0).toLocaleString()} points`:'Left unfinished',
+    blurb:'Build four piles from Ace to King, one per suit.',go:'Deal',
+    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('stats','Stats',ICON.stats),
+    rules:`<ul>
+      <li>Build four foundation piles, one for each suit, from Ace up to King.</li>
+      <li>In the seven columns, stack cards downward in alternating colours, such as a red 9 on a black 10. A run that’s in order moves together.</li>
+      <li>Only a King, or a run that starts with a King, can go into an empty column.</li>
+      <li>Tap the deck to turn over 1 or 3 cards. When it runs out, tap again to turn the pile back over. You can go through it as often as you like.</li>
+      <li>Tap a card to send it to the best spot, or drag it where you want. While you drag, the spots it can go glow.</li>
+      <li>Scoring: +10 for each card on a foundation, +5 from the deck to a column, +5 for turning a card over, −15 for taking one back off a foundation, plus a time bonus when you win.</li></ul>`,
+    art(where){
+      const cs=where==='hub'?'--cw:42px;--ch:60px;':'--cw:34px;--ch:48px;',d=where==='hub'?15:12;
+      return artCard(13,0,false,cs+`transform:translate(-${d}px,3px) rotate(-11deg)`)+artCard(1,1,false,cs+`transform:translate(${d}px,-3px) rotate(9deg)`);
+    },
+    init(c){
+      sh=c.sh;
       table=Table(sh.area,{
-        layout,dropRects,canPick,
-        bottomSpace:()=>sh.root.querySelector('.pg-tools').offsetHeight+28,
+        layout,dropRects,canPick,targets,
+        dealFrom:()=>({x:0,y:0}),
+        bottomSpace:()=>sh.tools.offsetHeight+30,
         tap:(pile,idx)=>{if(pile==='stock')return draw();if(canPick(pile,idx))autoMove(pile,idx);},
         tapSlot:id=>{if(id==='stock')draw();},
         drop:(from,idx,to)=>move(from,idx,to)
       });
-      wire(sh,onAction);
       const saved=A.lsGet(KEY);
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
-      setInterval(()=>{if(A.isActive('klondike'))render();},1000);
+    },
+    inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
+    resume(){
+      const home=st.found.reduce((a,p)=>a+p.length,0);
+      return{title:`Draw ${st.draw}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${st.score.toLocaleString()} points · ${home} of 52 cards home`,pct:home/52*100};
+    },
+    modesHTML(){
+      return `<div class="diffs">${[['1','Draw 1'],['3','Draw 3']].map(([m,l])=>{
+        const s=core.log.stats(m,0);
+        const meta=s.best!=null?`Best ${A.fmt(s.best)}`:s.played?`${A.plural(s.played,'game')} played`:'Not played yet';
+        return `<button type="button" class="diff" data-gh="new" data-mode="${m}"><b>${l}</b><small>${meta}</small></button>`;}).join('')}</div>`;
+    },
+    start(mode){
+      if(autoT){clearInterval(autoT);autoT=0;}
+      table.stopCascade();partying=false;
+      const d=mode==='3'?3:1;
+      st=deal(d);undo=[];clock.set(0);A.lsSet(DRAW,d);
+      table.reset();saveNow();
+      render({from:true,delays:dealDelays(),flipLag:160});
+    },
+    abandon(){core.log.add({t:Date.now(),m:String(st.draw),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
+    action(act){
+      if(act==='undo'){if(undo.length&&st&&st.status==='playing'&&!autoT&&!table.busy()){st=undo.pop();st.moves++;save();render();}return;}
+      if(act==='hint')return hint();
     },
     status(){
-      if(st&&st.status==='playing'&&st.moves>0)return{resume:true,line:`Continue · Draw ${st.draw} · ${A.fmt(clock.ms()/1000)}`};
-      const s=stats.get();return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestTime!=null?A.fmt(s.bestTime):'—'}`:'Klondike · Draw 1 or 3'};
+      if(inProgress())return{resume:true,line:`Continue · Draw ${st.draw} · ${A.fmt(clock.ms()/1000)}`};
+      const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} · best ${A.fmt(s.best)}`:'Klondike · Draw 1 or 3'};
     },
-    show(){if(!st)startGame(A.lsGet('pocket-games.klondike.draw')||1);else render();requestAnimationFrame(render);},
-    hide(){saveNow();clock.run(false);sh.hideSheet();},
-    onBack(){if(!sh.sheet.hidden){sh.hideSheet();render();return true;}return false;},
-    playing,render,
-    pause(){saveNow();clock.run(false);},
-    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render();if(autoReady()&&!autoT)autoFinish();}}
+    render,playing,tick:()=>{clock.run(playing());renderMeta();},
+    pause(){saveNow();clock.run(false);table.stopCascade();},
+    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});if(autoReady()&&!autoT)autoFinish();}}
   });
 })();
 
@@ -1368,8 +2036,8 @@ function Table(host,spec){
    +100 for each run cleared.
    ========================================================================== */
 (function(){
-  const KEY='pocket-games.spider.v1',STATS='pocket-games.spider.stats';
-  let sh,table,stats,st=null,undo=[],clock=Clock(),saveT=0;
+  const KEY='pocket-games.spider.v1',SUITS='pocket-games.spider.suits';
+  let core,sh,table,st=null,undo=[],clock=Clock(),saveT=0,partying=false;
   const top=p=>p[p.length-1];
   function deal(suits){
     const pattern=suits===1?[0,0,0,0,0,0,0,0]:suits===2?[0,1,0,1,0,1,0,1]:[0,1,2,3,0,1,2,3];
@@ -1381,18 +2049,25 @@ function Table(host,spec){
   const validRun=(p,i)=>{if(i<0||i>=p.length)return false;for(let k=i;k<p.length;k++){if(!p[k].up)return false;if(k>i&&(p[k].s!==p[k-1].s||p[k].r!==p[k-1].r-1))return false;}return true;};
   const canDrop=(c,t)=>{const p=st.tab[t];return !p.length||top(p).r===c.r+1;};
   function canPick(pile,idx){
-    if(!st||st.status!=='playing')return false;
+    if(!st||st.status!=='playing'||table.busy())return false;
     if(pile[0]!=='t')return false;
     return validRun(st.tab[+pile.slice(1)],idx);
   }
+  function targets(pile,idx){
+    const f=+pile.slice(1),c=st.tab[f][idx],out=[];if(!c)return out;
+    for(let t=0;t<10;t++)if(t!==f&&canDrop(c,t))out.push('t'+t);
+    return out;
+  }
   function snap(){undo.push(clone(st));if(undo.length>200)undo.shift();}
   function flipTop(p){if(p.length&&!top(p).up)top(p).up=true;}
-  function clearRuns(t){
+  // A full run leaves the table, Ace first, landing in the cleared pile.
+  function clearRuns(t,delays,base){
     const p=st.tab[t];
     if(p.length<13)return false;
     const run=p.slice(-13);
     for(let k=0;k<13;k++){if(!run[k].up||run[k].s!==run[0].s||run[k].r!==13-k)return false;}
     p.splice(-13);st.done.push(run);st.score+=100;flipTop(p);
+    run.forEach((c,k)=>delays.set(c.id,base+(12-k)*38));
     A.buzz(30);
     return true;
   }
@@ -1405,18 +2080,20 @@ function Table(host,spec){
     const cards=st.tab[f].splice(idx);st.tab[t].push(...cards);
     flipTop(st.tab[f]);
     st.score=Math.max(0,st.score-1);st.moves++;
-    clearRuns(t);
-    after();return true;
+    const delays=new Map();
+    clearRuns(t,delays,300);
+    after({delays});return true;
   }
   function dealRow(){
-    if(!st||st.status!=='playing')return;
-    if(!st.stock.length)return sh.toast('The stock is empty.');
-    if(st.tab.some(p=>!p.length)){table.flash(['stock'],'nope',320);return sh.toast('Fill every column before dealing.');}
+    if(!st||st.status!=='playing'||table.busy())return;
+    if(!st.stock.length)return sh.toast('The deck is empty.');
+    if(st.tab.some(p=>!p.length)){table.nope(['stock',top(st.stock).id]);return sh.toast('Fill every column before dealing.');}
     snap();
-    for(let t=0;t<10;t++){const c=st.stock.pop();c.up=true;st.tab[t].push(c);}
+    const delays=new Map();
+    for(let t=0;t<10;t++){const c=st.stock.pop();c.up=true;st.tab[t].push(c);delays.set(c.id,t*45);}
     st.score=Math.max(0,st.score-1);st.moves++;
-    for(let t=0;t<10;t++)clearRuns(t);
-    after();
+    for(let t=0;t<10;t++)clearRuns(t,delays,10*45+300);
+    after({delays});
   }
   function autoMove(pile,idx){
     const f=+pile.slice(1),p=st.tab[f],c=p[idx];
@@ -1428,21 +2105,34 @@ function Table(host,spec){
     }
     if(any>=0)return move(pile,idx,'t'+any);
     if(empty>=0)return move(pile,idx,'t'+empty);
-    table.flash([c.id],'nope',320);A.buzz(12);return false;
+    table.nope([c.id]);A.buzz(12);return false;
   }
-  function after(){
-    if(st.done.length===8)return win();
-    save();render();
+  function after(opts){
+    if(st.done.length===8)return win(opts);
+    save();render(opts);
   }
-  function win(){
+  function win(opts){
     clock.run(false);st.elapsed=clock.ms();st.status='won';
-    const sec=Math.round(st.elapsed/1000),s=stats.record(true,sec,st.score);
-    A.lsSet(KEY,null);render();
-    A.fireworks();A.buzz([40,70,40,70,90]);
-    setTimeout(()=>{if(st&&st.status==='won')sh.showSheet(`<div class="lede"><h2>You won!</h2><p>${st.suits} ${st.suits===1?'suit':'suits'} · ${A.fmt(sec)} · ${A.plural(st.moves,'move')} · score ${st.score.toLocaleString()}</p></div>${statsHTML(s,{score:true})}<div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="leave">All games</button></div>`);},900);
+    const sec=Math.max(1,Math.round(st.elapsed/1000));
+    core.log.add({t:Date.now(),m:String(st.suits),r:'won',s:sec,p:st.score,mv:st.moves});
+    A.lsSet(KEY,null);render(opts);
+    A.buzz([40,70,40,70,90]);
+    const order=[];for(let k=st.done.length-1;k>=0;k--)st.done[k].forEach(c=>order.push(c.id));
+    partying=true;
+    const game=st;
+    setTimeout(()=>{
+      if(st!==game||!core.onScreen(true)){partying=false;return;}
+      table.cascade(order,()=>{partying=false;if(st===game&&core.onScreen(true))showWin(sec);});
+    },1150);
+  }
+  function showWin(sec){
+    core.showSheet(`<div class="lede"><h2>You won!</h2><p>${st.suits} ${st.suits===1?'suit':'suits'} · ${A.fmt(sec)} · ${A.plural(st.moves,'move')}</p></div>
+      <div class="win-score"><b>${st.score.toLocaleString()}</b><span>points</span></div>
+      ${core.miniStats(String(st.suits))}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Spider home</button></div>`,true);
   }
   function hint(){
-    if(!st||st.status!=='playing')return;
+    if(!st||st.status!=='playing'||table.busy())return;
     let fallback=null;
     for(let f=0;f<10;f++){
       const p=st.tab[f];if(!p.length)continue;
@@ -1451,40 +2141,45 @@ function Table(host,spec){
       for(let t=0;t<10;t++){
         if(t===f)continue;const q=st.tab[t];
         if(q.length&&top(q).r===c.r+1){
-          if(top(q).s===c.s&&!(i>0&&p[i-1].up&&p[i-1].s===c.s&&p[i-1].r===c.r+1))return table.flash([c.id,top(q).id],'hint',1200);
+          if(top(q).s===c.s&&!(i>0&&p[i-1].up&&p[i-1].s===c.s&&p[i-1].r===c.r+1))return table.hint([c.id,top(q).id]);
           if(!fallback&&(i===0||!p[i-1].up||p[i-1].r!==c.r+1))fallback=[c.id,top(q).id];
         }
       }
     }
-    if(fallback)return table.flash(fallback,'hint',1200);
-    if(st.stock.length){table.flash(['stock'],'hint',1200);return sh.toast(st.tab.some(p=>!p.length)?'Move a card into the empty column, then deal.':'Deal a new row from the stock.');}
+    if(fallback)return table.hint(fallback);
+    if(st.stock.length){table.hint([top(st.stock).id]);return sh.toast(st.tab.some(p=>!p.length)?'Move a card into the empty column, then deal.':'Deal a new row from the deck.');}
     sh.toast('No moves left. Try Undo or a new game.');
   }
   function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
   function saveNow(){clearTimeout(saveT);if(st&&st.status==='playing'){st.elapsed=clock.ms();A.lsSet(KEY,st);}}
-  function playing(){return !!(st&&st.status==='playing'&&A.isActive('spider')&&sh.sheet.hidden&&!document.hidden);}
-  function render(){
+  const playing=()=>!!(st&&st.status==='playing'&&core.onScreen()&&!partying);
+  function renderMeta(){
+    if(!st)return;
+    sh.meta(mi('score',st.score.toLocaleString(),'Score')+mi('clock',A.fmt(clock.ms()/1000),'Time')+mi('runs',`${st.done.length}/8`,'Runs cleared'));
+  }
+  function render(opts){
     if(!sh)return;
     clock.run(playing());
-    if(st){
-      sh.title(`Spider · ${st.suits} ${st.suits===1?'suit':'suits'}`);
-      sh.meta(`Score ${st.score.toLocaleString()} · ${A.fmt(clock.ms()/1000)} · ${st.done.length}/8 done`);
-    }
-    sh.tool('undo').disabled=!st||st.status!=='playing'||!undo.length;
-    sh.tool('hint').disabled=!st||st.status!=='playing';
-    table.render();
+    if(!st)return;
+    sh.title(`Spider · ${st.suits} ${st.suits===1?'suit':'suits'}`);
+    renderMeta();
+    sh.tool('undo').disabled=st.status!=='playing'||!undo.length;
+    sh.tool('hint').disabled=st.status!=='playing';
+    const dl=sh.tool('deal');dl.disabled=st.status!=='playing'||!st.stock.length;
+    dl.querySelector('span').textContent=st.stock.length?`Deal · ${st.stock.length/10}`:'Deal';
+    table.render(opts);
   }
   function layout(W,H){
     const g=Math.max(2,Math.round(W*0.008)),cw=Math.floor((W-g*9)/10),ch=Math.round(cw*1.45);
     const X=i=>i*(cw+g),slots=[],cards=[];
-    const deals=Math.ceil(st.stock.length/10),so=Math.max(3,Math.round(cw*0.22));
+    const n=st.stock.length,deals=Math.ceil(n/10),so=Math.max(3,Math.round(cw*0.24));
     const stockX=X(9)-(Math.max(deals,1)-1)*so;
-    slots.push({id:'stock',x:X(9),y:0,cls:'stock',label:st.stock.length?'':'',aria:'Stock'});
-    st.stock.forEach((c,i)=>{const grp=Math.floor(i/10);cards.push({c,x:stockX+grp*so,y:0,z:i+1,up:false,pile:'stock',idx:i});});
+    slots.push({id:'stock',x:X(9),y:0,cls:'stock'+(n?'':' empty'),label:'',aria:'Deck'});
+    st.stock.forEach((c,i)=>{const grp=Math.floor(i/10),j=i%10,o=Math.floor((9-j)/3)*0.6;cards.push({c,x:stockX+grp*so+o*0.5,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:j<9});});
     const dx=Math.max(4,Math.round(cw*0.36));
     slots.push({id:'done',x:X(0),y:0,cls:'found wide',label:'',aria:'Cleared runs'});
-    st.done.forEach((run,k)=>run.forEach((c,i)=>cards.push({c,x:X(0)+k*dx,y:0,z:k*20+(13-i),up:true,pile:'done',idx:i})));
-    const y0=ch+g*4,dn=Math.max(4,Math.round(ch*0.09)),uo=Math.round(ch*0.25);
+    st.done.forEach((run,k)=>run.forEach((c,i)=>cards.push({c,x:X(0)+k*dx,y:0,z:k*20+(13-i),up:true,pile:'done',idx:i,deep:i>0})));
+    const y0=ch+g*4+4,dn=Math.max(4,Math.round(ch*0.09)),uo=Math.round(ch*0.25);
     let bottom=y0+ch;
     st.tab.forEach((p,t)=>{
       slots.push({id:'t'+t,x:X(t),y:y0,cls:'tab',label:'',aria:'Column'});
@@ -1502,59 +2197,69 @@ function Table(host,spec){
     for(let t=0;t<10;t++)r.push({id:'t'+t,x:L.X(t),y:L.y0,w:L.cw,h:Math.max(L.ch,L.H-L.y0)});
     return r;
   }
-  function newGameSheet(){
-    const inPlay=st&&st.status==='playing'&&st.moves>0;
-    const s=A.lsGet('pocket-games.spider.suits')||1;
-    sh.showSheet(`<div class="lede"><h2>New game</h2><p>Build runs from King down to Ace in one suit to clear them. Clear all 8 to win.${inPlay?' The game in progress counts as a loss.':''}</p></div>
-      ${optRow('suits',[[1,'1 suit','Relaxed'],[2,'2 suits','Medium'],[4,'4 suits','Hard']],s)}
-      <div class="btn-col"><button type="button" class="btn primary" data-pg="start">Deal</button>${st&&st.status==='playing'?'<button type="button" class="btn" data-pg="close">Keep playing</button>':''}</div>`);
-  }
-  function startGame(suits){
-    if(st&&st.status==='playing'&&st.moves>0)stats.record(false,0,null);
-    A.stopFireworks();
-    st=deal(suits);undo=[];clock.set(0);table.reset();
-    A.lsSet('pocket-games.spider.suits',suits);
-    sh.hideSheet();saveNow();render();
-  }
-  function onAction(act){
-    if(act==='leave'){sh.hideSheet();return A.leave();}
-    if(act==='new')return newGameSheet();
-    if(act==='close'){sh.hideSheet();return render();}
-    if(act==='start'){const sel=sh.sheet.querySelector('[data-opt="suits"][aria-pressed="true"]');return startGame(sel?+sel.dataset.val:1);}
-    if(act==='again')return startGame(st?st.suits:1);
-    if(act==='undo'){if(undo.length&&st.status==='playing'){const score=st.score;st=undo.pop();st.score=Math.max(0,Math.min(st.score,score)-1);st.moves++;save();render();}return;}
-    if(act==='hint')return hint();
-    if(act==='deal')return dealRow();
-    if(act==='stats'){const s=stats.get();return sh.showSheet(`<div class="lede"><h2>Spider stats</h2><p>Saved on this device.</p></div>${statsHTML(s,{score:true})}<div class="btn-col"><button type="button" class="btn" data-pg="close">Close</button><button type="button" class="btn ghost-danger" data-pg="reset">Reset stats</button></div>`);}
-    if(act==='reset'){stats.reset();return onAction('stats');}
-  }
-  REG.push({
-    id:'spider',name:'Spider',sub:'Solitaire',
-    init(){
-      stats=Stats(STATS);
-      sh=Shell('spider','Spider',[['undo','Undo',ICON.undo],['hint','Hint',ICON.hint],['deal','Deal',ICON.plus],['stats','Stats',ICON.stats]]);
+  function dealDelays(){const m=new Map();let k=0;for(let r=0;r<6;r++)for(let t=0;t<10;t++){const c=st.tab[t][r];if(c){m.set(c.id,k*19);k++;}}return m;}
+  const inProgress=()=>!!(st&&st.status==='playing'&&st.moves>0);
+  const curMode=()=>String(st?st.suits:(A.lsGet(SUITS)||1));
+  const suitIcons=n=>`<span class="gm-suits">${[0,1,2,3].slice(0,n===1?1:n).map(s=>`<i class="${RED(s)?'red':''}${s>=2?' s'+s:''}">${suitSVG(s)}</i>`).join('')}</span>`;
+  core=Game({
+    id:'spider',name:'Spider',sub:'Solitaire',felt:true,scored:true,
+    logKey:'pocket-games.spider.log',legacy:{suits:'pocket-games.spider.stats'},
+    modes:[['1','1 suit','Relaxed, all spades'],['2','2 suits','Spades and hearts'],['4','4 suits','The full challenge']],
+    longName:m=>m==='1'?'1 suit':m==='2'?'2 suits':m==='4'?'4 suits':'Spider',
+    detail:e=>e.r==='won'?`${(e.p||0).toLocaleString()} points`:'Left unfinished',
+    blurb:'Build runs from King down to Ace in one suit to clear them. Clear all 8 to win.',go:'Deal',
+    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('deal','Deal',ICON.deal)+toolBtn('stats','Stats',ICON.stats),
+    rules:`<ul>
+      <li>Clear all eight runs to win. A run is King down to Ace in one suit, and it leaves the table on its own.</li>
+      <li>Put any card on a card one rank higher, in any suit. Only cards of the same suit, in order, move together.</li>
+      <li>Any card or run can go into an empty column.</li>
+      <li>Tap the deck to deal one card onto every column. Every column needs at least one card first.</li>
+      <li>Your score starts at 500, loses 1 for each move, and gains 100 for each run you clear.</li></ul>`,
+    art(where){
+      const cs=where==='hub'?'--cw:38px;--ch:55px;':'--cw:30px;--ch:44px;',sx=where==='hub'?10:8,sy=where==='hub'?13:10;
+      return [13,12,11].map((r,k)=>artCard(r,0,false,cs+`transform:translate(${(k-1)*sx}px,${(k-1)*sy}px)`)).join('');
+    },
+    init(c){
+      sh=c.sh;
       table=Table(sh.area,{
-        layout,dropRects,canPick,
-        bottomSpace:()=>sh.root.querySelector('.pg-tools').offsetHeight+28,
+        layout,dropRects,canPick,targets,
+        dealFrom:()=>{const L=layout.last;return{x:L.X(9),y:0};},
+        bottomSpace:()=>sh.tools.offsetHeight+30,
         tap:(pile,idx)=>{if(pile==='stock')return dealRow();if(canPick(pile,idx))autoMove(pile,idx);},
         tapSlot:id=>{if(id==='stock')dealRow();},
         drop:(from,idx,to)=>move(from,idx,to)
       });
-      wire(sh,onAction);
       const saved=A.lsGet(KEY);
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
-      setInterval(()=>{if(A.isActive('spider'))render();},1000);
+    },
+    inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
+    resume(){return{title:`${st.suits} ${st.suits===1?'suit':'suits'}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${st.score.toLocaleString()} points · ${st.done.length} of 8 runs cleared`,pct:st.done.length/8*100};},
+    modesHTML(){
+      return `<div class="gmodes">${[['1','1 suit','Relaxed'],['2','2 suits','Medium'],['4','4 suits','Hard']].map(([m,l,sub])=>{
+        const s=core.log.stats(m,0);
+        const meta=s.bestScore!=null?`Best ${s.bestScore.toLocaleString()}`:s.played?A.plural(s.played,'game'):'Not played yet';
+        return `<button type="button" class="gmode" data-gh="new" data-mode="${m}">${suitIcons(+m)}<span class="gm-t"><b>${l}</b><small>${sub}</small></span><span class="gm-best">${meta}</span></button>`;}).join('')}</div>`;
+    },
+    start(mode){
+      table.stopCascade();partying=false;
+      const n=mode==='4'?4:mode==='2'?2:1;
+      st=deal(n);undo=[];clock.set(0);A.lsSet(SUITS,n);
+      table.reset();saveNow();
+      render({from:true,delays:dealDelays(),flipLag:150});
+    },
+    abandon(){core.log.add({t:Date.now(),m:String(st.suits),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
+    action(act){
+      if(act==='undo'){if(undo.length&&st&&st.status==='playing'&&!table.busy()){const score=st.score;st=undo.pop();st.score=Math.max(0,Math.min(st.score,score)-1);st.moves++;save();render();}return;}
+      if(act==='hint')return hint();
+      if(act==='deal')return dealRow();
     },
     status(){
-      if(st&&st.status==='playing'&&st.moves>0)return{resume:true,line:`Continue · ${st.suits} ${st.suits===1?'suit':'suits'} · ${st.done.length}/8`};
-      const s=stats.get();return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestScore!=null?s.bestScore.toLocaleString():'—'}`:'1, 2 or 4 suits'};
+      if(inProgress())return{resume:true,line:`Continue · ${st.suits} ${st.suits===1?'suit':'suits'} · ${st.done.length}/8`};
+      const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestScore!=null?s.bestScore.toLocaleString():'—'}`:'1, 2 or 4 suits'};
     },
-    show(){if(!st)startGame(A.lsGet('pocket-games.spider.suits')||1);else render();requestAnimationFrame(render);},
-    hide(){saveNow();clock.run(false);sh.hideSheet();},
-    onBack(){if(!sh.sheet.hidden){sh.hideSheet();render();return true;}return false;},
-    playing,render,
-    pause(){saveNow();clock.run(false);},
-    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render();}}
+    render,playing,tick:()=>{clock.run(playing());renderMeta();},
+    pause(){saveNow();clock.run(false);table.stopCascade();},
+    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});}}
   });
 })();
 
@@ -1566,10 +2271,12 @@ function Table(host,spec){
    open its neighbours. The counter shows mines minus flags.
    ========================================================================== */
 (function(){
-  const KEY='pocket-games.mines.v1',STATS='pocket-games.mines.stats.';
+  const KEY='pocket-games.mines.v1',LEVEL='pocket-games.mines.level';
   const LEVELS={beginner:{name:'Beginner',r:9,c:9,m:10},intermediate:{name:'Intermediate',r:16,c:16,m:40},expert:{name:'Expert',r:16,c:30,m:99}};
-  let sh,boardEl,st=null,clock=Clock(),saveT=0,flagMode=false,cellsEl=[];
-  const statsFor=l=>Stats(STATS+l);
+  const MINE='<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ms-mine"/></svg>',FLAG='<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ms-flag"/></svg>';
+  let core,sh,boardEl,st=null,clock=Clock(),saveT=0,flagMode=false,cellsEl=[],press=null,partying=false;
+  const fx=new Map();
+  const addFx=(i,cls,d,dur)=>fx.set(i,{cls,d:Math.round(d),until:performance.now()+d+(dur||340)});
   function newGame(level){
     const L=LEVELS[level];
     let rows=L.r,cols=L.c;
@@ -1587,36 +2294,37 @@ function Table(host,spec){
     st.num=new Array(N).fill(0).map((_,i)=>nbrs(i).reduce((a,j)=>a+st.mine[j],0));
     st.placed=true;
   }
-  function open(i){
+  // Open a cell; empty areas spread out, rippling away from the tap.
+  function open(i,base){
     if(st.state[i]!==0)return;
     if(st.mine[i]){st.state[i]=1;st.boom=i;return lose();}
-    const q=[i];
-    while(q.length){
-      const k=q.pop();
-      if(st.state[k]!==0)continue;
-      st.state[k]=1;
-      if(st.num[k]===0)for(const j of nbrs(k))if(st.state[j]===0&&!st.mine[j])q.push(j);
+    const q=[i],dist=new Map([[i,0]]);
+    st.state[i]=1;
+    for(let h=0;h<q.length;h++){
+      const k=q[h],d=dist.get(k);
+      addFx(k,'rv',(base||0)+Math.min(d*18,560),320);
+      if(st.num[k]===0)for(const j of nbrs(k))if(st.state[j]===0&&!st.mine[j]&&!dist.has(j)){st.state[j]=1;dist.set(j,d+1);q.push(j);}
     }
   }
   function dig(i){
     if(!st||st.status!=='playing')return;
     if(!st.placed)place(i);
-    if(st.state[i]===2)return;
+    if(st.state[i]===2)return render();
     if(st.state[i]===1)return chord(i);
-    open(i);
+    open(i,0);
     after();
   }
   function chord(i){
     const ns=nbrs(i),flags=ns.filter(j=>st.state[j]===2).length;
-    if(!st.num[i]||flags!==st.num[i]){cellsEl[i].classList.remove('nope');void cellsEl[i].offsetWidth;cellsEl[i].classList.add('nope');return;}
-    for(const j of ns)if(st.state[j]===0){open(j);if(st.status!=='playing')return;}
+    if(!st.num[i]||flags!==st.num[i]){addFx(i,'nope',0,320);render();return;}
+    for(const j of ns)if(st.state[j]===0){open(j,40);if(st.status!=='playing')return after();}
     after();
   }
   function flag(i){
-    if(!st||st.status!=='playing')return;
-    if(st.state[i]===1)return;
+    if(!st||st.status!=='playing'||st.state[i]===1)return;
     st.state[i]=st.state[i]===2?0:2;
-    A.buzz(15);
+    if(st.state[i]===2)addFx(i,'fl',0,420);
+    A.buzz(st.state[i]===2?18:8);
     after();
   }
   function after(){
@@ -1627,135 +2335,179 @@ function Table(host,spec){
   }
   function win(){
     clock.run(false);st.elapsed=clock.ms();st.status='won';
-    for(let i=0;i<st.mine.length;i++)if(st.mine[i])st.state[i]=2;
-    const sec=Math.round(st.elapsed/1000),s=statsFor(st.level).record(true,sec,null);
-    A.lsSet(KEY,null);render();
-    A.fireworks();A.buzz([40,70,40,70,90]);
-    setTimeout(()=>{if(st&&st.status==='won')sh.showSheet(`<div class="lede"><h2>Cleared!</h2><p>${LEVELS[st.level].name} in ${A.fmt(sec)}${s.bestTime===sec?' · new best':''}</p></div>${statsHTML(s)}<div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="new">Change level</button><button type="button" class="btn" data-pg="leave">All games</button></div>`);},900);
+    const sec=Math.max(1,Math.round(st.elapsed/1000)),prev=core.log.stats(st.level,0).best;
+    core.log.add({t:Date.now(),m:st.level,r:'won',s:sec,p:null,mv:0});
+    A.lsSet(KEY,null);
+    let k=0;for(let i=0;i<st.mine.length;i++)if(st.mine[i]&&st.state[i]!==2){st.state[i]=2;addFx(i,'fl',Math.min(900,k*28),420);k++;}
+    render();
+    A.buzz([40,70,40,70,90]);
+    const game=st;partying=true;
+    setTimeout(()=>{if(st===game&&core.onScreen(true))A.fireworks();},350);
+    setTimeout(()=>{partying=false;if(st===game&&core.onScreen(true))showWin(sec,prev==null||sec<prev);},1500);
+  }
+  function showWin(sec,best){
+    core.showSheet(`<div class="lede"><h2>Cleared!${best?'<span class="chip">New best</span>':''}</h2><p>${LEVELS[st.level].name} in ${A.fmt(sec)}</p></div>${core.miniStats(st.level)}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="new">Change level</button><button type="button" class="btn" data-pg="home">Minesweeper home</button></div>`,true);
   }
   function lose(){
     clock.run(false);st.elapsed=clock.ms();st.status='lost';
-    const s=statsFor(st.level).record(false,0,null);
-    A.lsSet(KEY,null);A.buzz([80,40,80]);
-    render();
-    setTimeout(()=>{if(st&&st.status==='lost')sh.showSheet(`<div class="lede"><h2>Boom!</h2><p>That was a mine. ${LEVELS[st.level].name} · ${A.fmt(st.elapsed/1000)}</p></div>${statsHTML(s)}<div class="btn-col"><button type="button" class="btn primary" data-pg="again">Try again</button><button type="button" class="btn" data-pg="view">See the board</button><button type="button" class="btn" data-pg="leave">All games</button></div>`);},700);
+    core.log.add({t:Date.now(),m:st.level,r:'lost',s:Math.round(st.elapsed/1000),p:null,mv:0});
+    A.lsSet(KEY,null);A.buzz([90,40,60]);
+    const br=(st.boom/st.cols)|0,bc=st.boom%st.cols;
+    for(let i=0;i<st.mine.length;i++){
+      if(i===st.boom)continue;
+      const r=(i/st.cols)|0,c=i%st.cols,d=Math.hypot(r-br,c-bc);
+      if(st.mine[i]&&st.state[i]!==2)addFx(i,'mrv',160+Math.min(1300,d*60),380);
+      else if(st.state[i]===2&&!st.mine[i])addFx(i,'xrv',260+Math.min(1300,d*60),380);
+    }
+    boardEl.classList.remove('shake');void boardEl.offsetWidth;boardEl.classList.add('shake');
+    setTimeout(()=>boardEl.classList.remove('shake'),520);
+    const game=st;partying=true;
+    setTimeout(()=>{partying=false;if(st===game&&core.onScreen(true))showLose();},1800);
+  }
+  function showLose(){
+    core.showSheet(`<div class="lede"><h2>Boom!</h2><p>That was a mine. ${LEVELS[st.level].name} · ${A.fmt(st.elapsed/1000)}</p></div>${core.miniStats(st.level)}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Try again</button><button type="button" class="btn" data-pg="view">See the board</button><button type="button" class="btn" data-pg="home">Minesweeper home</button></div>`,true);
   }
   function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
   function saveNow(){clearTimeout(saveT);if(st&&st.status==='playing'&&st.placed){st.elapsed=clock.ms();A.lsSet(KEY,st);}}
-  function playing(){return !!(st&&st.status==='playing'&&st.placed&&A.isActive('mines')&&sh.sheet.hidden&&!document.hidden);}
+  const playing=()=>!!(st&&st.status==='playing'&&st.placed&&core.onScreen());
   function build(){
     const N=st.rows*st.cols;
-    boardEl.innerHTML='';cellsEl=[];
+    boardEl.innerHTML='';cellsEl=[];fx.clear();
     boardEl.style.gridTemplateColumns=`repeat(${st.cols},var(--cs))`;
     for(let i=0;i<N;i++){const b=document.createElement('button');b.type='button';b.className='ms-cell';b.dataset.i=i;boardEl.appendChild(b);cellsEl.push(b);}
     boardEl._id=st.id;
   }
   function sizeBoard(){
-    const W=sh.area.clientWidth;
-    const top=sh.area.getBoundingClientRect().top;
-    const H=window.innerHeight-top-sh.root.querySelector('.pg-tools').offsetHeight-32;
-    const cs=Math.max(16,Math.min(44,Math.floor((W-4)/st.cols)-1,Math.floor((H-4)/st.rows)-1));
-    boardEl.style.setProperty('--cs',cs+'px');
+    const W=sh.area.clientWidth,top=sh.area.getBoundingClientRect().top;
+    const H=window.innerHeight-top-sh.tools.offsetHeight-34;
+    const pad=5,g=1;
+    const cs=Math.max(14,Math.min(46,Math.floor((W-2*pad+g)/st.cols)-g,Math.floor((H-2*pad+g)/st.rows)-g));
+    if(boardEl._cs!==cs){boardEl._cs=cs;boardEl.style.setProperty('--cs',cs+'px');}
+  }
+  function renderMeta(flags){
+    if(!st)return;
+    if(flags==null){flags=0;for(const s of st.state)if(s===2)flags++;}
+    sh.meta(mi('mine',st.mines-flags,'Mines left')+mi('clock',A.fmt(clock.ms()/1000),'Time'));
   }
   function render(){
     if(!sh)return;
     clock.run(playing());
     if(!st)return;
     if(boardEl._id!==st.id)build();
-    if(!sh.root.hidden)sizeBoard();
-    const N=st.rows*st.cols,over=st.status!=='playing';
+    if(core.vis&&core.view==='play')sizeBoard();
+    const N=st.rows*st.cols,lost=st.status==='lost',t=performance.now();
     let flags=0;
     for(let i=0;i<N;i++){
       const s=st.state[i],e=cellsEl[i];if(s===2)flags++;
       let cls='ms-cell',html='',label='Hidden';
-      if(s===1){cls+=' open';if(st.mine[i]){cls+=' mine'+(i===st.boom?' boom':'');html='<svg><use href="#ms-mine"/></svg>';label='Mine';}else if(st.num[i]){cls+=' n'+st.num[i];html=String(st.num[i]);label=st.num[i]+' mines nearby';}else label='Empty';}
-      else if(s===2){cls+=' flag';html='<svg><use href="#ms-flag"/></svg>';label='Flagged';if(over&&st.status==='lost'&&!st.mine[i]){cls+=' wrong';label='Wrong flag';}}
-      else if(over&&st.status==='lost'&&st.mine[i]){cls+=' open mine';html='<svg><use href="#ms-mine"/></svg>';label='Mine';}
+      if(s===1){cls+=' open';if(st.mine[i]){cls+=' mine'+(i===st.boom?' boom':'');html=MINE;label='Mine';}else if(st.num[i]){cls+=' n'+st.num[i];html=String(st.num[i]);label=`${st.num[i]} ${st.num[i]===1?'mine':'mines'} nearby`;}else label='Empty';}
+      else if(s===2){cls+=' flag';html=FLAG;label='Flagged';if(lost&&!st.mine[i]){cls+=' wrong';label='Wrong flag';}}
+      else if(lost&&st.mine[i]){cls+=' open mine';html=MINE;label='Mine';}
+      if(press&&st.status==='playing'){
+        if(press.i===i&&s!==1&&!press.long)cls+=' down'+(press.charge?' charge':'');
+        else if(press.nb&&press.nb.has(i)&&st.state[i]===0)cls+=' down';
+      }
+      const f=fx.get(i);
+      if(f){if(f.until>t){cls+=' '+f.cls;if(e._d!==f.d){e._d=f.d;e.style.setProperty('--d',f.d+'ms');}}else fx.delete(i);}
       if(e._cls!==cls){e._cls=cls;e.className=cls;}
       if(e._html!==html){e._html=html;e.innerHTML=html;}
-      e.setAttribute('aria-label',label);
+      if(e._label!==label){e._label=label;e.setAttribute('aria-label',label);}
     }
+    boardEl.classList.toggle('won',st.status==='won');
+    boardEl.classList.toggle('flagging',flagMode);
     sh.title(`Minesweeper · ${LEVELS[st.level].name}`);
-    sh.meta(`${st.mines-flags} mines left · ${A.fmt(clock.ms()/1000)}`);
-    const fm=sh.tool('flagmode');fm.setAttribute('aria-pressed',String(flagMode));fm.querySelector('span').textContent=flagMode?'Flag mode':'Dig mode';
+    renderMeta(flags);
+    const md=sh.root.querySelector('.ms-mode');
+    md.classList.toggle('flag',flagMode);
+    md.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.pg==='flag')===flagMode)));
   }
-  function newGameSheet(){
-    const inPlay=st&&st.status==='playing'&&st.placed;
-    const cur=A.lsGet('pocket-games.mines.level')||'beginner';
-    sh.showSheet(`<div class="lede"><h2>New game</h2><p>Open every cell that isn’t a mine. Numbers tell you how many mines touch that cell.${inPlay?' The game in progress counts as a loss.':''}</p></div>
-      ${optRow('level',[['beginner','Beginner','9×9 · 10 mines'],['intermediate','Intermediate','16×16 · 40 mines'],['expert','Expert','30×16 · 99 mines']],cur)}
-      <div class="btn-col"><button type="button" class="btn primary" data-pg="start">Start</button>${st&&st.status==='playing'?'<button type="button" class="btn" data-pg="close">Keep playing</button>':''}</div>`);
-  }
-  function startGame(level){
-    if(st&&st.status==='playing'&&st.placed)statsFor(st.level).record(false,0,null);
-    A.stopFireworks();
-    st=newGame(level);clock.set(0);
-    A.lsSet('pocket-games.mines.level',level);A.lsSet(KEY,null);
-    sh.hideSheet();render();
-  }
-  function onAction(act){
-    if(act==='leave'){sh.hideSheet();return A.leave();}
-    if(act==='new')return newGameSheet();
-    if(act==='close'||act==='view'){sh.hideSheet();return render();}
-    if(act==='start'){const sel=sh.sheet.querySelector('[data-opt="level"][aria-pressed="true"]');return startGame(sel?sel.dataset.val:'beginner');}
-    if(act==='again')return startGame(st?st.level:'beginner');
-    if(act==='flagmode'){flagMode=!flagMode;return render();}
-    if(act==='stats'){
-      const rows=Object.keys(LEVELS).map(l=>{const s=statsFor(l).get();return `<div class="ms-srow"><b>${LEVELS[l].name}</b><span>${s.won}/${s.played} won · best ${s.bestTime!=null?A.fmt(s.bestTime):'—'}</span></div>`;}).join('');
-      return sh.showSheet(`<div class="lede"><h2>Minesweeper stats</h2><p>Saved on this device.</p></div><div class="ms-stats">${rows}</div><div class="btn-col"><button type="button" class="btn" data-pg="close">Close</button><button type="button" class="btn ghost-danger" data-pg="reset">Reset stats</button></div>`);
-    }
-    if(act==='reset'){Object.keys(LEVELS).forEach(l=>statsFor(l).reset());return onAction('stats');}
-  }
-  REG.push({
-    id:'mines',name:'Minesweeper',sub:'Classic',
-    init(){
-      sh=Shell('mines','Minesweeper',[['flagmode','Dig mode','<svg viewBox="0 0 24 24"><use href="#ms-flag"/></svg>','aria-pressed="false"'],['stats','Stats',ICON.stats]]);
+  const inProgress=()=>!!(st&&st.status==='playing'&&st.placed);
+  const curMode=()=>st?st.level:(LEVELS[A.lsGet(LEVEL)]?A.lsGet(LEVEL):'beginner');
+  const sizeText=l=>{const L=LEVELS[l];return `${L.c}×${L.r} · ${L.m} mines`;};
+  core=Game({
+    id:'mines',name:'Minesweeper',sub:'Classic',felt:false,scored:false,
+    logKey:'pocket-games.mines.log',legacy:{beginner:'pocket-games.mines.stats.beginner',intermediate:'pocket-games.mines.stats.intermediate',expert:'pocket-games.mines.stats.expert'},
+    modes:Object.keys(LEVELS).map(l=>[l,LEVELS[l].name,sizeText(l)]),
+    longName:m=>LEVELS[m]?LEVELS[m].name:'Minesweeper',
+    detail:e=>e.r==='won'?sizeText(e.m):e.r==='lost'?'Hit a mine':'Left unfinished',
+    blurb:'Open every cell that isn’t a mine. Numbers tell you how many mines touch that cell.',go:'Start',
+    tools:`<div class="ms-mode" role="group" aria-label="What a tap does"><i class="knob" aria-hidden="true"></i><button type="button" data-pg="dig" aria-pressed="true">${ICON.dig}Dig</button><button type="button" data-pg="flag" aria-pressed="false">${ICON.flag}Flag</button></div>`+toolBtn('stats','Stats',ICON.stats),
+    rules:`<ul>
+      <li>Open every cell that isn’t a mine. Your first tap is always safe and opens an area.</li>
+      <li>A number shows how many of the 8 cells around it hide a mine.</li>
+      <li>Long-press a cell to plant a flag where you think a mine is. Or switch the tap to Flag at the bottom of the screen; then a long-press digs.</li>
+      <li>Tap a number once all its mines are flagged to open every cell around it.</li>
+      <li>Beginner is 9×9 with 10 mines, Intermediate 16×16 with 40, Expert 30×16 with 99. Expert stands upright on a phone.</li></ul>`,
+    art(where){
+      const cells=['n1','o','n1','h','n1','n2','f','h','h','h','h','h'];
+      return `<span class="ms-art" style="--cs:${where==='hub'?17:14}px">${cells.map(c=>c==='h'?'<i class="ms-cell"></i>':c==='f'?`<i class="ms-cell flag">${FLAG}</i>`:c==='o'?'<i class="ms-cell open"></i>':`<i class="ms-cell open ${c}">${c[1]}</i>`).join('')}</span>`;
+    },
+    init(c){
+      sh=c.sh;
       boardEl=document.createElement('div');boardEl.className='ms-board';sh.area.appendChild(boardEl);
-      let press=null;
-      boardEl.addEventListener('contextmenu',e=>{e.preventDefault();const c=e.target.closest('.ms-cell');if(c&&e.pointerType!=='touch'&&!press)flag(+c.dataset.i);});
+      boardEl.addEventListener('contextmenu',e=>{e.preventDefault();const el=e.target.closest('.ms-cell');if(el&&e.pointerType!=='touch'&&!press)flag(+el.dataset.i);});
       boardEl.addEventListener('pointerdown',e=>{
-        const c=e.target.closest('.ms-cell');if(!c||e.button>0)return;
-        const i=+c.dataset.i;
-        press={i,x:e.clientX,y:e.clientY,long:false,t:setTimeout(()=>{if(press&&press.i===i){press.long=true;flagMode?dig(i):flag(i);}},380)};
+        const el=e.target.closest('.ms-cell');if(!el||e.button>0||!st||st.status!=='playing')return;
+        const i=+el.dataset.i;
+        press={i,x:e.clientX,y:e.clientY,long:false,charge:false,nb:null};
+        if(st.state[i]===1){if(st.num[i])press.nb=new Set(nbrs(i));}
+        else{
+          press.charge=true;
+          press.t=setTimeout(()=>{if(press&&press.i===i){press.long=true;press.charge=false;flagMode?dig(i):flag(i);}},380);
+        }
+        render();
       });
-      boardEl.addEventListener('pointermove',e=>{if(press&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(press.t);press=null;}});
-      const end=cancel=>{if(!press)return;clearTimeout(press.t);const p=press;press=null;if(cancel||p.long)return;
-        if(st&&st.state[p.i]===1)return chord(p.i);
-        flagMode?flag(p.i):dig(p.i);};
+      boardEl.addEventListener('pointermove',e=>{if(press&&Math.hypot(e.clientX-press.x,e.clientY-press.y)>10){clearTimeout(press.t);press=null;render();}});
+      const end=cancel=>{
+        if(!press)return;clearTimeout(press.t);const p=press;press=null;
+        if(cancel||p.long||!st||st.status!=='playing'){render();return;}
+        if(st.state[p.i]===1)return chord(p.i);
+        flagMode?flag(p.i):dig(p.i);
+      };
       boardEl.addEventListener('pointerup',()=>end(false));
       boardEl.addEventListener('pointercancel',()=>end(true));
-      wire(sh,onAction);
+      boardEl.addEventListener('pointerleave',()=>{if(press){clearTimeout(press.t);press=null;render();}});
       const saved=A.lsGet(KEY);
       if(saved&&saved.state&&saved.status==='playing'&&LEVELS[saved.level]){st=saved;clock.set(saved.elapsed);}
-      window.addEventListener('resize',()=>{if(A.isActive('mines'))render();});
-      setInterval(()=>{if(A.isActive('mines'))render();},1000);
+      window.addEventListener('resize',()=>{if(core.vis&&core.view==='play')render();});
+    },
+    inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
+    resume(){
+      const N=st.rows*st.cols;let opened=0,flags=0;for(const s of st.state){if(s===1)opened++;if(s===2)flags++;}
+      return{title:LEVELS[st.level].name,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${st.mines-flags} mines left`,pct:opened/(N-st.mines)*100};
+    },
+    modesHTML(){
+      return `<div class="gmodes">${Object.keys(LEVELS).map(l=>{
+        const s=core.log.stats(l,0),L=LEVELS[l];
+        const meta=s.best!=null?`Best ${A.fmt(s.best)}`:s.played?A.plural(s.played,'game'):'Not played yet';
+        const w=l==='beginner'?3:l==='intermediate'?4:5;
+        return `<button type="button" class="gmode" data-gh="new" data-mode="${l}"><span class="gm-grid" style="--n:${w}" aria-hidden="true">${'<i></i>'.repeat(w*w)}</span><span class="gm-t"><b>${L.name}</b><small>${sizeText(l)}</small></span><span class="gm-best">${meta}</span></button>`;}).join('')}</div>`;
+    },
+    start(mode){
+      const level=LEVELS[mode]?mode:'beginner';
+      st=newGame(level);clock.set(0);fx.clear();
+      A.lsSet(LEVEL,level);A.lsSet(KEY,null);
+      render();
+    },
+    abandon(){core.log.add({t:Date.now(),m:st.level,r:'left',s:Math.round(clock.ms()/1000),p:null,mv:0});},
+    action(act){
+      if(act==='dig'||act==='flag'){flagMode=act==='flag';A.buzz(6);return render();}
+      if(act==='view'){core.hideSheet();return render();}
     },
     status(){
-      if(st&&st.status==='playing'&&st.placed)return{resume:true,line:`Continue · ${LEVELS[st.level].name} · ${A.fmt(clock.ms()/1000)}`};
-      const b=Object.keys(LEVELS).map(l=>statsFor(l).get());const won=b.reduce((a,s)=>a+s.won,0);
-      return{line:won?`${A.plural(won,'win')} so far`:'Beginner to Expert'};
+      if(inProgress())return{resume:true,line:`Continue · ${LEVELS[st.level].name} · ${A.fmt(clock.ms()/1000)}`};
+      const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} so far`:'Beginner to Expert'};
     },
-    show(){if(!st)startGame(A.lsGet('pocket-games.mines.level')||'beginner');else render();requestAnimationFrame(render);},
-    hide(){saveNow();clock.run(false);sh.hideSheet();},
-    onBack(){if(!sh.sheet.hidden){sh.hideSheet();render();return true;}return false;},
-    playing,render,
-    pause(){saveNow();clock.run(false);},
+    render,playing,tick:()=>{clock.run(playing());renderMeta();},
+    pause(){saveNow();clock.run(false);if(press){clearTimeout(press.t);press=null;}},
     debug:{get:()=>st,set:x=>{st=x;render();}}
   });
 })();
 
-/* ---------- shared wiring for a game screen ---------- */
-function wire(sh,onAction){
-  sh.root.addEventListener('click',e=>{
-    const o=e.target.closest('[data-opt]');
-    if(o){sh.root.querySelectorAll(`[data-opt="${o.dataset.opt}"]`).forEach(b=>b.setAttribute('aria-pressed',String(b===o)));return;}
-    const a=e.target.closest('[data-pg]');
-    if(a)onAction(a.dataset.pg,a);
-  });
-}
-
 window.PCGamesInit=function(api){
-  A=api;ensureSprite();
+  A=api;ensureSprite();loadLook();buildStats();
   for(const g of REG)try{g.init();}catch(e){console.error('Game failed to start',g.id,e);}
 };
 })();
@@ -1763,8 +2515,8 @@ window.PCGamesInit=function(api){
 (function(){
 'use strict';
 
-const APP_VERSION='2.0';
-const LS_NEWS='pocket-games.news.2.0';
+const APP_VERSION='2.1';
+const LS_NEWS='pocket-games.news.2.1';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
@@ -2403,7 +3155,7 @@ function render(){
   if(hubEl.hidden!==(S.view!=='hub'))hubEl.hidden=S.view!=='hub';
   if(homeEl.hidden!==(S.view!=='home'))homeEl.hidden=S.view!=='home';
   if(appEl.hidden!==(S.view!=='play'))appEl.hidden=S.view!=='play';
-  for(const gm of GAMES()){const el=document.getElementById('pg-'+gm.id);if(el){const hide=S.view!=='g:'+gm.id;if(el.hidden!==hide)el.hidden=hide;}}
+  for(const gm of GAMES())if(gm.setVisible)gm.setVisible(S.view==='g:'+gm.id);
   if(S.view==='hub')renderHub();
   if(S.view==='home')renderHome();
   buildBoard(g?g.n:9);
@@ -2750,7 +3502,7 @@ function onBack(){
   if(S.view==='play'){goHomeNow();return;}
   if(S.view==='home'){toHub();return;}
   if(S.view.startsWith('g:')){
-    if(curGame&&curGame.onBack()){navPush('game');return;}   // closed a sheet; stay in the game
+    if(curGame&&curGame.onBack())return;   // the game closed its stats, a sheet, or went from play to its home page
     toHub();return;
   }
   const st=navState();
@@ -2763,31 +3515,33 @@ let curGame=null;
 function openSudoku(){navPush('sudoku');S.view='home';render();window.scrollTo(0,0);}
 function openGame(id){
   const g=GAMES().find(x=>x.id===id);if(!g)return;
-  navPush('game');curGame=g;S.view='g:'+id;
-  render();g.show();nudgeAwake();window.scrollTo(0,0);
+  navPush('ghome');curGame=g;S.view='g:'+id;
+  g.show();render();window.scrollTo(0,0);
 }
 function toHub(){
   if(curGame){curGame.hide();curGame=null;}
   S.view='hub';S.homeSheet=null;
+  setThemeColor(null);
   render();window.scrollTo(0,0);
 }
+// The phone's status bar takes the table colour while a card game is on screen.
+const themeMetas=[...document.querySelectorAll('meta[name="theme-color"]')];
+themeMetas.forEach(m=>{m._orig=m.getAttribute('content');});
+function setThemeColor(c){themeMetas.forEach(m=>{const v=c||m._orig;if(m.getAttribute('content')!==v)m.setAttribute('content',v);});}
 const ART={
-  sudoku:'<span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="c"></i><i></i><i></i><i></i><i></i></span>',
-  klondike:`<span class="mini" style="transform:translate(-15px,3px) rotate(-11deg)"><b>K</b><svg viewBox="0 0 24 24"><use href="#suit-s"/></svg><svg class="big" viewBox="0 0 24 24"><use href="#suit-s"/></svg></span><span class="mini red" style="transform:translate(15px,-3px) rotate(9deg)"><b>A</b><svg viewBox="0 0 24 24"><use href="#suit-h"/></svg><svg class="big" viewBox="0 0 24 24"><use href="#suit-h"/></svg></span>`,
-  spider:['K','Q','J'].map((r,k)=>`<span class="mini" style="transform:translate(${(k-1)*10}px,${(k-1)*13}px)"><b>${r}</b><svg viewBox="0 0 24 24"><use href="#suit-s"/></svg><svg class="big" viewBox="0 0 24 24"><use href="#suit-s"/></svg></span>`).join(''),
-  mines:`<span class="mini-grid" aria-hidden="true">${['o','m1','o','o','m1','m2','f','h','h','h','h','h'].map(c=>`<i class="${c==='o'||c.startsWith('m')?'o '+c:c}">${c==='m1'?'1':c==='m2'?'2':c==='f'?'<svg viewBox="0 0 24 24"><use href="#ms-flag"/></svg>':''}</i>`).join('')}</span>`
+  sudoku:'<span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="c"></i><i></i><i></i><i></i><i></i></span>'
 };
 function renderHub(){
   const items=[];
   const sudokuOn=!!(S.game&&S.status==='playing'&&!S.kids);
   items.push({id:'sudoku',name:'Sudoku',resume:sudokuOn,line:sudokuOn?`Continue · ${nameOf(S.game.difficulty)} · ${fmt(elapsedMs()/1000)}`:'Six levels, plus Kids'});
-  for(const g of GAMES()){let s={line:''};try{s=g.status()||s;}catch(e){}items.push({id:g.id,name:g.name,resume:!!s.resume,line:s.line});}
+  for(const g of GAMES()){let s={line:''};try{s=g.status()||s;}catch(e){}items.push({id:g.id,name:g.name,resume:!!s.resume,line:s.line,art:g.art?g.art():'',felt:!!g.felt});}
   setHTML($('hubGames'),items.map(it=>`<button type="button" class="gcard${it.resume?' resume':''}" data-action="open-game" data-game="${it.id}">
-      <span class="art">${ART[it.id]||''}</span>
+      <span class="art${it.felt?' felt':''}">${it.art||ART[it.id]||''}</span>
       <span class="gt"><b>${it.name}</b><small>${esc(it.line)}</small></span>
     </button>`).join(''));
   let seen=false;try{seen=!!localStorage.getItem(LS_NEWS);}catch(e){}
-  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.0</b><p>Solitaire, Spider Solitaire and Minesweeper now sit next to Sudoku. Your Sudoku games, stats and kids levels are all still here.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
+  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.1</b><p>Solitaire, Spider and Minesweeper now have their own home pages with levels and full stats, like Sudoku. The card games get a felt table, 3D card flips and your choice of felt and card back. Minesweeper gets raised tiles and new animations.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
   $('hubVersion').textContent='Version '+APP_VERSION;
 }
 
@@ -3362,9 +4116,10 @@ function start(data){
   // Solitaire, Spider and Minesweeper live in games.js and get the services they need from here.
   try{
     if(window.PCGamesInit)window.PCGamesInit({
-      $,fmt,plural,esc,clamp,lsGet,lsSet,buzz,fireworks,stopFireworks,nudgeAwake,
-      isActive:id=>S.view==='g:'+id,
-      leave:()=>navClose('game',toHub)
+      $,fmt,fmtTotal,plural,esc,clamp,lsGet,lsSet,buzz,fireworks,stopFireworks,nudgeAwake,
+      periodStart,PERIODS,PERIOD_NAME,version:APP_VERSION,
+      navPush,navClose,toHub,setThemeColor,
+      isActive:id=>S.view==='g:'+id
     });
   }catch(e){console.error(e);}
   bind();

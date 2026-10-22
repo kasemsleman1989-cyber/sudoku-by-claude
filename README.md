@@ -2,7 +2,7 @@
 
 Four classic games in one app for Android phones and tablets: Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.
 
-**Current version: 2.2**
+**Current version: 2.3**
 
 ## Games
 
@@ -14,6 +14,7 @@ Four classic games in one app for Android phones and tablets: Sudoku, Solitaire,
 
 **Solitaire (Klondike)**
 - Draw 1 or Draw 3, unlimited passes through the stock; build down in alternating colours; only Kings fill empty columns
+- Winnable deals (on by default): a solver checks every deal has a way to win before it's dealt; hints follow a winning line
 - Tap a card to send it to the best spot, or drag it; undo, hints, and auto-finish once every card is face up
 - Standard scoring: +10 to a foundation, +5 waste to column, +5 for turning a card, −15 foundation to column, time bonus of 700,000 ÷ seconds
 
@@ -33,6 +34,14 @@ Each game has its own home page, like Sudoku: continue a game in progress, pick 
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 2.3
+- Solitaire: Winnable deals, on by default. A built-in solver checks each deal can be won before it is dealt, and keeps two ready for each mode so new games start instantly. Checked on random deals: 82% of Draw 1 deals are winnable with perfect play, matching published research, so the shuffle and rules were fair; the low win rate came from unwinnable deals and the hidden cards
+- Solitaire hints use the solver: they show the next move of a winning line, or say "No winning moves left from here" when there is none. Spider hints only suggest moves that make real progress, so they can never go round in circles, and say "No more useful moves" when nothing is left
+- Solitaire's deck is built like Spider's (overlapping stacks a quarter card apart), and both games use exactly the same card shape and face layout on every screen
+- Resign in Solitaire and Spider: counts as a loss, turns every hidden card over, and shows the result
+- Spider auto-finish: once the deck is used up and every card is face up, the solver checks the game can be finished and plays the last moves. Switch it off under Options on Spider's home page (Solitaire has the same switch for its auto-finish)
+- Very tall columns no longer draw on top of the result card
 
 ### 2.2
 - Smoother Solitaire and Spider: every move, lift, flip and deal now runs on the phone's graphics chip, so nothing is redrawn while cards move

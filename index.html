@@ -435,6 +435,8 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 
 /* Game home pages (same layout as the Sudoku page) */
 .ghome .home-mark{font-size:clamp(44px,13vw,64px)}
+.ghome [data-part="extra"]{display:flex;flex-direction:column;gap:24px}
+.ghome [data-part="extra"]:empty{display:none}
 .gh-art{position:relative;width:80px;height:80px;flex:none;border-radius:18px;overflow:hidden;display:grid;place-items:center}
 .gh-art.plain{background:var(--peer)}
 .pc-card.pc-art{left:50%;top:50%;margin:calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);transition:none;will-change:auto;contain:none;cursor:inherit;--cr:calc(var(--cw)*.085)}
@@ -464,6 +466,7 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .look-prev{position:relative;height:112px;margin-bottom:6px;border-radius:10px;overflow:hidden}
 .look-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:8px 0;border-top:1px solid var(--line)}
 .look-prev + .look-row{border-top:0}
+.look > .look-row:first-child{border-top:0}
 .look-l{display:flex;flex-direction:column;gap:3px;font-size:14px;font-weight:600;color:var(--ink)}
 .look-l small{font-size:12px;font-weight:400;color:var(--muted)}
 .swatches{display:flex;align-items:center;gap:10px}
@@ -522,11 +525,15 @@ button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outl
 .pg.felt .pg-new{background:#F6F7F1;color:#13201A}
 .pg.felt .pg-tools{width:auto;max-width:100%;padding:4px 6px;border-radius:22px;background:rgb(0 0 0 / .3);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .08),0 6px 18px rgb(0 0 0 / .2)}
 .pg.felt .tool{flex:none;width:80px;color:rgb(246 247 241 / .88)}
+#pg-klondike.felt .tool{width:76px}
+#pg-spider.felt .tool{width:66px}
+.tool.busy svg{animation:pcBusy .9s ease-in-out infinite}
+@keyframes pcBusy{50%{opacity:.3}}
 .pg.felt .tool:disabled{opacity:.32}
 .pg.felt .pg-toast{background:#F6F7F1;color:#13201A}
 .pg.felt .pg-sheet{color:var(--ink)}
 
-.pc-table{position:relative;width:100%;--cr:calc(var(--cw)*.085);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pc-table{position:relative;z-index:0;isolation:isolate;width:100%;--cr:calc(var(--cw)*.085);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .pc-slot{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);display:grid;place-items:center;border-radius:var(--cr);background:rgb(0 0 0 / .14);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / .13),inset 0 2px 7px rgb(0 0 0 / .24);color:rgb(255 255 255 / .24)}
 .pc-slot b{font:400 calc(var(--cw)*.56)/1 var(--display)}
 .pc-slot.stock{cursor:pointer;color:rgb(255 255 255 / .6)}
@@ -1058,6 +1065,190 @@ function makeGen(){
 }
 
 
+/* Card solvers for Pocket Games: Klondike from any position (Draw 1 or 3, unlimited passes) and Spider
+   endgames (every card face up, deck used up). Plain functions, so the same code runs on the page or in a
+   Web Worker. Cards are numbers: suit*13 + rank-1, suits 0 spades, 1 hearts, 2 diamonds, 3 clubs. */
+function PCSolver(){
+  'use strict';
+  const RK=c=>c%13+1, SU=c=>(c/13)|0, RD=c=>{const s=(c/13)|0;return s===1||s===2;};
+
+  /* ---------- Klondike ----------
+     state: {down:[7 arrays, bottom first], up:[7 arrays], found:[4 ranks by suit], talon:[cards in draw order], ptr}
+     talon holds the waste then the stock, in the order the cards are turned; ptr = cards already on the waste.
+     Result: {res:'win', moves} with every move in order, {res:'lost'} when no line wins, {res:'unknown'} when
+     the search ran out of budget. */
+  function kSolve(st0,draw,budget){
+    const down=st0.down.map(a=>a.slice()),up=st0.up.map(a=>a.slice()),found=st0.found.slice(),talon=st0.talon.slice();
+    let ptr=st0.ptr|0,nodes=0,aborted=false;
+    const seen=new Set(),path=[];
+    const canF=c=>found[SU(c)]===RK(c)-1;
+    const fits=(c,b)=>{const u=up[b];if(!u.length)return !down[b].length&&RK(c)===13;const t=u[u.length-1];return RD(t)!==RD(c)&&RK(t)===RK(c)+1;};
+    const safe=c=>{const r=RK(c);if(r<=2)return true;const red=RD(c);let lo=99;for(let s=0;s<4;s++){const sr=s===1||s===2;if(sr!==red)lo=Math.min(lo,found[s]);}return r<=lo+1;};
+    function reach(){
+      const n=talon.length;if(!n)return [];
+      const s=new Set();if(ptr>0)s.add(ptr-1);
+      if(draw===1){for(let i=n-1;i>=0;i--)s.add(i);return [...s];}
+      for(let i=ptr+2;i<n;i+=3)s.add(i);
+      s.add(n-1);
+      for(let i=2;i<n;i+=3)s.add(i);
+      return [...s];
+    }
+    function key(){
+      let k=found.join(',')+'|'+(draw===1?talon.slice().sort((x,y)=>x-y).join(','):ptr+':'+talon.join(','));
+      const cols=[];for(let a=0;a<7;a++)cols.push(down[a].join('.')+'/'+up[a].join('.'));
+      cols.sort();return k+'|'+cols.join(';');
+    }
+    const flip=a=>{if(!up[a].length&&down[a].length){up[a].push(down[a].pop());return true;}return false;};
+    function apply(m){
+      if(m.t==='tf'){m.c=up[m.a].pop();found[SU(m.c)]++;m.f=flip(m.a);}
+      else if(m.t==='tt'){const run=up[m.a].splice(m.j);m.n=run.length;m.c=run[0];for(const x of run)up[m.b].push(x);m.f=flip(m.a);}
+      else if(m.t==='wf'||m.t==='wt'){m.c=talon.splice(m.i,1)[0];m.p=ptr;ptr=m.i;if(m.t==='wf')found[SU(m.c)]++;else up[m.b].push(m.c);}
+      else if(m.t==='ft'){m.c=m.s*13+found[m.s]-1;found[m.s]--;up[m.b].push(m.c);}
+    }
+    function undo(m){
+      if(m.t==='tf'){if(m.f)down[m.a].push(up[m.a].pop());found[SU(m.c)]--;up[m.a].push(m.c);}
+      else if(m.t==='tt'){if(m.f)down[m.a].push(up[m.a].pop());const run=up[m.b].splice(up[m.b].length-m.n);for(const x of run)up[m.a].push(x);}
+      else if(m.t==='wf'||m.t==='wt'){if(m.t==='wf')found[SU(m.c)]--;else up[m.b].pop();talon.splice(m.i,0,m.c);ptr=m.p;}
+      else if(m.t==='ft'){up[m.b].pop();found[m.s]++;}
+    }
+    // Moves that can never hurt are played without branching: low cards to the foundations.
+    function autos(list){
+      let again=true;
+      while(again){
+        again=false;
+        for(let a=0;a<7;a++){const u=up[a];if(u.length){const c=u[u.length-1];if(canF(c)&&safe(c)){const m={t:'tf',a};apply(m);list.push(m);path.push(m);again=true;}}}
+        if(draw===1)for(let i=talon.length-1;i>=0;i--){const c=talon[i];if(canF(c)&&safe(c)){const m={t:'wf',i};apply(m);list.push(m);path.push(m);again=true;break;}}
+      }
+    }
+    function gen(){
+      const out=[],R=reach();
+      // turn over a face-down card, most hidden cards first
+      const rev=[];
+      for(let a=0;a<7;a++){
+        if(!up[a].length||!down[a].length)continue;
+        const c=up[a][0];
+        for(let b=0;b<7;b++){if(b!==a&&fits(c,b)){rev.push({t:'tt',a,b,j:0,w:down[a].length});if(!up[b].length)break;}}
+      }
+      rev.sort((x,y)=>y.w-x.w);out.push(...rev);
+      // to the foundations
+      for(let a=0;a<7;a++){const u=up[a];if(u.length&&canF(u[u.length-1]))out.push({t:'tf',a});}
+      for(const i of R)if(canF(talon[i]))out.push({t:'wf',i});
+      // from the deck to a column
+      for(const i of R){const c=talon[i];let empty=false;for(let b=0;b<7;b++){if(fits(c,b)){if(!up[b].length){if(empty)continue;empty=true;}out.push({t:'wt',i,b});}}}
+      // split a run to free a card for a foundation, or to make room for a deck card
+      for(let a=0;a<7;a++){
+        const u=up[a];
+        for(let j=1;j<u.length;j++){
+          const under=u[j-1];
+          const useful=canF(under)||R.some(i=>{const c=talon[i];return RD(c)!==RD(under)&&RK(under)===RK(c)+1;});
+          if(!useful)continue;
+          for(let b=0;b<7;b++)if(b!==a&&up[b].length&&fits(u[j],b)){out.push({t:'tt',a,b,j});break;}
+        }
+      }
+      // empty a column so a King waiting on hidden cards or in the deck can use it
+      const kingWaits=up.some((u,a)=>u.length&&down[a].length&&RK(u[0])===13)||R.some(i=>RK(talon[i])===13);
+      if(kingWaits)for(let a=0;a<7;a++){
+        if(!up[a].length||down[a].length||RK(up[a][0])===13)continue;
+        for(let b=0;b<7;b++)if(b!==a&&up[b].length&&fits(up[a][0],b)){out.push({t:'tt',a,b,j:0});break;}
+      }
+      // bring a card back down from a foundation when something can then go on it
+      for(let s=0;s<4;s++){
+        if(found[s]<3)continue;
+        const c=s*13+found[s]-1;
+        const wanted=x=>RD(x)!==RD(c)&&RK(x)===RK(c)-1;
+        const someone=R.some(i=>wanted(talon[i]))||up.some((u,a)=>u.some((x,j)=>wanted(x)&&(j>0||down[a].length>0)));
+        if(!someone)continue;
+        for(let b=0;b<7;b++)if(up[b].length&&fits(c,b)){out.push({t:'ft',s,b});break;}
+      }
+      return out;
+    }
+    function dfs(){
+      if(++nodes>budget){aborted=true;return false;}
+      const auto=[];autos(auto);
+      if(found[0]+found[1]+found[2]+found[3]===52)return true;
+      const k=key();
+      if(!seen.has(k)){
+        seen.add(k);
+        for(const m of gen()){
+          apply(m);path.push(m);
+          if(dfs())return true;
+          path.pop();undo(m);
+          if(aborted)break;
+        }
+      }
+      for(let q=auto.length-1;q>=0;q--){undo(auto[q]);path.pop();}
+      return false;
+    }
+    const won=dfs();
+    if(won)return{res:'win',moves:path.map(m=>({t:m.t,a:m.a,b:m.b,j:m.j,i:m.i,s:m.s,c:m.c}))};
+    return{res:aborted?'unknown':'lost',nodes};
+  }
+  // A shuffled deck (cards in the order they are dealt from the end), checked to be winnable.
+  function shuffled(){const d=[];for(let c=0;c<52;c++)d.push(c);for(let i=51;i>0;i--){const j=(Math.random()*(i+1))|0;const t=d[i];d[i]=d[j];d[j]=t;}return d;}
+  function dealState(deck){
+    const d=deck.slice(),down=[],up=[];
+    for(let t=0;t<7;t++){down.push([]);up.push([]);for(let k=0;k<=t;k++){const c=d.pop();if(k===t)up[t].push(c);else down[t].push(c);}}
+    return{down,up,found:[0,0,0,0],talon:d.reverse(),ptr:0};
+  }
+  function kDeal(draw,budget,tries){
+    for(let n=0;n<(tries||40);n++){
+      const deck=shuffled();
+      const r=kSolve(dealState(deck),draw,budget);
+      if(r.res==='win')return{deck,tries:n+1};
+    }
+    return{deck:null};
+  }
+
+  /* ---------- Spider endgame: every card face up and the deck used up ----------
+     cols: arrays of cards, bottom first. Returns the moves [{a,i,b}] that clear the table, or null. */
+  function sSolve(cols0,budget){
+    const cols=cols0.map(c=>c.slice());let nodes=0,aborted=false;
+    const seen=new Set(),path=[];
+    const tail=a=>{const c=cols[a];let i=c.length-1;while(i>0&&SU(c[i-1])===SU(c[i])&&RK(c[i-1])===RK(c[i])+1)i--;return i;};
+    function clear(b){
+      const c=cols[b];if(c.length<13)return null;
+      const s=SU(c[c.length-1]);
+      for(let k=0;k<13;k++){const x=c[c.length-13+k];if(SU(x)!==s||RK(x)!==13-k)return null;}
+      return c.splice(c.length-13);
+    }
+    const key=()=>cols.map(c=>c.join('.')).sort().join('|');
+    function dfs(){
+      if(cols.every(c=>!c.length))return true;
+      if(++nodes>budget){aborted=true;return false;}
+      const k=key();if(seen.has(k))return false;seen.add(k);
+      const empty=cols.findIndex(c=>!c.length),moves=[];
+      for(let a=0;a<cols.length;a++){
+        const c=cols[a];if(!c.length)continue;
+        const ts=tail(a);
+        for(let i=ts;i<c.length;i++){
+          const h=c[i];
+          for(let b=0;b<cols.length;b++){
+            if(b===a)continue;const d=cols[b];
+            if(!d.length){if(i===0||b!==empty)continue;moves.push({a,i,b,w:1});continue;}
+            const t=d[d.length-1];if(RK(t)!==RK(h)+1)continue;
+            const suited=SU(t)===SU(h);
+            if(i>ts&&!suited)continue;                                               // would break a same-suit run for nothing
+            if(i===ts&&ts>0&&RK(c[ts-1])===RK(h)+1&&!suited)continue;               // same kind of link either way
+            moves.push({a,i,b,w:(suited?4:1)+(i===0?2:0)+(c.length-i)/13});
+          }
+        }
+      }
+      moves.sort((x,y)=>y.w-x.w);
+      for(const m of moves){
+        const run=cols[m.a].splice(m.i);for(const x of run)cols[m.b].push(x);
+        const cl=clear(m.b);path.push({a:m.a,i:m.i,b:m.b});
+        if(dfs())return true;
+        path.pop();if(cl)for(const x of cl)cols[m.b].push(x);
+        cols[m.b].splice(cols[m.b].length-run.length);for(const x of run)cols[m.a].push(x);
+        if(aborted)break;
+      }
+      return false;
+    }
+    return dfs()?path:null;
+  }
+  return{kSolve,kDeal,dealState,sSolve};
+}
+
 /* Pocket Games: Solitaire (Klondike), Spider Solitaire and Minesweeper.
    Each game has a home page (continue, levels, stats, table look, rules) and a play screen.
    Each game registers itself in window.PCGames; the app calls PCGamesInit(api) once at start. */
@@ -1207,6 +1398,7 @@ const ICON={
   chevR:sv('<path d="m9 6 6 6-6 6"/>',' stroke-width="2"'),
   chevD:sv('<path d="m6 9 6 6 6-6"/>',' stroke-width="2"'),
   recycle:sv('<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>'),
+  resign:sv('<path d="M5.5 21V3.5"/><path d="M5.5 4.5h12l-2.6 4.2 2.6 4.3h-12"/>'),
   dig:sv('<path d="M4 20l7.5-7.5"/><path d="M13.6 4.6l5.8 5.8-3.1 3.1a2.6 2.6 0 0 1-3.7 0l-2.1-2.1a2.6 2.6 0 0 1 0-3.7z"/><path d="M2.8 17.6l3.6 3.6"/>'),
   flag:'<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ms-flag"/></svg>'
 };
@@ -1298,6 +1490,11 @@ function cardImage(c,w,h,dpr){
   return cv;
 }
 
+// Card faces: pips on big cards, one large suit on small ones. Both card games decide from Spider's card width
+// on this screen and use the same card shape, so every card looks exactly the same in Solitaire and Spider.
+const CARD_RATIO=1.45;
+const spiderCw=W=>{const g=Math.max(2,Math.round(W*0.008));return Math.floor((W-g*9)/10);};
+const bigCards=W=>spiderCw(W)>=62;
 // Animation timings (ms): quick enough to keep up with fast play, long enough to follow the cards.
 const T={move:200,flip:280,ease:'cubic-bezier(.2,.8,.25,1)'};
 
@@ -1416,7 +1613,7 @@ function Table(host,spec){
     lay=spec.layout(geom.W,geom.H);
     for(const s of lay.slots){s.x=snapPx(s.x);s.y=snapPx(s.y);}
     for(const p of lay.cards){p.x=snapPx(p.x);p.y=snapPx(p.y);}
-    const big=lay.cw>=62,t=now(),go=anim()&&!opts.instant;
+    const big=spec.big?spec.big(geom.W):lay.cw>=62,t=now(),go=anim()&&!opts.instant;
     if(wrap._big!==big){wrap._big=big;wrap.classList.toggle('big',big);}
     if(wrap._h!==lay.h){wrap._h=lay.h;wrap.style.height=lay.h+'px';}
     if(wrap._cw!==lay.cw||wrap._ch!==lay.ch){wrap._cw=lay.cw;wrap._ch=lay.ch;wrap.style.setProperty('--cw',lay.cw+'px');wrap.style.setProperty('--ch',lay.ch+'px');}
@@ -1617,7 +1814,7 @@ function Table(host,spec){
     render,cascade,stopCascade,
     invalidate(){geom=null;},
     busy:()=>now()<busyUntil||!!casc,
-    hint(ids){unmark('hint');mark(ids,'hint',true);setTimeout(()=>unmark('hint'),1500);},
+    hint(ids){unmark('hint');mark(ids,'hint',true);setTimeout(()=>unmark('hint'),1500);if(window.__pgTest)window.__pgTest.hint=ids.slice();},
     nope(ids){ids.forEach(id=>{const e=els.get(id)||slots.get(id);if(e){if(e._na)e._na.cancel();e._na=play(e,[{translate:'0 0'},{translate:'-4px 0'},{translate:'4px 0'},{translate:'-2px 0'},{translate:'0 0'}],{duration:280,easing:'ease-out'});}});},
     reset(){stopCascade();unmark();for(const e of els.values())e.remove();els.clear();busyUntil=0;geom=null;},
     // Cards built while the game's home page is open, so the first deal only has to move them.
@@ -1767,6 +1964,47 @@ function miniStats(core,mode){
   return `<div class="pg-stats">${cells.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
 }
 
+/* ---------- solver service ----------
+   The solver (solver.js) runs in Web Workers so thinking never freezes the table: one for hints and
+   finishing games, one in the background for shuffling winnable deals. Without workers it runs on the page
+   with a small budget, or not at all for background work. */
+const SV=(()=>{
+  const lanes={},local=PCSolver();
+  function worker(lane){
+    if(lanes[lane]!==undefined)return lanes[lane];
+    let w=false;
+    try{
+      const src=`const PCSolver=${PCSolver.toString()};const P=PCSolver();self.onmessage=e=>{const d=e.data;let r=null;try{r=d.op==='kDeal'?P.kDeal(d.draw,d.budget,d.tries):d.op==='kSolve'?P.kSolve(d.state,d.draw,d.budget):P.sSolve(d.cols,d.budget);}catch(err){r=null;}self.postMessage({id:d.id,r});};`;
+      w=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+      w._wait=new Map();w._seq=0;
+      w.onmessage=e=>{const cb=w._wait.get(e.data.id);if(cb){w._wait.delete(e.data.id);cb(e.data.r);}};
+      w.onerror=()=>{lanes[lane]=false;for(const [id,cb] of w._wait){w._wait.delete(id);cb(undefined);}};
+    }catch(e){w=false;}
+    return(lanes[lane]=w);
+  }
+  const runLocal=(m,budget)=>{try{return m.op==='kDeal'?local.kDeal(m.draw,budget,m.tries):m.op==='kSolve'?local.kSolve(m.state,m.draw,budget):local.sSolve(m.cols,budget);}catch(e){return null;}};
+  // small: budget to use on the page if there is no worker (0 = skip); timeout in ms
+  function ask(msg,small,timeout,lane){
+    return new Promise(res=>{
+      let done=false;const fin=r=>{if(!done){done=true;res(r);}};
+      const fallback=()=>{if(small)setTimeout(()=>fin(runLocal(msg,small)),0);else fin(null);};
+      const w=worker(lane||'fg');
+      if(!w)return fallback();
+      const id=++w._seq;
+      w._wait.set(id,r=>{if(r===undefined)fallback();else fin(r);});
+      try{w.postMessage(Object.assign({id},msg));}catch(e){w._wait.delete(id);return fallback();}
+      setTimeout(()=>{if(w._wait.has(id)){w._wait.delete(id);fin(null);}},timeout||6000);
+    });
+  }
+  return{ask};
+})();
+const cardNum=c=>c.s*13+c.r-1;
+// Options shown on a game's home page, as switches.
+function optionsHTML(list){
+  return `<section class="home-sec"><span class="eyebrow">Options</span><div class="look">${list.map(o=>`<button type="button" class="look-row look-toggle" data-gh="opt" data-k="${o.k}" aria-pressed="${!!o.on}"><span class="look-l">${o.label}<small>${o.sub}</small></span><i class="switch" aria-hidden="true"></i></button>`).join('')}</div></section>`;
+}
+const optOn=(key,dflt)=>{const v=A.lsGet(key);return v==null?dflt:!!v;};
+
 /* ---------- one game: home page + play screen + navigation ----------
    History steps: the app adds 'ghome' when a game opens; playing adds 'gplay'; the stats add 'gstats'.
    Sheets don't add steps: the back button closes them and puts the step back. */
@@ -1788,7 +2026,7 @@ function Game(def){
     home.set('resume',def.inProgress()?resumeHTML(def.resume()):'');
     home.set('modes',def.modesHTML());
     home.set('stats',statsCardHTML(core));
-    home.set('extra',def.felt?lookHTML():'');
+    home.set('extra',(def.optionsHTML?def.optionsHTML():'')+(def.felt?lookHTML():''));
   }
   core.refresh=()=>{if(core.view==='play')def.render();else renderHome();};
   function startMode(mode){
@@ -1820,6 +2058,7 @@ function Game(def){
     if(act==='stats')return openStats(core);
     if(act==='felt'||act==='back'){setLook(act,el.dataset.v);return renderHome();}
     if(act==='four'){setLook('four',!look.four);return renderHome();}
+    if(act==='opt'&&def.toggleOpt){def.toggleOpt(el.dataset.k);return renderHome();}
   }
   function playAction(act,el){
     if(act==='home')return A.navClose('gplay',core.goHome);
@@ -1828,6 +2067,12 @@ function Game(def){
     if(act==='start'){const sel=sh.sheet.querySelector('[data-opt][aria-pressed="true"]');return startMode(sel?sel.dataset.val:def.mode());}
     if(act==='again')return startMode(def.mode());
     if(act==='stats')return openStats(core);
+    if(act==='resign'&&def.resign){
+      if(!def.hasGame())return;
+      return core.showSheet(`<div class="lede"><h2>Resign this game?</h2><p>It counts as a loss in your stats, and every hidden card turns over so you can see where it was.</p></div><div class="btn-col"><button type="button" class="btn danger" data-pg="resign-yes">Resign</button><button type="button" class="btn" data-pg="close">Keep playing</button></div>`,false);
+    }
+    if(act==='resign-yes'&&def.resign){core.hideSheet();return def.resign();}
+    if(act==='view'){core.hideSheet();return def.render();}
     def.action(act,el);
   }
   core.onBack=()=>{
@@ -1881,15 +2126,28 @@ function Game(def){
    turning a card, -15 foundation to column, time bonus 700,000 ÷ seconds.
    ========================================================================== */
 (function(){
-  const KEY='pocket-games.klondike.v1',DRAW='pocket-games.klondike.draw';
-  let core,sh,table,st=null,undo=[],clock=Clock(),autoT=0,saveT=0,partying=false;
+  const KEY='pocket-games.klondike.v1',DRAW='pocket-games.klondike.draw',DEALS='pocket-games.klondike.deals';
+  const OPT_WIN='pocket-games.klondike.winnable',OPT_AUTO='pocket-games.klondike.auto';
+  let core,sh,table,st=null,undo=[],clock=Clock(),autoT=0,saveT=0,partying=false,hinting=0,dealToken=0;
   const pileArr=id=>id==='stock'?st.stock:id==='waste'?st.waste:id[0]==='f'?st.found[+id[1]]:st.tab[+id[1]];
   const top=p=>p[p.length-1];
-  function deal(draw){
-    const deck=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)deck.push({id:'k'+s+'-'+r,s,r,up:false});
-    shuffle(deck);
+  function deal(draw,nums){
+    let deck=[];
+    if(nums&&nums.length===52)deck=nums.map(n=>{const s=(n/13)|0,r=n%13+1;return{id:'k'+s+'-'+r,s,r,up:false};});
+    else{for(let s=0;s<4;s++)for(let r=1;r<=13;r++)deck.push({id:'k'+s+'-'+r,s,r,up:false});shuffle(deck);}
     const tab=[];for(let t=0;t<7;t++){tab.push([]);for(let k=0;k<=t;k++){const c=deck.pop();c.up=k===t;tab[t].push(c);}}
     return{id:newId(),draw,stock:deck,waste:[],found:[[],[],[],[]],tab,score:0,moves:0,status:'playing',startedAt:Date.now(),elapsed:0};
+  }
+  let deals=null;const making={};
+  const dealStore=()=>{if(!deals){const d=A.lsGet(DEALS);deals=d&&typeof d==='object'?d:{};}for(const k of ['1','3'])if(!Array.isArray(deals[k]))deals[k]=[];return deals;};
+  function stockUp(draw){
+    const k=String(draw),list=dealStore()[k];
+    if(list.length>=2||making[k])return;
+    making[k]=true;
+    SV.ask({op:'kDeal',draw,budget:40000,tries:60},0,30000,'bg').then(r=>{
+      making[k]=false;
+      if(r&&r.deck&&r.deck.length===52){dealStore()[k].push(r.deck);A.lsSet(DEALS,deals);stockUp(draw);}
+    });
   }
   const validRun=(p,i)=>{for(let k=i;k<p.length;k++){if(!p[k].up)return false;if(k>i&&(RED(p[k].s)===RED(p[k-1].s)||p[k].r!==p[k-1].r-1))return false;}return true;};
   const canFound=(c,f)=>{const p=st.found[f];return p.length?(top(p).s===c.s&&c.r===top(p).r+1):c.r===1;};
@@ -1958,7 +2216,7 @@ function Game(def){
   function after(opts){
     if(st.found.every(p=>p.length===13))return win();
     save();render(opts);
-    if(autoReady()&&!autoT)autoFinish();
+    if(autoReady()&&!autoT&&optOn(OPT_AUTO,true))autoFinish();
   }
   // Every card is face up: send them home one by one.
   function autoFinish(){
@@ -1994,26 +2252,77 @@ function Game(def){
       ${core.miniStats(String(st.draw))}
       <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Solitaire home</button></div>`,true);
   }
-  function hint(){
-    if(!st||st.status!=='playing'||table.busy())return;
-    const tryFrom=[];
-    if(st.waste.length)tryFrom.push(['waste',st.waste.length-1]);
-    for(let t=0;t<7;t++){const p=st.tab[t];for(let i=0;i<p.length;i++)if(p[i].up&&validRun(p,i)){tryFrom.push(['t'+t,i]);break;}if(p.length)tryFrom.push(['t'+t,p.length-1]);}
-    // 1. anything to a foundation
-    for(const [pl,i] of tryFrom){const p=pileArr(pl);if(i!==p.length-1)continue;for(let f=0;f<4;f++)if(canFound(p[i],f))return showHint(p[i],'f'+f);}
-    // 2. a column move that turns over a card, 3. waste to a column
-    for(const [pl,i] of tryFrom){
-      const p=pileArr(pl),c=p[i];
-      for(let t=0;t<7;t++){if('t'+t===pl||!canTab(c,t))continue;
-        const reveals=pl[0]==='t'&&i>0&&!p[i-1].up, kingShuffle=pl[0]==='t'&&i===0;
-        if(reveals||pl==='waste'||(!kingShuffle&&st.tab[t].length&&pl[0]==='t'&&i>0))return showHint(c,'t'+t);}
-    }
-    if(st.stock.length||st.waste.length){table.hint(st.stock.length?[top(st.stock).id]:['stock']);return sh.toast(st.stock.length?'Draw from the deck.':'Tap the empty deck to turn the waste back over.');}
-    sh.toast('No moves left. Try Undo or a new game.');
+  // The position as the solver sees it: hidden cards included, foundations by suit, deck in turning order.
+  function solverState(){
+    return{down:st.tab.map(p=>p.filter(c=>!c.up).map(cardNum)),up:st.tab.map(p=>p.filter(c=>c.up).map(cardNum)),
+      found:[0,1,2,3].map(s=>{const p=st.found.find(p=>p.length&&p[0].s===s);return p?p.length:0;}),
+      talon:st.waste.map(cardNum).concat(st.stock.slice().reverse().map(cardNum)),ptr:st.waste.length};
   }
-  function showHint(c,to){
-    const p=pileArr(to);
-    table.hint([c.id,p.length?top(p).id:to]);
+  const byNum=n=>{const s=(n/13)|0,r=n%13+1;return 'k'+s+'-'+r;};
+  const pileTopId=(id)=>{const p=pileArr(id);return p.length?top(p).id:id;};
+  function foundFor(n){const s=(n/13)|0;for(let f=0;f<4;f++){const p=st.found[f];if(p.length&&p[0].s===s)return 'f'+f;}for(let f=0;f<4;f++)if(!st.found[f].length)return 'f'+f;return 'f0';}
+  // Show one solver move on the table.
+  function showMove(m){
+    if(m.t==='tf')return table.hint([byNum(m.c),pileTopId(foundFor(m.c))]);
+    if(m.t==='tt')return table.hint([byNum(m.c),pileTopId('t'+m.b)]);
+    if(m.t==='ft')return table.hint([byNum(m.c),pileTopId('t'+m.b)]);
+    // a card from the deck: play it if it's showing, otherwise turn more cards
+    if(st.waste.length&&top(st.waste).id===byNum(m.c))return table.hint([byNum(m.c),m.t==='wf'?pileTopId(foundFor(m.c)):pileTopId('t'+m.b)]);
+    table.hint(st.stock.length?[top(st.stock).id]:['stock']);
+    sh.toast(st.stock.length?'Turn over cards from the deck.':'Tap the empty deck to turn the waste back over.');
+  }
+  async function hint(){
+    if(!st||st.status!=='playing'||table.busy()||hinting||autoT)return;
+    const game=st,moves=st.moves,btn=sh.tool('hint');
+    hinting=1;btn.classList.add('busy');
+    const slow=setTimeout(()=>{if(hinting)sh.toast('Looking for the best move…');},450);
+    const r=await SV.ask({op:'kSolve',state:solverState(),draw:st.draw,budget:150000},12000,5000);
+    clearTimeout(slow);hinting=0;btn.classList.remove('busy');
+    if(st!==game||st.moves!==moves||st.status!=='playing')return;   // the table changed while it was thinking
+    if(r&&r.res==='win'&&r.moves.length)return showMove(r.moves[0]);
+    if(r&&r.res==='lost')return sh.toast('No winning moves left from here. Undo a few moves, or Resign.');
+    simpleHint();
+  }
+  // Without a solver answer: only moves that make real progress, so hints can never go round in circles.
+  function simpleHint(){
+    const tops=[];if(st.waste.length)tops.push(['waste',st.waste.length-1]);
+    for(let t=0;t<7;t++)if(st.tab[t].length)tops.push(['t'+t,st.tab[t].length-1]);
+    for(const [pl,i] of tops){const c=pileArr(pl)[i];for(let f=0;f<4;f++)if(canFound(c,f))return table.hint([c.id,pileTopId('f'+f)]);}
+    for(let a=0;a<7;a++){
+      const p=st.tab[a],i=p.findIndex(c=>c.up);
+      if(i<=0)continue;                                     // nothing hidden under this run
+      for(let b=0;b<7;b++)if(b!==a&&canTab(p[i],b))return table.hint([p[i].id,pileTopId('t'+b)]);
+    }
+    if(st.waste.length){const c=top(st.waste);for(let b=0;b<7;b++)if(canTab(c,b))return table.hint([c.id,pileTopId('t'+b)]);}
+    for(let a=0;a<7;a++){
+      const p=st.tab[a];
+      for(let j=1;j<p.length;j++){
+        if(!p[j-1].up||!validRun(p,j)||![0,1,2,3].some(f=>canFound(p[j-1],f)))continue;
+        for(let b=0;b<7;b++)if(b!==a&&st.tab[b].length&&canTab(p[j],b))return table.hint([p[j].id,pileTopId('t'+b)]);
+      }
+    }
+    // Is any card in the deck playable once it's turned up?
+    const S=solverState(),n=S.talon.length,reach=new Set();
+    if(S.ptr>0)reach.add(S.ptr-1);
+    if(st.draw===1)for(let i=0;i<n;i++)reach.add(i);
+    else{for(let i=S.ptr+2;i<n;i+=3)reach.add(i);if(n)reach.add(n-1);for(let i=2;i<n;i+=3)reach.add(i);}
+    const playable=[...reach].some(i=>{const v=S.talon[i],c={s:(v/13)|0,r:v%13+1};return [0,1,2,3].some(f=>canFound(c,f))||[0,1,2,3,4,5,6].some(b=>canTab(c,b));});
+    if(playable){table.hint(st.stock.length?[top(st.stock).id]:['stock']);return sh.toast(st.stock.length?'Turn over cards from the deck.':'Tap the empty deck to turn the waste back over.');}
+    sh.toast('No more useful moves. Undo a few moves, or Resign.');
+  }
+  // Resign: the game counts as a loss and every hidden card turns over.
+  function resign(){
+    if(!st||st.status!=='playing')return;
+    if(autoT){clearInterval(autoT);autoT=0;}
+    clock.run(false);st.elapsed=clock.ms();
+    core.log.add({t:Date.now(),m:String(st.draw),r:'resigned',s:Math.round(st.elapsed/1000),p:st.score,mv:st.moves});
+    st.status='lost';A.lsSet(KEY,null);
+    st.tab.forEach(p=>p.forEach(c=>{c.up=true;}));
+    render();
+    const game=st;
+    setTimeout(()=>{if(st===game&&core.onScreen(true))core.showSheet(`<div class="lede"><h2>Game over</h2><p>You resigned · Draw ${st.draw} · ${A.fmt(st.elapsed/1000)} · ${A.plural(st.moves,'move')}</p></div>
+      ${core.miniStats(String(st.draw))}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">New game</button><button type="button" class="btn" data-pg="view">Look at the table</button><button type="button" class="btn" data-pg="home">Solitaire home</button></div>`,true);},700);
   }
   function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
   function saveNow(){clearTimeout(saveT);if(st&&st.status==='playing'){st.elapsed=clock.ms();A.lsSet(KEY,st);}}
@@ -2030,20 +2339,22 @@ function Game(def){
     renderMeta();
     sh.tool('undo').disabled=st.status!=='playing'||!undo.length||!!autoT;
     sh.tool('hint').disabled=st.status!=='playing'||!!autoT;
+    sh.tool('resign').disabled=st.status!=='playing'||!!autoT;
     table.render(opts);
   }
   function layout(W,H){
-    const g=Math.round(A.clamp(W*0.014,3,10)),cw=Math.floor((W-g*6)/7),ch=Math.round(cw*1.42);
+    const g=Math.round(A.clamp(W*0.014,3,10)),cw=Math.floor((W-g*6)/7),ch=Math.round(cw*CARD_RATIO);
     const X=i=>i*(cw+g),slots=[],cards=[];
     slots.push({id:'stock',x:X(0),y:0,cls:'stock'+(st.stock.length?'':' empty'),label:st.stock.length?'':(st.waste.length?ICON.recycle:''),aria:st.stock.length?'Deck':'Turn the waste back over'});
     for(let f=0;f<4;f++)slots.push({id:'f'+f,x:X(3+f),y:0,cls:'found',label:'<b>A</b>',aria:'Foundation'});
-    const n=st.stock.length;
-    // pile thickness: each card's offset is fixed by its place in a full pile, so drawing never shifts the rest;
-    // a full pile's top card lines up with the row and the pile sinks a little as it thins
-    st.stock.forEach((c,i)=>{const o=Math.floor(Math.max(0,23-i)/4);cards.push({c,x:X(0),y:o,z:i+1,up:false,pile:'stock',idx:i,deep:i<n-1});});
-    const wn=st.waste.length,fan=st.draw===3?Math.max(0,wn-3):wn-1,fx=Math.round(cw*0.34);
+    const n=st.stock.length,SG=8,so=Math.max(3,Math.round(cw*0.24));
+    // The deck, built like Spider's: overlapping stacks (eight cards each) a quarter card apart, the stack on
+    // the right is the top. Each card keeps its place as the deck shrinks; the waste starts past the widest
+    // the deck can get.
+    st.stock.forEach((c,i)=>{const grp=Math.min(2,Math.floor(i/SG)),j=i%SG,o=Math.floor((SG-1-j)/3)*0.6;cards.push({c,x:X(0)+grp*so,y:o,z:i+1,up:false,pile:'stock',idx:i,deep:j<SG-1&&i<n-1});});
+    const wx=X(1)+2*so,wn=st.waste.length,fan=st.draw===3?Math.max(0,wn-3):wn-1,fx=Math.round(cw*0.3);
     const ot=Math.floor(Math.max(0,23-Math.max(0,fan-1))/6);
-    st.waste.forEach((c,i)=>{const fanned=i>=fan,o=fanned?ot:Math.floor(Math.max(0,23-i)/6);cards.push({c,x:X(1)+(st.draw===3?Math.max(0,i-fan)*fx:0),y:o,z:i+1,up:true,pile:'waste',idx:i,deep:!fanned});});
+    st.waste.forEach((c,i)=>{const fanned=i>=fan,o=fanned?ot:Math.floor(Math.max(0,23-i)/6);cards.push({c,x:wx+(st.draw===3?Math.max(0,i-fan)*fx:0),y:o,z:i+1,up:true,pile:'waste',idx:i,deep:!fanned});});
     st.found.forEach((p,f)=>p.forEach((c,i)=>{const o=Math.floor((12-i)/3);cards.push({c,x:X(3+f),y:o*0.7,z:i+1,up:true,pile:'f'+f,idx:i,deep:i<p.length-1});}));
     const y0=ch+g*3+4,dn=Math.max(5,Math.round(ch*0.11)),uo=Math.round(ch*0.27);
     let bottom=y0+ch;
@@ -2055,7 +2366,7 @@ function Game(def){
       p.forEach((c,i)=>{cards.push({c,x:X(t),y:Math.round(y),z:i+1,up:c.up,pile:'t'+t,idx:i});if(i<p.length-1)y+=(c.up?uo:dn)*k;});
       bottom=Math.max(bottom,y+ch);
     });
-    layout.last={X,y0,cw,ch,H};
+    layout.last={X,y0,cw,ch,H,so};
     return{cw,ch,h:Math.max(bottom+4,H),slots,cards};
   }
   function dropRects(){
@@ -2072,9 +2383,14 @@ function Game(def){
     logKey:'pocket-games.klondike.log',legacy:{draw:'pocket-games.klondike.stats'},
     modes:[['1','Draw 1','One card at a time'],['3','Draw 3','The classic challenge']],
     longName:m=>m==='3'?'Draw 3':m==='1'?'Draw 1':'Solitaire',
-    detail:e=>e.r==='won'?`${num(e.p||0)} points`:'Left unfinished',
+    detail:e=>e.r==='won'?`${num(e.p||0)} points`:e.r==='resigned'?'Resigned':'Left unfinished',
     blurb:'Build four piles from Ace to King, one per suit.',go:'Deal',
-    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('stats','Stats',ICON.stats),
+    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('resign','Resign',ICON.resign)+toolBtn('stats','Stats',ICON.stats),
+    optionsHTML:()=>optionsHTML([
+      {k:'win',on:optOn(OPT_WIN,true),label:'Winnable deals',sub:'Every deal is checked to have a way to win'},
+      {k:'auto',on:optOn(OPT_AUTO,true),label:'Auto-finish',sub:'Sends the last cards home once every card is face up'}]),
+    toggleOpt(k){const key=k==='win'?OPT_WIN:OPT_AUTO;A.lsSet(key,!optOn(key,true));if(k==='win'&&optOn(OPT_WIN,true)){stockUp(1);stockUp(3);}},
+    resign,
     rules:`<ul>
       <li>Build four foundation piles, one for each suit, from Ace up to King.</li>
       <li>In the seven columns, stack cards downward in alternating colours, such as a red 9 on a black 10. A run that’s in order moves together.</li>
@@ -2090,7 +2406,8 @@ function Game(def){
       sh=c.sh;
       table=Table(sh.area,{
         layout,dropRects,canPick,targets,
-        dealFrom:()=>({x:0,y:0}),
+        dealFrom:()=>{const L=layout.last;return{x:L?2*L.so:0,y:0};},
+        big:bigCards,
         bottomSpace:()=>sh.tools.offsetHeight+30,
         tap:(pile,idx)=>{if(pile==='stock')return draw();if(canPick(pile,idx))autoMove(pile,idx);},
         tapSlot:id=>{if(id==='stock')draw();},
@@ -2100,7 +2417,10 @@ function Game(def){
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
     },
     inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
-    prebuild(){const cs=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)cs.push({id:'k'+s+'-'+r,s,r});table.prebuild(cs);},
+    prebuild(){
+      const cs=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)cs.push({id:'k'+s+'-'+r,s,r});table.prebuild(cs);
+      if(optOn(OPT_WIN,true)){const d=+curMode();stockUp(d);setTimeout(()=>stockUp(d===1?3:1),4000);}
+    },
     resume(){
       const home=st.found.reduce((a,p)=>a+p.length,0);
       return{title:`Draw ${st.draw}`,meta:`${A.fmt(clock.ms()/1000)} on the clock · ${num(st.score)} points · ${home} of 52 cards home`,pct:home/52*100};
@@ -2114,10 +2434,21 @@ function Game(def){
     start(mode){
       if(autoT){clearInterval(autoT);autoT=0;}
       table.stopCascade();partying=false;
-      const d=mode==='3'?3:1;
-      st=deal(d);undo=[];clock.set(0);A.lsSet(DRAW,d);
-      table.regather();saveNow();
-      render({from:true,delays:dealDelays(),flipLag:110});
+      const d=mode==='3'?3:1,token=++dealToken;
+      A.lsSet(DRAW,d);
+      const begin=(nums,winnable)=>{
+        if(token!==dealToken)return;
+        st=deal(d,nums);st.winnable=!!winnable;undo=[];clock.set(0);
+        table.regather();saveNow();
+        render({from:true,delays:dealDelays(),flipLag:110});
+        if(optOn(OPT_WIN,true))stockUp(d);
+      };
+      if(!optOn(OPT_WIN,true))return begin(null,false);
+      const ready=dealStore()[String(d)];
+      if(ready.length){const nums=ready.shift();A.lsSet(DEALS,deals);return begin(nums,true);}
+      // nothing ready yet (the very first game): find one now, usually well under a second
+      st=null;sh.toast('Shuffling a deal that can be won…');
+      SV.ask({op:'kDeal',draw:d,budget:40000,tries:40},6000,8000,'fg').then(r=>begin(r&&r.deck,!!(r&&r.deck)));
     },
     abandon(){core.log.add({t:Date.now(),m:String(st.draw),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
     action(act){
@@ -2130,7 +2461,7 @@ function Game(def){
     },
     render,playing,tick:()=>{clock.run(playing());renderMeta();},
     pause(){saveNow();clock.run(false);table.stopCascade();},
-    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});if(autoReady()&&!autoT)autoFinish();}}
+    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});if(autoReady()&&!autoT&&optOn(OPT_AUTO,true))autoFinish();}}
   });
 })();
 
@@ -2144,8 +2475,8 @@ function Game(def){
    +100 for each run cleared.
    ========================================================================== */
 (function(){
-  const KEY='pocket-games.spider.v1',SUITS='pocket-games.spider.suits';
-  let core,sh,table,st=null,undo=[],clock=Clock(),saveT=0,partying=false;
+  const KEY='pocket-games.spider.v1',SUITS='pocket-games.spider.suits',OPT_AUTO='pocket-games.spider.auto';
+  let core,sh,table,st=null,undo=[],clock=Clock(),saveT=0,partying=false,finishing=false,finT=0,triedAt=-1;
   const top=p=>p[p.length-1];
   function deal(suits){
     const pattern=suits===1?[0,0,0,0,0,0,0,0]:suits===2?[0,1,0,1,0,1,0,1]:[0,1,2,3,0,1,2,3];
@@ -2157,7 +2488,7 @@ function Game(def){
   const validRun=(p,i)=>{if(i<0||i>=p.length)return false;for(let k=i;k<p.length;k++){if(!p[k].up)return false;if(k>i&&(p[k].s!==p[k-1].s||p[k].r!==p[k-1].r-1))return false;}return true;};
   const canDrop=(c,t)=>{const p=st.tab[t];return !p.length||top(p).r===c.r+1;};
   function canPick(pile,idx){
-    if(!st||st.status!=='playing'||table.busy())return false;
+    if(!st||st.status!=='playing'||table.busy()||finishing)return false;
     if(pile[0]!=='t')return false;
     return validRun(st.tab[+pile.slice(1)],idx);
   }
@@ -2179,9 +2510,9 @@ function Game(def){
     A.buzz(30);
     return true;
   }
-  function move(from,idx,to){
+  function move(from,idx,to,auto){
     const f=+from.slice(1),t=+to.slice(1);
-    if(f===t||!canPick(from,idx))return false;
+    if(f===t||!(auto?validRun(st.tab[f],idx):canPick(from,idx)))return false;
     const c=st.tab[f][idx];
     if(!canDrop(c,t))return false;
     snap();
@@ -2193,7 +2524,7 @@ function Game(def){
     after({delays});return true;
   }
   function dealRow(){
-    if(!st||st.status!=='playing'||table.busy())return;
+    if(!st||st.status!=='playing'||table.busy()||finishing)return;
     if(!st.stock.length)return sh.toast('The deck is empty.');
     if(st.tab.some(p=>!p.length)){table.nope(['stock',top(st.stock).id]);return sh.toast('Fill every column before dealing.');}
     snap();
@@ -2218,7 +2549,30 @@ function Game(def){
   function after(opts){
     if(st.done.length===8)return win(opts);
     save();render(opts);
+    maybeFinish();
   }
+  // Auto-finish: once the deck is used up and every card is face up, the solver checks the game can be
+  // finished and plays the remaining moves.
+  function maybeFinish(){
+    if(finishing||!st||st.status!=='playing'||st.stock.length||!optOn(OPT_AUTO,true)||triedAt===st.moves)return;
+    if(st.tab.some(p=>p.some(c=>!c.up)))return;
+    const game=st,moves=st.moves;triedAt=moves;finishing=true;
+    SV.ask({op:'sSolve',cols:st.tab.map(p=>p.map(cardNum)),budget:80000},15000,6000).then(path=>{
+      if(st!==game||st.moves!==moves||st.status!=='playing'||!path||!path.length||!core.onScreen(true)){finishing=false;return;}
+      sh.toast('Solved! Finishing it for you…');
+      let k=0;
+      const step=()=>{
+        finT=0;
+        if(st!==game||st.status!=='playing'||!finishing){finishing=false;return;}
+        const m=path[k++];
+        if(!m){finishing=false;render();return;}
+        if(!move('t'+m.a,m.i,'t'+m.b,true)){finishing=false;render();return;}
+        if(st.status==='playing')finT=setTimeout(step,200);else finishing=false;
+      };
+      finT=setTimeout(step,450);
+    });
+  }
+  function stopFinish(){if(finT){clearTimeout(finT);finT=0;}finishing=false;triedAt=-1;}
   function win(opts){
     clock.run(false);st.elapsed=clock.ms();st.status='won';
     const sec=Math.max(1,Math.round(st.elapsed/1000));
@@ -2239,24 +2593,59 @@ function Game(def){
       ${core.miniStats(String(st.suits))}
       <div class="btn-col"><button type="button" class="btn primary" data-pg="again">Play again</button><button type="button" class="btn" data-pg="home">Spider home</button></div>`,true);
   }
-  function hint(){
-    if(!st||st.status!=='playing'||table.busy())return;
-    let fallback=null;
+  // Hints only suggest moves that make real progress: turning a card over, emptying a column, or joining
+  // cards into longer runs (same suit counts double). Each hint raises that total, so hints never go round
+  // in circles; when nothing raises it, the hint says so instead.
+  const link=(under,c)=>under&&under.up&&c.r===under.r-1?(c.s===under.s?2:1):0;
+  function bestMove(allowEmpty){
+    let best=null;
     for(let f=0;f<10;f++){
       const p=st.tab[f];if(!p.length)continue;
       let i=p.length-1;while(i>0&&validRun(p,i-1))i--;
-      const c=p[i];
-      for(let t=0;t<10;t++){
-        if(t===f)continue;const q=st.tab[t];
-        if(q.length&&top(q).r===c.r+1){
-          if(top(q).s===c.s&&!(i>0&&p[i-1].up&&p[i-1].s===c.s&&p[i-1].r===c.r+1))return table.hint([c.id,top(q).id]);
-          if(!fallback&&(i===0||!p[i-1].up||p[i-1].r!==c.r+1))fallback=[c.id,top(q).id];
+      for(let k=i;k<p.length;k++){
+        const c=p[k],under=k>0?p[k-1]:null,reveals=!!(under&&!under.up),lose=link(under,c);
+        for(let t=0;t<10;t++){
+          if(t===f)continue;const q=st.tab[t];
+          let gain;
+          // While the deck has cards every column has to be filled before dealing, so an empty column only
+          // counts as progress once the deck is used up, and hints never empty one before that.
+          const dealing=st.stock.length>0;
+          if(!q.length){if(k===0)continue;gain=(reveals?1000:0)-(dealing?0:50)-lose;}
+          else{if(top(q).r!==c.r+1||(k===0&&dealing))continue;gain=(reveals?1000:0)+(k===0?50:0)+link(top(q),c)-lose;}
+          if(gain<=0&&!(allowEmpty&&!q.length))continue;
+          const score=gain*100+(p.length-k);
+          if(!best||score>best.score)best={score,c,q,t};
         }
       }
     }
-    if(fallback)return table.hint(fallback);
-    if(st.stock.length){table.hint([top(st.stock).id]);return sh.toast(st.tab.some(p=>!p.length)?'Move a card into the empty column, then deal.':'Deal a new row from the deck.');}
-    sh.toast('No moves left. Try Undo or a new game.');
+    return best;
+  }
+  function hint(){
+    if(!st||st.status!=='playing'||table.busy()||finishing)return;
+    const b=bestMove(false);
+    if(b)return table.hint([b.c.id,b.q.length?top(b.q).id:'t'+b.t]);
+    if(st.stock.length){
+      if(st.tab.some(p=>!p.length)){
+        const e=bestMove(true);
+        if(e){table.hint([e.c.id,'t'+e.t]);return sh.toast('Every column needs a card before you can deal.');}
+      }
+      table.hint([top(st.stock).id]);return sh.toast('No useful moves on the table. Deal a new row.');
+    }
+    sh.toast('No more useful moves. Undo a few moves, or Resign.');
+  }
+  // Resign: the game counts as a loss and every hidden card turns over.
+  function resign(){
+    if(!st||st.status!=='playing')return;
+    stopFinish();
+    clock.run(false);st.elapsed=clock.ms();
+    core.log.add({t:Date.now(),m:String(st.suits),r:'resigned',s:Math.round(st.elapsed/1000),p:st.score,mv:st.moves});
+    st.status='lost';A.lsSet(KEY,null);
+    st.tab.forEach(p=>p.forEach(c=>{c.up=true;}));
+    render();
+    const game=st;
+    setTimeout(()=>{if(st===game&&core.onScreen(true))core.showSheet(`<div class="lede"><h2>Game over</h2><p>You resigned · ${st.suits} ${st.suits===1?'suit':'suits'} · ${A.fmt(st.elapsed/1000)} · ${A.plural(st.moves,'move')}</p></div>
+      ${core.miniStats(String(st.suits))}
+      <div class="btn-col"><button type="button" class="btn primary" data-pg="again">New game</button><button type="button" class="btn" data-pg="view">Look at the table</button><button type="button" class="btn" data-pg="home">Spider home</button></div>`,true);},700);
   }
   function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,300);}
   function saveNow(){clearTimeout(saveT);if(st&&st.status==='playing'){st.elapsed=clock.ms();A.lsSet(KEY,st);}}
@@ -2272,13 +2661,14 @@ function Game(def){
     sh.title(`Spider · ${st.suits} ${st.suits===1?'suit':'suits'}`);
     renderMeta();
     sh.tool('undo').disabled=st.status!=='playing'||!undo.length;
-    sh.tool('hint').disabled=st.status!=='playing';
-    const dl=sh.tool('deal');dl.disabled=st.status!=='playing'||!st.stock.length;
+    sh.tool('hint').disabled=st.status!=='playing'||finishing;
+    sh.tool('resign').disabled=st.status!=='playing'||finishing;
+    const dl=sh.tool('deal');dl.disabled=st.status!=='playing'||!st.stock.length||finishing;
     dl.querySelector('span').textContent=st.stock.length?`Deal · ${st.stock.length/10}`:'Deal';
     table.render(opts);
   }
   function layout(W,H){
-    const g=Math.max(2,Math.round(W*0.008)),cw=Math.floor((W-g*9)/10),ch=Math.round(cw*1.45);
+    const g=Math.max(2,Math.round(W*0.008)),cw=spiderCw(W),ch=Math.round(cw*CARD_RATIO);
     const X=i=>i*(cw+g),slots=[],cards=[];
     const n=st.stock.length,deals=Math.ceil(n/10),so=Math.max(3,Math.round(cw*0.24));
     const stockX=X(9)-(Math.max(deals,1)-1)*so;
@@ -2314,9 +2704,12 @@ function Game(def){
     logKey:'pocket-games.spider.log',legacy:{suits:'pocket-games.spider.stats'},
     modes:[['1','1 suit','Relaxed, all spades'],['2','2 suits','Spades and hearts'],['4','4 suits','The full challenge']],
     longName:m=>m==='1'?'1 suit':m==='2'?'2 suits':m==='4'?'4 suits':'Spider',
-    detail:e=>e.r==='won'?`${num(e.p||0)} points`:'Left unfinished',
+    detail:e=>e.r==='won'?`${num(e.p||0)} points`:e.r==='resigned'?'Resigned':'Left unfinished',
     blurb:'Build runs from King down to Ace in one suit to clear them. Clear all 8 to win.',go:'Deal',
-    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('deal','Deal',ICON.deal)+toolBtn('stats','Stats',ICON.stats),
+    tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('deal','Deal',ICON.deal)+toolBtn('resign','Resign',ICON.resign)+toolBtn('stats','Stats',ICON.stats),
+    optionsHTML:()=>optionsHTML([{k:'auto',on:optOn(OPT_AUTO,true),label:'Auto-finish',sub:'Plays the last moves for you once the deck is used up, every card is face up, and the game can be won'}]),
+    toggleOpt(){A.lsSet(OPT_AUTO,!optOn(OPT_AUTO,true));triedAt=-1;},
+    resign,
     rules:`<ul>
       <li>Clear all eight runs to win. A run is King down to Ace in one suit, and it leaves the table on its own.</li>
       <li>Put any card on a card one rank higher, in any suit. Only cards of the same suit, in order, move together.</li>
@@ -2332,6 +2725,7 @@ function Game(def){
       table=Table(sh.area,{
         layout,dropRects,canPick,targets,
         dealFrom:()=>{const L=layout.last;return{x:L.X(9),y:0};},
+        big:bigCards,
         bottomSpace:()=>sh.tools.offsetHeight+30,
         tap:(pile,idx)=>{if(pile==='stock')return dealRow();if(canPick(pile,idx))autoMove(pile,idx);},
         tapSlot:id=>{if(id==='stock')dealRow();},
@@ -2354,7 +2748,7 @@ function Game(def){
         return `<button type="button" class="gmode" data-gh="new" data-mode="${m}">${suitIcons(+m)}<span class="gm-t"><b>${l}</b><small>${sub}</small></span><span class="gm-best">${meta}</span></button>`;}).join('')}</div>`;
     },
     start(mode){
-      table.stopCascade();partying=false;
+      table.stopCascade();partying=false;stopFinish();
       const n=mode==='4'?4:mode==='2'?2:1;
       st=deal(n);undo=[];clock.set(0);A.lsSet(SUITS,n);
       table.regather();saveNow();
@@ -2362,7 +2756,7 @@ function Game(def){
     },
     abandon(){core.log.add({t:Date.now(),m:String(st.suits),r:'left',s:Math.round(clock.ms()/1000),p:st.score,mv:st.moves});},
     action(act){
-      if(act==='undo'){if(undo.length&&st&&st.status==='playing'&&!table.busy()){const score=st.score;st=undo.pop();st.score=Math.max(0,Math.min(st.score,score)-1);st.moves++;save();render();}return;}
+      if(act==='undo'){if(undo.length&&st&&st.status==='playing'&&!table.busy()){stopFinish();triedAt=st.moves+1;const score=st.score;st=undo.pop();st.score=Math.max(0,Math.min(st.score,score)-1);st.moves++;save();render();}return;}
       if(act==='hint')return hint();
       if(act==='deal')return dealRow();
     },
@@ -2371,8 +2765,8 @@ function Game(def){
       const s=core.log.stats('all',0);return{line:s.won?`${A.plural(s.won,'win')} · best ${s.bestScore!=null?num(s.bestScore):'—'}`:'1, 2 or 4 suits'};
     },
     render,playing,tick:()=>{clock.run(playing());renderMeta();},
-    pause(){saveNow();clock.run(false);table.stopCascade();},
-    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});}}
+    pause(){saveNow();clock.run(false);table.stopCascade();stopFinish();},
+    debug:{get:()=>st,set:x=>{st=x;undo=[];table.reset();render({instant:true});maybeFinish();}}
   });
 })();
 
@@ -2628,8 +3022,8 @@ window.PCGamesInit=function(api){
 (function(){
 'use strict';
 
-const APP_VERSION='2.2';
-const LS_NEWS='pocket-games.news.2.2';
+const APP_VERSION='2.3';
+const LS_NEWS='pocket-games.news.2.3';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
@@ -3654,7 +4048,7 @@ function renderHub(){
       <span class="gt"><b>${it.name}</b><small>${esc(it.line)}</small></span>
     </button>`).join(''));
   let seen=false;try{seen=!!localStorage.getItem(LS_NEWS);}catch(e){}
-  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.2</b><p>Solitaire and Spider run much smoother. Cards glide without stutter, deals and draws are quicker, and every quick tap on the deck now counts.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
+  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.3</b><p>Every Solitaire deal can now be won, and hints show a winning move or tell you when none is left. Solitaire's deck and cards now match Spider's. Both card games have Resign, and Spider finishes itself once it's solved.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
   $('hubVersion').textContent='Version '+APP_VERSION;
 }
 

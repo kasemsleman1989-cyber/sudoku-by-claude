@@ -1184,7 +1184,9 @@ function PCSolver(){
     return{res:aborted?'unknown':'lost',nodes};
   }
   // A shuffled deck (cards in the order they are dealt from the end), checked to be winnable.
-  function shuffled(){const d=[];for(let c=0;c<52;c++)d.push(c);for(let i=51;i>0;i--){const j=(Math.random()*(i+1))|0;const t=d[i];d[i]=d[j];d[j]=t;}return d;}
+  const cr=(typeof crypto!=='undefined'&&crypto.getRandomValues)?crypto:null,rb=new Uint32Array(1);
+  const randInt=n=>{if(!cr)return (Math.random()*n)|0;const lim=Math.floor(4294967296/n)*n;let x;do{cr.getRandomValues(rb);x=rb[0];}while(x>=lim);return x%n;};
+  function shuffled(){const d=[];for(let c=0;c<52;c++)d.push(c);for(let i=51;i>0;i--){const j=randInt(i+1);const t=d[i];d[i]=d[j];d[j]=t;}return d;}
   function dealState(deck){
     const d=deck.slice(),down=[],up=[];
     for(let t=0;t<7;t++){down.push([]);up.push([]);for(let k=0;k<=t;k++){const c=d.pop();if(k===t)up[t].push(c);else down[t].push(c);}}
@@ -1200,51 +1202,115 @@ function PCSolver(){
   }
 
   /* ---------- Spider endgame: every card face up and the deck used up ----------
-     cols: arrays of cards, bottom first. Returns the moves [{a,i,b}] that clear the table, or null. */
-  function sSolve(cols0,budget){
-    const cols=cols0.map(c=>c.slice());let nodes=0,aborted=false;
-    const seen=new Set(),path=[];
-    const tail=a=>{const c=cols[a];let i=c.length-1;while(i>0&&SU(c[i-1])===SU(c[i])&&RK(c[i-1])===RK(c[i])+1)i--;return i;};
-    function clear(b){
-      const c=cols[b];if(c.length<13)return null;
-      const s=SU(c[c.length-1]);
-      for(let k=0;k<13;k++){const x=c[c.length-13+k];if(SU(x)!==s||RK(x)!==13-k)return null;}
-      return c.splice(c.length-13);
-    }
-    const key=()=>cols.map(c=>c.join('.')).sort().join('|');
-    function dfs(){
-      if(cols.every(c=>!c.length))return true;
-      if(++nodes>budget){aborted=true;return false;}
-      const k=key();if(seen.has(k))return false;seen.add(k);
-      const empty=cols.findIndex(c=>!c.length),moves=[];
-      for(let a=0;a<cols.length;a++){
-        const c=cols[a];if(!c.length)continue;
-        const ts=tail(a);
-        for(let i=ts;i<c.length;i++){
-          const h=c[i];
-          for(let b=0;b<cols.length;b++){
-            if(b===a)continue;const d=cols[b];
-            if(!d.length){if(i===0||b!==empty)continue;moves.push({a,i,b,w:1});continue;}
-            const t=d[d.length-1];if(RK(t)!==RK(h)+1)continue;
-            const suited=SU(t)===SU(h);
-            if(i>ts&&!suited)continue;                                               // would break a same-suit run for nothing
-            if(i===ts&&ts>0&&RK(c[ts-1])===RK(h)+1&&!suited)continue;               // same kind of link either way
-            moves.push({a,i,b,w:(suited?4:1)+(i===0?2:0)+(c.length-i)/13});
-          }
+     cols: arrays of cards, bottom first. Returns the moves [{a,i,b}] that clear the table, or null.
+     Best-first search (weighted A*): it always looks next at the position that looks closest to a win,
+     counting the moves made so far, so the answer is a short, direct route rather than the first one a
+     depth-first search stumbles on. Distance to a win is estimated from the same-suit pieces still to join,
+     the pieces buried under others and the out-of-sequence links. The route is then trimmed of any move
+     the win doesn't need. */
+  const sClear=c=>{
+    if(c.length<13)return false;
+    const s=SU(c[c.length-1]);
+    for(let k=0;k<13;k++){const x=c[c.length-13+k];if(SU(x)!==s||RK(x)!==13-k)return false;}
+    c.splice(c.length-13);return true;
+  };
+  const sTail=c=>{let i=c.length-1;while(i>0&&SU(c[i-1])===SU(c[i])&&RK(c[i-1])===RK(c[i])+1)i--;return i;};
+  function sMoves(cols){
+    const out=[],empty=cols.findIndex(c=>!c.length);
+    for(let a=0;a<cols.length;a++){
+      const c=cols[a];if(!c.length)continue;
+      const ts=sTail(c);
+      for(let i=ts;i<c.length;i++){
+        const h=c[i];
+        for(let b=0;b<cols.length;b++){
+          if(b===a)continue;const d=cols[b];
+          if(!d.length){if(i===0||b!==empty)continue;out.push({a,i,b});continue;}
+          const t=d[d.length-1];if(RK(t)!==RK(h)+1)continue;
+          const suited=SU(t)===SU(h);
+          if(i>ts&&!suited)continue;                                     // would break a same-suit run for nothing
+          if(i===ts&&ts>0&&RK(c[ts-1])===RK(h)+1&&!suited)continue;     // the same kind of link either way
+          out.push({a,i,b});
         }
       }
-      moves.sort((x,y)=>y.w-x.w);
-      for(const m of moves){
-        const run=cols[m.a].splice(m.i);for(const x of run)cols[m.b].push(x);
-        const cl=clear(m.b);path.push({a:m.a,i:m.i,b:m.b});
-        if(dfs())return true;
-        path.pop();if(cl)for(const x of cl)cols[m.b].push(x);
-        cols[m.b].splice(cols[m.b].length-run.length);for(const x of run)cols[m.a].push(x);
-        if(aborted)break;
-      }
-      return false;
     }
-    return dfs()?path:null;
+    return out;
+  }
+  function sPieces(cols){
+    // joins still needed, plus pieces buried under other pieces (each of those has to move first),
+    // plus links that aren't even in sequence (those always need sorting out)
+    let seg=0,cards=0,bur=0,bad=0;
+    for(const c of cols){
+      cards+=c.length;let k0=0;
+      for(let k=0;k<c.length;k++)if(k===0||SU(c[k-1])!==SU(c[k])||RK(c[k-1])!==RK(c[k])+1){seg++;k0++;if(k>0&&RK(c[k-1])!==RK(c[k])+1)bad++;}
+      if(k0>1)bur+=k0-1;
+    }
+    return (seg-cards/13)+0.4*bur+0.3*bad;
+  }
+  // Replays a route; returns true if every move is legal and the table ends up cleared.
+  function sCheck(cols0,path){
+    const cols=cols0.map(c=>c.slice());
+    for(const m of path){
+      const c=cols[m.a];if(!c||m.i<0||m.i>=c.length||m.a===m.b)return false;
+      for(let k=m.i+1;k<c.length;k++)if(SU(c[k])!==SU(c[k-1])||RK(c[k])!==RK(c[k-1])-1)return false;
+      const d=cols[m.b];if(d.length&&RK(d[d.length-1])!==RK(c[m.i])+1)return false;
+      for(const x of c.splice(m.i))d.push(x);
+      sClear(d);
+    }
+    return cols.every(c=>!c.length);
+  }
+  // Drops moves the win doesn't need: a move is removed when the rest of the route still wins without it.
+  function sTrim(cols0,path){
+    let p=path.slice();
+    for(let k=0;k<p.length;k++){
+      const q=p.slice(0,k).concat(p.slice(k+1));
+      if(sCheck(cols0,q)){p=q;k--;}
+    }
+    return p;
+  }
+  // Tries a careful search first (shortest routes), then greedier ones that look further ahead for less effort.
+  function sSolve(cols0,budget){
+    const start=cols0.map(c=>c.slice());
+    if(start.every(c=>!c.length))return [];
+    const per=Math.max(500,Math.floor((budget||12000)/3));
+    for(const W of [1.5,3,8]){const r=sSearch(start,W,per);if(r)return sTrim(start,r);}
+    return null;
+  }
+  function sSearch(start,W,budget){
+    const enc=cols=>cols.map(c=>c.join('.')).join('|');
+    const canon=cols=>cols.map(c=>c.join('.')).sort().join('|');
+    const dec=k=>k.split('|').map(x=>x?x.split('.').map(Number):[]);
+    // binary heap of [f, g, node]
+    const heap=[];
+    const push=e=>{heap.push(e);let i=heap.length-1;while(i>0){const p=(i-1)>>1;if(heap[p][0]<=e[0])break;heap[i]=heap[p];i=p;}heap[i]=e;};
+    const pop=()=>{const top=heap[0],last=heap.pop();if(heap.length){let i=0;const n=heap.length;for(;;){let l=2*i+1,r=l+1,m=i;if(l<n&&heap[l][0]<heap[m][0])m=l;if(r<n&&heap[r][0]<heap[m][0])m=r;if(m===i)break;heap[i]=heap[m];i=m;}heap[i]=last;}return top;};
+    const nodes=[{k:enc(start),g:0,parent:-1,move:null}];
+    const best=new Map([[canon(start),0]]);
+    push([W*sPieces(start),0,0]);
+    let expanded=0,goal=-1;
+    while(heap.length){
+      const [,g,id]=pop();
+      const node=nodes[id];
+      if(node.g<g)continue;
+      if(++expanded>budget)break;
+      const cols=dec(node.k);
+      for(const m of sMoves(cols)){
+        const next=cols.map(c=>c.slice());
+        for(const x of next[m.a].splice(m.i))next[m.b].push(x);
+        sClear(next[m.b]);
+        const ng=g+1,ck=canon(next);
+        if(best.has(ck)&&best.get(ck)<=ng)continue;
+        best.set(ck,ng);
+        const nid=nodes.length;
+        nodes.push({k:enc(next),g:ng,parent:id,move:m});
+        if(next.every(c=>!c.length)){goal=nid;break;}
+        push([ng+W*sPieces(next),ng,nid]);
+      }
+      if(goal>=0)break;
+    }
+    if(goal<0)return null;
+    const path=[];
+    for(let id=goal;nodes[id].parent>=0;id=nodes[id].parent)path.push(nodes[id].move);
+    return path.reverse();
   }
   return{kSolve,kDeal,dealState,sSolve};
 }
@@ -1263,7 +1329,18 @@ const SUIT_NAME=['spades','hearts','diamonds','clubs'];
 const RED=s=>s===1||s===2;
 const RANK=['','A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RANK_NAME=['','Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','King'];
-const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;};
+// Standard shuffle: Fisher–Yates over the whole deck, drawing from the device's cryptographic random source
+// (rejection sampling keeps every order equally likely). Falls back to Math.random without it.
+const randInt=(()=>{
+  const cr=(typeof crypto!=='undefined'&&crypto.getRandomValues)?crypto:null,buf=new Uint32Array(64);let k=64;
+  return n=>{
+    if(!cr)return (Math.random()*n)|0;
+    const lim=Math.floor(4294967296/n)*n;let x;
+    do{if(k>=64){cr.getRandomValues(buf);k=0;}x=buf[k++];}while(x>=lim);
+    return x%n;
+  };
+})();
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=randInt(i+1);const t=a[i];a[i]=a[j];a[j]=t;}return a;};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 // Number and date formatters are built once: toLocaleString() builds a new one on every call, which is slow.
@@ -2387,9 +2464,9 @@ function Game(def){
     blurb:'Build four piles from Ace to King, one per suit.',go:'Deal',
     tools:toolBtn('undo','Undo',ICON.undo)+toolBtn('hint','Hint',ICON.hint)+toolBtn('resign','Resign',ICON.resign)+toolBtn('stats','Stats',ICON.stats),
     optionsHTML:()=>optionsHTML([
-      {k:'win',on:optOn(OPT_WIN,true),label:'Winnable deals',sub:'Every deal is checked to have a way to win'},
+      {k:'win',on:optOn(OPT_WIN,false),label:'Winnable deals',sub:'Only deals the solver wins quickly, so games are easier than standard'},
       {k:'auto',on:optOn(OPT_AUTO,true),label:'Auto-finish',sub:'Sends the last cards home once every card is face up'}]),
-    toggleOpt(k){const key=k==='win'?OPT_WIN:OPT_AUTO;A.lsSet(key,!optOn(key,true));if(k==='win'&&optOn(OPT_WIN,true)){stockUp(1);stockUp(3);}},
+    toggleOpt(k){const key=k==='win'?OPT_WIN:OPT_AUTO,dflt=k!=='win';A.lsSet(key,!optOn(key,dflt));if(k==='win'&&optOn(OPT_WIN,false)){stockUp(1);stockUp(3);}},
     resign,
     rules:`<ul>
       <li>Build four foundation piles, one for each suit, from Ace up to King.</li>
@@ -2415,11 +2492,13 @@ function Game(def){
       });
       const saved=A.lsGet(KEY);
       if(saved&&saved.tab&&saved.status==='playing'){st=saved;clock.set(saved.elapsed);}
+      // 2.4 goes back to standard random deals: switch Winnable deals off once and drop the stored deals
+      if(!A.lsGet('pocket-games.klondike.std24')){A.lsSet(OPT_WIN,false);A.lsSet(DEALS,{});deals=null;A.lsSet('pocket-games.klondike.std24',1);}
     },
     inProgress,hasGame:()=>!!(st&&st.status==='playing'),mode:curMode,
     prebuild(){
       const cs=[];for(let s=0;s<4;s++)for(let r=1;r<=13;r++)cs.push({id:'k'+s+'-'+r,s,r});table.prebuild(cs);
-      if(optOn(OPT_WIN,true)){const d=+curMode();stockUp(d);setTimeout(()=>stockUp(d===1?3:1),4000);}
+      if(optOn(OPT_WIN,false)){const d=+curMode();stockUp(d);setTimeout(()=>stockUp(d===1?3:1),4000);}
     },
     resume(){
       const home=st.found.reduce((a,p)=>a+p.length,0);
@@ -2441,9 +2520,9 @@ function Game(def){
         st=deal(d,nums);st.winnable=!!winnable;undo=[];clock.set(0);
         table.regather();saveNow();
         render({from:true,delays:dealDelays(),flipLag:110});
-        if(optOn(OPT_WIN,true))stockUp(d);
+        if(optOn(OPT_WIN,false))stockUp(d);
       };
-      if(!optOn(OPT_WIN,true))return begin(null,false);
+      if(!optOn(OPT_WIN,false))return begin(null,false);   // standard: a fresh random shuffle
       const ready=dealStore()[String(d)];
       if(ready.length){const nums=ready.shift();A.lsSet(DEALS,deals);return begin(nums,true);}
       // nothing ready yet (the very first game): find one now, usually well under a second
@@ -2553,13 +2632,19 @@ function Game(def){
   }
   // Auto-finish: once the deck is used up and every card is face up, the solver checks the game can be
   // finished and plays the remaining moves.
+  let thinking=false;
   function maybeFinish(){
-    if(finishing||!st||st.status!=='playing'||st.stock.length||!optOn(OPT_AUTO,true)||triedAt===st.moves)return;
+    if(finishing||thinking||!st||st.status!=='playing'||st.stock.length||!optOn(OPT_AUTO,true)||triedAt===st.moves)return;
     if(st.tab.some(p=>p.some(c=>!c.up)))return;
-    const game=st,moves=st.moves;triedAt=moves;finishing=true;
-    SV.ask({op:'sSolve',cols:st.tab.map(p=>p.map(cardNum)),budget:80000},15000,6000).then(path=>{
-      if(st!==game||st.moves!==moves||st.status!=='playing'||!path||!path.length||!core.onScreen(true)){finishing=false;return;}
-      sh.toast('Solved! Finishing it for you…');
+    // The table stays playable while the solver thinks; it takes over only once it has a route to the win.
+    const game=st,moves=st.moves;triedAt=moves;thinking=true;
+    SV.ask({op:'sSolve',cols:st.tab.map(p=>p.map(cardNum)),budget:6000},2000,15000).then(path=>{
+      thinking=false;
+      if(st!==game||st.status!=='playing')return;
+      if(st.moves!==moves)return maybeFinish();          // a move was made meanwhile: look at the new position
+      if(!path||!path.length||!core.onScreen(true))return;
+      finishing=true;render();
+      sh.toast(`Solved! Finishing it for you in ${A.plural(path.length,'move')}…`);
       let k=0;
       const step=()=>{
         finT=0;
@@ -2567,7 +2652,7 @@ function Game(def){
         const m=path[k++];
         if(!m){finishing=false;render();return;}
         if(!move('t'+m.a,m.i,'t'+m.b,true)){finishing=false;render();return;}
-        if(st.status==='playing')finT=setTimeout(step,200);else finishing=false;
+        if(st.status==='playing')finT=setTimeout(step,220);else finishing=false;
       };
       finT=setTimeout(step,450);
     });
@@ -3022,8 +3107,8 @@ window.PCGamesInit=function(api){
 (function(){
 'use strict';
 
-const APP_VERSION='2.3';
-const LS_NEWS='pocket-games.news.2.3';
+const APP_VERSION='2.4';
+const LS_NEWS='pocket-games.news.2.4';
 const CORE=makeGen(), GEO=CORE.GEO;
 const DIFFS=[['easy','Easy'],['medium','Medium'],['hard','Hard'],['expert','Expert'],['extreme','Extreme'],['fast','Fast']];
 const LABEL={easy:'Easy',medium:'Medium',hard:'Hard',expert:'Expert',extreme:'Extreme',fast:'Fast',kids9:'Kids 9×9',kids6:'Kids 6×6'};
@@ -4048,7 +4133,7 @@ function renderHub(){
       <span class="gt"><b>${it.name}</b><small>${esc(it.line)}</small></span>
     </button>`).join(''));
   let seen=false;try{seen=!!localStorage.getItem(LS_NEWS);}catch(e){}
-  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.3</b><p>Every Solitaire deal can now be won, and hints show a winning move or tell you when none is left. Solitaire's deck and cards now match Spider's. Both card games have Resign, and Spider finishes itself once it's solved.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
+  setHTML($('hubNews'),seen?'':`<div class="news"><b>New in Pocket Games 2.4</b><p>Solitaire is back to standard, fully random shuffles, so games are as hard as the real thing (Winnable deals is still in the game's options if you want easier deals). Spider's auto-finish now goes straight to the solution.</p><button type="button" class="link" data-action="news-ok">Got it</button></div>`);
   $('hubVersion').textContent='Version '+APP_VERSION;
 }
 

@@ -2,7 +2,7 @@
 
 Four classic games in one app for Android phones and tablets: Sudoku, Solitaire, Spider Solitaire and Minesweeper. Works offline.
 
-**Current version: 2.3**
+**Current version: 2.4**
 
 ## Games
 
@@ -14,7 +14,7 @@ Four classic games in one app for Android phones and tablets: Sudoku, Solitaire,
 
 **Solitaire (Klondike)**
 - Draw 1 or Draw 3, unlimited passes through the stock; build down in alternating colours; only Kings fill empty columns
-- Winnable deals (on by default): a solver checks every deal has a way to win before it's dealt; hints follow a winning line
+- Standard random shuffles, so the odds match real Klondike. Optional Winnable deals (off by default) only deals games the solver wins quickly, for easier play; hints follow a winning line
 - Tap a card to send it to the best spot, or drag it; undo, hints, and auto-finish once every card is face up
 - Standard scoring: +10 to a foundation, +5 waste to column, +5 for turning a card, −15 foundation to column, time bonus of 700,000 ÷ seconds
 
@@ -34,6 +34,12 @@ Each game has its own home page, like Sudoku: continue a game in progress, pick 
 Open https://kasemsleman1989-cyber.github.io/sudoku-by-claude/ in Chrome on Android, then tap **Install app** (or menu ⋮ → **Add to Home screen**).
 
 ## Changes
+
+### 2.4
+- Solitaire is back to standard deals: Winnable deals is now off by default (and switched off once for everyone who had it on from 2.3), so every game is a fresh, fully random shuffle with the normal odds. Winnable deals is still under Options on Solitaire's home page for easier games
+- Every shuffle (Solitaire, Spider) is an unbiased Fisher–Yates shuffle drawn from the device's cryptographic random source, so every order of the deck is equally likely. Checked with a chi-square test over 200,000 shuffles, and about 79–82% of Draw 1 deals are winnable with perfect play, in line with published research (Blake & Gent 2019: 81.96%)
+- Spider auto-finish goes straight to the solution: the endgame solver now searches for the shortest route instead of the first one it finds, so it no longer plays hundreds of moves round in circles. A typical endgame now finishes in about 12 moves (the most tangled test endgames took about 30), and the route is worked out in a second or two
+- The rest of the game is unchanged
 
 ### 2.3
 - Solitaire: Winnable deals, on by default. A built-in solver checks each deal can be won before it is dealt, and keeps two ready for each mode so new games start instantly. Checked on random deals: 82% of Draw 1 deals are winnable with perfect play, matching published research, so the shuffle and rules were fair; the low win rate came from unwinnable deals and the hidden cards

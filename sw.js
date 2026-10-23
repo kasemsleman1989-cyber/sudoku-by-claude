@@ -1,5 +1,5 @@
 // Pocket Games offline support. The version changes whenever the app files change.
-const VERSION = 'pocket-games-2.3-4facc96b';
+const VERSION = 'pocket-games-2.4-246f631c';
 const ASSETS = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "fonts/figtree-400.woff2", "fonts/figtree-500.woff2", "fonts/figtree-600.woff2", "fonts/figtree-700.woff2", "fonts/instrument-serif-400.woff2"];
 
 self.addEventListener('install', event => {
